@@ -6,8 +6,7 @@ use Dintero\Hp\Model\Dintero;
 use Magento\Framework\Option\ArrayInterface;
 
 /**
- * Authorize.net Payment Action Dropdown source
- * @deprecated 100.3.1 Authorize.net is removing all support for this payment method
+ * Dintero Payment Action Dropdown source
  */
 class PaymentAction implements ArrayInterface
 {

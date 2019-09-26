@@ -370,7 +370,6 @@ class Dintero extends AbstractMethod
      * Get psr logger.
      *
      * @return \Psr\Log\LoggerInterface
-     * @deprecated 100.1.0
      */
     private function getPsrLogger()
     {
@@ -382,7 +381,7 @@ class Dintero extends AbstractMethod
     }
 
     /**
-     * Fill payment with credit card data from response from Authorize.net.
+     * Fill payment with credit card data from response from Dintero.
      *
      * @param \Magento\Framework\DataObject $payment
      * @return void
