@@ -61,6 +61,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'success'           => 0,
                     'enabled'           => $this->configHelper->isActive($store),
                     'placeOrderUrl'     => $this->configHelper->getPlaceOrderUrl(),
+                    'logoUrl'           => $this->configHelper->getCheckoutLogoUrl(),
                     'available_methods' => [
                         'type'      => 'dintero',
                         'component' => 'Dintero_Hp/js/view/payment/method-renderer/dintero'

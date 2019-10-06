@@ -2,6 +2,7 @@
 
 namespace Dintero\Hp\Helper;
 
+use Dintero\Hp\Model\Api\Client;
 use Dintero\Hp\Model\Dintero;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -52,9 +53,29 @@ class Config extends AbstractHelper
     const XPATH_PAYMENT_ACTION = 'payment/dintero/payment_action';
 
     /*
-     * Precision XPATH
+     * Logo Type
      */
-    const XPATH_PRECISION = 'payment/dintero/precision';
+    const XPATH_LOGO_TYPE = 'payment/dintero/logo_type';
+
+    /*
+     * Logo Color
+     */
+    const XPATH_LOGO_COLOR = 'payment/dintero/logo_color';
+
+    /*
+     * Logo width in pixels
+     */
+    const XPATH_LOGO_WIDTH = 'payment/dintero/logo_width';
+
+    /*
+     * Default logo width
+     */
+    const DEFAULT_LOGO_WIDTH = 500;
+
+    /*
+     * Default logo color
+     */
+    const DEFAULT_LOGO_COLOR = '#c4c4c4';
 
     /**
      * Encryptor object used to encrypt/decrypt sensitive data
@@ -205,5 +226,77 @@ class Config extends AbstractHelper
     public function getInvoiceCallBackUrl(Invoice $invoice)
     {
         return $this->_getUrl('dintero/invoice/response', ['invoice_id' => $invoice->getId()]);
+    }
+
+    /**
+     * Retrieving logo type
+     *
+     * @return string
+     */
+    public function getLogoType()
+    {
+        return $this->scopeConfig->isSetFlag(self::XPATH_LOGO_TYPE) ? 'mono' : 'colors';
+    }
+
+    /**
+     * Retrieving logo color
+     *
+     * @return string
+     */
+    public function getLogoColor()
+    {
+        $value = $this->scopeConfig->getValue(self::XPATH_LOGO_COLOR);
+        return $value ?: self::DEFAULT_LOGO_COLOR;
+    }
+
+    /**
+     * Retrieving logo width
+     *
+     * @return int
+     */
+    public function getLogoWidth()
+    {
+        $value = $this->scopeConfig->getValue(self::XPATH_LOGO_WIDTH);
+        return $value ?: self::DEFAULT_LOGO_WIDTH;
+    }
+
+    /**
+     * Retrieving footer logo url
+     *
+     * @return string
+     */
+    public function getFooterLogoUrl()
+    {
+        $baseUrl = Client::CHECKOUT_API_BASE_URL;
+        $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_instabank/'
+            . 'variant/%s/colors/color/%s/width/%d/dintero_left_frame.svg';
+
+        if ($this->scopeConfig->isSetFlag(self::XPATH_LOGO_TYPE)) {
+            $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_instabank/'
+                . 'variant/%s/color/%s/width/%d/dintero_left_frame.svg';
+        }
+
+        return sprintf($pattern, $baseUrl, $this->getLogoType(), str_replace('#', '', $this->getLogoColor()), $this->getLogoWidth());
+    }
+
+    /**
+     * Retrieving checkout logo url
+     *
+     * @return string
+     */
+    public function getCheckoutLogoUrl()
+    {
+        $baseUrl = Client::CHECKOUT_API_BASE_URL;
+        $pattern = '%s/branding/profiles/%s/'
+            . 'variant/%s/color/%s/width/%d/dintero_left_frame.svg';
+
+        return sprintf(
+            $pattern,
+            $baseUrl,
+            $this->getProfileId(),
+            $this->getLogoType(),
+            str_replace('#', '', $this->getLogoColor()),
+            $this->getLogoWidth()
+        );
     }
 }

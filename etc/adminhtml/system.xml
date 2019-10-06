@@ -34,6 +34,21 @@
                     <label>Payment Action</label>
                     <source_model>Dintero\Hp\Model\Source\PaymentAction</source_model>
                 </field>
+                <field id="logo_type" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Is logo type mono?</label>
+                    <comment><![CDATA[Logo type]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="logo_color" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Color</label>
+                    <frontend_model>Dintero\Hp\Block\Form\Element\ColorPicker</frontend_model>
+                    <comment><![CDATA[Logo color]]></comment>
+                </field>
+                <field id="logo_width" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Logo Width</label>
+                    <comment><![CDATA[Logo width in pixels]]></comment>
+                    <validate>validate-number</validate>
+                </field>
             </group>
         </section>
     </system>

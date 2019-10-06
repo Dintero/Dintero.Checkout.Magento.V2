@@ -322,6 +322,10 @@ class Dintero extends AbstractMethod
      */
     protected function checkTransaction($order)
     {
+        if (!$order->canInvoice()) {
+            throw new \Exception('Cannot invoice the transaction');
+        }
+
         if (!$this->getResponse()->getId() ||
             $order->getIncrementId() !== $this->getResponse()->getMerchantReference()) {
             throw new \Exception('Invalid transaction or merchant reference');

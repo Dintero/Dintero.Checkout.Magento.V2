@@ -6,11 +6,12 @@
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
             <span>
-                <div style="float:right"><img width="150" data-bind="attr: {'src': getLogoUrl()}"></div><span data-bind="html: getTitle()"></span>
+                <span data-bind="html: getTitle()"></span>
             </span>
         </label>
     </div>
     <div class="payment-method-content">
+        <img data-bind="attr: {'src': getLogoUrl()}, 'alt': getTitle(), 'title': getTitle()">
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
