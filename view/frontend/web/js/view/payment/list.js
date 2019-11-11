@@ -11,7 +11,7 @@ define(
         rendererList.push(
             {
                 type: 'dintero',
-                component: 'Dintero_Hp/js/view/payment/method-renderer/dintero'
+                component: 'Dintero_Checkout/js/view/payment/method-renderer/dintero'
             },
             // other payment method renderers if required
         );

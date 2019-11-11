@@ -1,14 +1,14 @@
 <?php
 
-namespace Dintero\Hp\Model\Source;
+namespace Dintero\Checkout\Model\Source;
 
-use Dintero\Hp\Model\Dintero;
-use Magento\Framework\Option\ArrayInterface;
+use Dintero\Checkout\Model\Dintero;
+use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Dintero Payment Action Dropdown source
  */
-class PaymentAction implements ArrayInterface
+class PaymentAction implements OptionSourceInterface
 {
     /**
      * @inheritdoc

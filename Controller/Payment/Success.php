@@ -1,20 +1,17 @@
 <?php
 
-namespace Dintero\Hp\Controller\Payment;
+namespace Dintero\Checkout\Controller\Payment;
 
-use Dintero\Hp\Model\Api\CLient;
-use Klarna\Core\Model\Order;
+use Dintero\Checkout\Model\Api\CLient;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\OrderFactory;
 
 /**
  * Class Success
  *
- * @package Dintero\Hp\Controller\Payment
+ * @package Dintero\Checkout\Controller\Payment
  */
 class Success extends Action implements HttpGetActionInterface
 {
@@ -52,7 +49,8 @@ class Success extends Action implements HttpGetActionInterface
             return $result->setPath('checkout/onepage/success');
         }
 
-        $order = $this->orderFactory->create()->loadByIncrementId($this->getRequest()->getParam('merchant_reference'));
+        $order = $this->orderFactory->create()
+            ->loadByIncrementId($this->getRequest()->getParam('merchant_reference'));
         if ($order->getId() && $order->canCancel()) {
             $order->getPayment()
                 ->setTransactionId(null)

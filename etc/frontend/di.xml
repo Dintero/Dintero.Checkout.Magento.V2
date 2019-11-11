@@ -4,7 +4,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="checkout_dintero_config" xsi:type="object">Dintero\Hp\Model\ConfigProvider</item>
+                <item name="checkout_dintero_config" xsi:type="object">Dintero\Checkout\Model\ConfigProvider</item>
             </argument>
         </arguments>
     </type>

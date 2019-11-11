@@ -1,7 +1,7 @@
 var config = {
     map: {
         '*': {
-            dinteroLogo: 'Dintero_Hp/js/view/logo'
+            dinteroLogo: 'Dintero_Checkout/js/view/logo'
         }
     }
 };

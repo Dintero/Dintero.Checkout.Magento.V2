@@ -1,11 +1,11 @@
 <?php
 
-namespace Dintero\Hp\Model\Payment;
+namespace Dintero\Checkout\Model\Payment;
 
 /**
  * Class Token
  *
- * @package Dintero\Hp\Model\Payment
+ * @package Dintero\Checkout\Model\Payment
  */
 class Token
 {

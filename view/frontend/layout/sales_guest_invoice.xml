@@ -3,7 +3,7 @@
     <body>
         <referenceBlock name="invoice_items">
             <action method="setTemplate">
-                <argument name="template" xsi:type="string">Dintero_Hp::order/invoice/items.phtml</argument>
+                <argument name="template" xsi:type="string">Dintero_Checkout::order/invoice/items.phtml</argument>
             </action>
         </referenceBlock>
     </body>

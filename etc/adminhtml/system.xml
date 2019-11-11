@@ -3,7 +3,7 @@
     <system>
         <section id="payment" type="text" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
             <group id="dintero" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Dintero HP</label>
+                <label>Dintero Checkout</label>
                 <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -32,7 +32,7 @@
                 </field>
                 <field id="payment_action" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Payment Action</label>
-                    <source_model>Dintero\Hp\Model\Source\PaymentAction</source_model>
+                    <source_model>Dintero\Checkout\Model\Source\PaymentAction</source_model>
                 </field>
                 <field id="logo_type" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Is logo type mono?</label>
@@ -41,7 +41,7 @@
                 </field>
                 <field id="logo_color" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Color</label>
-                    <frontend_model>Dintero\Hp\Block\Form\Element\ColorPicker</frontend_model>
+                    <frontend_model>Dintero\Checkout\Block\Form\Element\ColorPicker</frontend_model>
                     <comment><![CDATA[Logo color]]></comment>
                 </field>
                 <field id="logo_width" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">

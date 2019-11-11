@@ -1,14 +1,14 @@
 <?php
 
-namespace Dintero\Hp\Gateway\Command;
+namespace Dintero\Checkout\Gateway\Command;
 
-use Dintero\Hp\Model\Api\Client;
+use Dintero\Checkout\Model\Api\Client;
 use Magento\Payment\Gateway\CommandInterface;
 
 /**
  * Class CaptureCommand
  *
- * @package Dintero\Hp\Gateway\Command
+ * @package Dintero\Checkout\Gateway\Command
  */
 class AuthorizeCommand implements CommandInterface
 {

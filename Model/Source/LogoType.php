@@ -1,8 +1,8 @@
 <?php
 
-namespace Dintero\Hp\Model\Source;
+namespace Dintero\Checkout\Model\Source;
 
-use Dintero\Hp\Model\Dintero;
+use Dintero\Checkout\Model\Dintero;
 use Magento\Framework\Data\OptionSourceInterface;
 
 /**

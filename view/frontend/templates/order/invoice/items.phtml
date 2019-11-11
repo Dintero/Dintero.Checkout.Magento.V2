@@ -14,7 +14,7 @@
            class="action print">
             <span><?= /* @escapeNotVerified */ __('Print Invoice') ?></span>
         </a>
-        <?php if ($_order->getPayment()->getMethod() == \Dintero\Hp\Model\Dintero::METHOD_CODE && $_invoice->canCapture()): ?>
+        <?php if ($_order->getPayment()->getMethod() == \Dintero\Checkout\Model\Dintero::METHOD_CODE && $_invoice->canCapture()): ?>
         <a class="action primary" href="<?= $block->getUrl('dintero/invoice/pay', ['invoice_id' => $_invoice->getId()]); ?>"><?= __('Pay'); ?></a>
         <?php endif; ?>
     </div>

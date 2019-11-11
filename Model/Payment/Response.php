@@ -1,13 +1,13 @@
 <?php
 
-namespace Dintero\Hp\Model\Payment;
+namespace Dintero\Checkout\Model\Payment;
 
 use Magento\Framework\DataObject;
 
 /**
  * Class Response
  *
- * @package Dintero\Hp\Model\Payment
+ * @package Dintero\Checkout\Model\Payment
  */
 class Response extends DataObject
 {

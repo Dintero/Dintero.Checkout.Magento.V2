@@ -1,9 +1,9 @@
 <?php
 
-namespace Dintero\Hp\Helper;
+namespace Dintero\Checkout\Helper;
 
-use Dintero\Hp\Model\Api\Client;
-use Dintero\Hp\Model\Dintero;
+use Dintero\Checkout\Model\Api\Client;
+use Dintero\Checkout\Model\Dintero;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;

@@ -1,11 +1,11 @@
 <?php
 
-namespace Dintero\Hp\Model;
+namespace Dintero\Checkout\Model;
 
-use Dintero\Hp\Model\Api\Client;
-use Dintero\Hp\Model\Gateway\ResponseFactory;
+use Dintero\Checkout\Model\Api\Client;
+use Dintero\Checkout\Model\Gateway\ResponseFactory;
 
-use Dintero\Hp\Model\Payment\Response;
+use Dintero\Checkout\Model\Payment\Response;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -153,7 +153,7 @@ class Dintero extends AbstractMethod
     /**
      * Response
      *
-     * @var \Dintero\Hp\Model\Gateway\Response $response
+     * @var \Dintero\Checkout\Model\Gateway\Response $response
      */
     protected $response;
 

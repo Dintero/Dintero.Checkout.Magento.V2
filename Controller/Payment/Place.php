@@ -1,8 +1,8 @@
 <?php
 
-namespace Dintero\Hp\Controller\Payment;
+namespace Dintero\Checkout\Controller\Payment;
 
-use Dintero\Hp\Model\Api\Client;
+use Dintero\Checkout\Model\Api\Client;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\App\Action\Action;
@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Class SessionController
  *
- * @package Dintero\Hp\Controller
+ * @package Dintero\Checkout\Controller
  */
 class Place extends Action implements HttpPostActionInterface
 {
@@ -105,7 +105,7 @@ class Place extends Action implements HttpPostActionInterface
             $orderId = $this->cartManagement->placeOrder($this->_getCheckout()->getQuote()->getId());
             $result->setData('success', true);
 
-            $this->_eventManager->dispatch('checkout_dinterohp_placeOrder', [
+            $this->_eventManager->dispatch('checkout_dintero_checkout_placeOrder', [
                 'result' => $result,
                 'action' => $this
             ]);

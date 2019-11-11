@@ -1,5 +1,5 @@
 {
-    "name": "dintero/hp",
+    "name": "dintero/checkout",
     "description": "N/A",
     "config": {
         "sort-packages": true
@@ -24,7 +24,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "Dintero\\Hp\\": ""
+            "Dintero\\Checkout\\": ""
         }
     },
     "version": "1.0.0"

@@ -1,13 +1,13 @@
 <?php
 
-namespace Dintero\Hp\Block\Form\Element;
+namespace Dintero\Checkout\Block\Form\Element;
 
 use Magento\Config\Block\System\Config\Form\Field;
 
 /**
  * Class ColorPicker
  *
- * @package Dintero\Hp\Block
+ * @package Dintero\Checkout\Block
  */
 class ColorPicker extends Field
 {

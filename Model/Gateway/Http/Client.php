@@ -1,6 +1,6 @@
 <?php
 
-namespace Dintero\Hp\Model\Gateway\Http;
+namespace Dintero\Checkout\Model\Gateway\Http;
 
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
@@ -13,7 +13,7 @@ use Magento\Payment\Model\Method\Logger;
 /**
  * Class Client
  *
- * @package Dintero\Hp\Model\Api
+ * @package Dintero\Checkout\Model\Api
  */
 class Client implements ClientInterface
 {

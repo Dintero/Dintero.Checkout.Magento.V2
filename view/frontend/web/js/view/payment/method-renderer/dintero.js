@@ -3,7 +3,7 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/action/place-order',
-        'Dintero_Hp/js/action/set-payment-method',
+        'Dintero_Checkout/js/action/set-payment-method',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/customer-data',
@@ -14,7 +14,7 @@ define(
         'use strict';
         return Component.extend({
             defaults: {
-                template: 'Dintero_Hp/payment/dintero'
+                template: 'Dintero_Checkout/payment/dintero'
             },
             redirectAfterPlaceOrder: false,
             isVisible: ko.observable(true),

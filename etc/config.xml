@@ -7,7 +7,7 @@
                 <sandbox>1</sandbox>
                 <title>Dintero</title>
                 <payment_action>authorize_capture</payment_action>
-                <model>Dintero\Hp\Model\Dintero</model>
+                <model>Dintero\Checkout\Model\Dintero</model>
                 <order_place_redirect_url>http://localhost/</order_place_redirect_url>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>

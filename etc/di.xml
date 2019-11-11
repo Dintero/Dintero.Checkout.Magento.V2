@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <virtualType name="DinteroVirtual" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
-            <argument name="code" xsi:type="const">Dintero\Hp\Model\Dintero::METHOD_CODE</argument>
+            <argument name="code" xsi:type="const">Dintero\Checkout\Model\Dintero::METHOD_CODE</argument>
             <argument name="commandPool" xsi:type="object">DinteroCommandPool</argument>
             <argument name="valueHandlerPool" xsi:type="object">DinteroValueHandlerPool</argument>
         </arguments>
@@ -12,11 +12,11 @@
     <virtualType name="DinteroCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="authorize" xsi:type="string">Dintero\Hp\Gateway\Command\AuthorizeCommand</item>
-                <item name="capture" xsi:type="string">Dintero\Hp\Gateway\Command\CaptureCommand</item>
-                <item name="refund" xsi:type="string">Dintero\Hp\Gateway\Command\RefundCommand</item>
-                <item name="void" xsi:type="string">Dintero\Hp\Gateway\Command\VoidCommand</item>
-                <item name="fetch_transaction_information" xsi:type="string">Dintero\Hp\Gateway\Command\FetchTransactionCommand</item>
+                <item name="authorize" xsi:type="string">Dintero\Checkout\Gateway\Command\AuthorizeCommand</item>
+                <item name="capture" xsi:type="string">Dintero\Checkout\Gateway\Command\CaptureCommand</item>
+                <item name="refund" xsi:type="string">Dintero\Checkout\Gateway\Command\RefundCommand</item>
+                <item name="void" xsi:type="string">Dintero\Checkout\Gateway\Command\VoidCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">Dintero\Checkout\Gateway\Command\FetchTransactionCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -30,7 +30,7 @@
     </virtualType>
     <virtualType name="DinteroConfig" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="methodCode" xsi:type="const">Dintero\Hp\Model\Dintero::METHOD_CODE</argument>
+            <argument name="methodCode" xsi:type="const">Dintero\Checkout\Model\Dintero::METHOD_CODE</argument>
         </arguments>
     </virtualType>
     <virtualType name="DinteroValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
@@ -39,7 +39,7 @@
         </arguments>
     </virtualType>
     <!-- Payment Method configuration -->
-    <type name="Dintero\Hp\Model\Dintero">
+    <type name="Dintero\Checkout\Model\Dintero">
         <arguments>
             <argument name="adapter" xsi:type="object">DinteroVirtual</argument>
         </arguments>

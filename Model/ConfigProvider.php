@@ -1,10 +1,10 @@
 <?php
 
-namespace Dintero\Hp\Model;
+namespace Dintero\Checkout\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
-use Dintero\Hp\Helper\Config as ConfigHelper;
+use Dintero\Checkout\Helper\Config as ConfigHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
@@ -64,7 +64,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'logoUrl'           => $this->configHelper->getCheckoutLogoUrl(),
                     'available_methods' => [
                         'type'      => 'dintero',
-                        'component' => 'Dintero_Hp/js/view/payment/method-renderer/dintero'
+                        'component' => 'Dintero_Checkout/js/view/payment/method-renderer/dintero'
                     ]
                 ]
             ]

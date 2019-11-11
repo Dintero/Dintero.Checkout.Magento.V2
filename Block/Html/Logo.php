@@ -1,8 +1,8 @@
 <?php
 
-namespace Dintero\Hp\Block\Html;
+namespace Dintero\Checkout\Block\Html;
 
-use Dintero\Hp\Helper\Config;
+use Dintero\Checkout\Helper\Config;
 use Magento\Framework\View\Element\Template;
 
 /**

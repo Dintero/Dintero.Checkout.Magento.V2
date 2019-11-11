@@ -1,16 +1,16 @@
 <?php
 
-namespace Dintero\Hp\Controller\Payment;
+namespace Dintero\Checkout\Controller\Payment;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Dintero\Hp\Model\DinteroFactory;
+use Dintero\Checkout\Model\DinteroFactory;
 
 /**
  * Class Response Handler
  *
- * @package Dintero\Hp\Controller
+ * @package Dintero\Checkout\Controller
  */
 class Response extends Action implements HttpGetActionInterface
 {

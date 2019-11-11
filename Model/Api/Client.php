@@ -1,11 +1,11 @@
 <?php
 
-namespace Dintero\Hp\Model\Api;
+namespace Dintero\Checkout\Model\Api;
 
-use Dintero\Hp\Helper\Config as ConfigHelper;
-use Dintero\Hp\Model\Gateway\Http\Client as DinteroHpClient;
-use Dintero\Hp\Model\Payment\Token;
-use Dintero\Hp\Model\Payment\TokenFactory;
+use Dintero\Checkout\Helper\Config as ConfigHelper;
+use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
+use Dintero\Checkout\Model\Payment\Token;
+use Dintero\Checkout\Model\Payment\TokenFactory;
 use Magento\Framework\DataObject;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Http\ClientException;
@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 /**
  * API Client for Dintero payment method
  *
- * @package Dintero\Hp\Model\Gateway\Http
+ * @package Dintero\Checkout\Model\Gateway\Http
  */
 class Client
 {
@@ -190,7 +190,7 @@ class Client
      */
     private function getToken()
     {
-        /** @var \Dintero\Hp\Model\Payment\Token $token */
+        /** @var \Dintero\Checkout\Model\Payment\Token $token */
         $token = $this->tokenFactory->create(['data' => $this->getAccessToken()]);
         if (!$token->getToken()) {
             throw new \Exception('Failed to get access token');
@@ -313,7 +313,6 @@ class Client
             array_push($items, [
                 'id' => 'shipping',
                 'description' => 'Shipping',
-                // 'quantity' => 1,
                 'amount' => $invoice->getBaseShippingAmount() * 100,
                 'line_id' => 'shipping',
             ]);
