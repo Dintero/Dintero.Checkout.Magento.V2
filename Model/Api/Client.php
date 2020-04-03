@@ -313,7 +313,8 @@ class Client
             array_push($items, [
                 'id' => 'shipping',
                 'description' => 'Shipping',
-                'amount' => $invoice->getBaseShippingAmount() * 100,
+                'vat_amount' => $invoice->getBaseShippingTaxAmount() * 100,
+                'amount' => $invoice->getBaseShippingInclTax() * 100,
                 'line_id' => 'shipping',
             ]);
         }
@@ -349,7 +350,8 @@ class Client
                 'id' => 'shipping',
                 'description' => 'Shipping',
                 'quantity' => 1,
-                'amount' => $order->getBaseShippingAmount() * 100,
+                'vat_amount' => $order->getBaseShippingTaxAmount() * 100,
+                'amount' => $order->getBaseShippingInclTax() * 100,
                 'line_id' => 'shipping',
             ]);
         }
