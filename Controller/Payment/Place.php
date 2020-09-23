@@ -7,7 +7,6 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -19,7 +18,7 @@ use Psr\Log\LoggerInterface;
  *
  * @package Dintero\Checkout\Controller
  */
-class Place extends Action implements HttpPostActionInterface
+class Place extends Action
 {
     /**
      * Client

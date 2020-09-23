@@ -5,7 +5,6 @@ namespace Dintero\Checkout\Controller\Payment;
 use Dintero\Checkout\Model\Api\CLient;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Sales\Model\OrderFactory;
 
 /**
@@ -13,7 +12,7 @@ use Magento\Sales\Model\OrderFactory;
  *
  * @package Dintero\Checkout\Controller\Payment
  */
-class Success extends Action implements HttpGetActionInterface
+class Success extends Action
 {
     /**
      * Order factory
