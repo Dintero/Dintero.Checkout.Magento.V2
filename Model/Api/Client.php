@@ -118,6 +118,17 @@ class Client
     }
 
     /**
+     * Retrieving actual version of Magento
+     *
+     * @return string
+     */
+    private function getVersion()
+    {
+        return \Magento\Framework\App\ObjectManager::getInstance()->get(\Magento\Framework\App\ProductMetadata::class)
+            ->getVersion();
+    }
+
+    /**
      * Building api endpoint
      *
      * @param string $endpoint
@@ -174,10 +185,15 @@ class Client
      */
     public function initCheckout(Order $order)
     {
+        $metaData = [
+            'system_x_id' => __('Magento'),
+            'number_x' => $this->getVersion(),
+        ];
+
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
-        )->setBody($this->converter->serialize($this->prepareData($order)));
+        )->setBody($this->converter->serialize($this->prepareData($order, null, $metaData)));
 
         return $this->client->placeRequest($request->build());
     }
@@ -239,9 +255,10 @@ class Client
      *
      * @param Order $order
      * @param AbstractModel|null $salesDocument
+     * @param array $metaData
      * @return array
      */
-    private function prepareData(Order $order, $salesDocument = null)
+    private function prepareData(Order $order, $salesDocument = null, $metaData = [])
     {
         $customerEmail = $order->getCustomerIsGuest() ?
             $order->getBillingAddress()->getEmail() :
@@ -286,6 +303,11 @@ class Client
                 'country' => $order->getShippingAddress()->getCountryId(),
             ];
         }
+
+        if (!empty($metaData) && is_array($metaData)) {
+            $orderData['metadata'] = $metaData;
+        }
+
         $dataObject = new DataObject($orderData);
         return $dataObject->toArray();
     }
