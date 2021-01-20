@@ -267,6 +267,16 @@ class Config extends AbstractHelper
      */
     public function getFooterLogoUrl()
     {
+        return $this->getProfileId() ? $this->getCheckoutLogoUrl() : $this->getDefaultLogoUrl();
+    }
+
+    /**
+     * Retrieving default logo url
+     *
+     * @return string
+     */
+    public function getDefaultLogoUrl()
+    {
         $baseUrl = Client::CHECKOUT_API_BASE_URL;
         $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_instabank/'
             . 'variant/%s/colors/color/%s/width/%d/dintero_left_frame.svg';
@@ -276,7 +286,13 @@ class Config extends AbstractHelper
                 . 'variant/%s/color/%s/width/%d/dintero_left_frame.svg';
         }
 
-        return sprintf($pattern, $baseUrl, $this->getLogoType(), str_replace('#', '', $this->getLogoColor()), $this->getLogoWidth());
+        return sprintf(
+            $pattern,
+            $baseUrl,
+            $this->getLogoType(),
+            str_replace('#', '', $this->getLogoColor()),
+            $this->getLogoWidth()
+        );
     }
 
     /**
