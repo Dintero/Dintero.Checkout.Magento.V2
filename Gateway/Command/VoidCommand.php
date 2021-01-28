@@ -44,7 +44,7 @@ class VoidCommand implements CommandInterface
         $result = $this->api->void($payment->getParentTransactionId() ?: $payment->getLastTransId());
 
         if (isset($result['error'])) {
-            throw new \Exception('Failed to void the transaction');
+            throw new \Exception(__('Failed to void the transaction'));
         }
         return $this;
     }

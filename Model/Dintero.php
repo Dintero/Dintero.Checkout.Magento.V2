@@ -276,7 +276,7 @@ class Dintero extends AbstractMethod
         $payment = $order->getPayment();
         if (!$payment || $payment->getMethod() != $this->getCode()) {
             throw new LocalizedException(
-                __('This payment didn\'t work out because we can\'t find this order.')
+                __("This payment didn't work out because we can\'t find this order.")
             );
         }
 
@@ -323,12 +323,12 @@ class Dintero extends AbstractMethod
     protected function checkTransaction($order)
     {
         if (!$order->canInvoice()) {
-            throw new \Exception('Cannot invoice the transaction');
+            throw new \Exception(__('Cannot invoice the transaction'));
         }
 
         if (!$this->getResponse()->getId() ||
             $order->getIncrementId() !== $this->getResponse()->getMerchantReference()) {
-            throw new \Exception('Invalid transaction or merchant reference');
+            throw new \Exception(__('Invalid transaction or merchant reference'));
         }
     }
 
@@ -340,7 +340,7 @@ class Dintero extends AbstractMethod
     protected function checkPaymentSession()
     {
         if ($this->getResponse()->getTransactionId() !== $this->getPaymentSession()->getTransactionId()) {
-            throw new \Exception('Payment session validation failed!');
+            throw new \Exception(__('Payment session validation failed!'));
         }
     }
 

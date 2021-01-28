@@ -43,7 +43,7 @@ class RefundCommand implements CommandInterface
         $payment->setSalesDocument($payment->getCreditMemo());
         $result = $this->api->refund($payment, $commandSubject['amount']);
         if (isset($result['error'])) {
-            throw new \Exception('Couldn\'t refund the transaction');
+            throw new \Exception(__("Couldn't refund the transaction"));
         }
         return $this;
     }
