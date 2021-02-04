@@ -3,8 +3,10 @@
 namespace Dintero\Checkout\Controller\Payment;
 
 use Dintero\Checkout\Model\Api\CLient;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\OrderFactory;
 
 /**
@@ -22,6 +24,16 @@ class Success extends Action
     protected $orderFactory;
 
     /**
+     * @var Session $checkoutSession
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var QuoteFactory $quoteFactory
+     */
+    protected $quoteFactory;
+
+    /**
      * Success constructor.
      *
      * @param Context $context
@@ -29,10 +41,14 @@ class Success extends Action
      */
     public function __construct(
         Context $context,
-        OrderFactory $orderFactory
+        OrderFactory $orderFactory,
+        Session $checkoutSession,
+        QuoteFactory $quoteFactory
     ) {
         parent::__construct($context);
         $this->orderFactory = $orderFactory;
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteFactory = $quoteFactory;
     }
 
     /**
@@ -50,10 +66,15 @@ class Success extends Action
 
         $order = $this->orderFactory->create()
             ->loadByIncrementId($this->getRequest()->getParam('merchant_reference'));
+
         if ($order->getId() && $order->canCancel()) {
             $order->getPayment()
                 ->setTransactionId(null)
                 ->cancel();
+
+            $quote = $this->quoteFactory->create()->loadByIdWithoutStore($order->getQuoteId());
+            $quote->setIsActive(true)->setReservedOrderId(null)->save();
+            $this->checkoutSession->replaceQuote($quote);
 
             $order->registerCancellation('Payment Failed')->save();
             $this->_eventManager->dispatch('order_cancel_after', ['order' => $order ]);
