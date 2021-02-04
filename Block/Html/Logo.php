@@ -36,6 +36,18 @@ class Logo extends Template
         $this->configHelper = $configHelper;
     }
 
+    
+    /**
+     * @inheritdoc
+     */
+    public function _toHtml()
+    {
+        if (!$this->configHelper->isActive()) {
+            return '';
+        }
+        return parent::_toHtml();
+    }
+
     /**
      * Retrieving footer logo url
      *
