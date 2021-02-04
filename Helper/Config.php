@@ -198,16 +198,6 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Can auto-capture
-     *
-     * @return bool
-     */
-    public function canAutoCapture()
-    {
-        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION) == Dintero::ACTION_AUTHORIZE_CAPTURE;
-    }
-
-    /**
      * Retrieving invoice pay success url
      *
      * @return string

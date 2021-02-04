@@ -288,9 +288,6 @@ class Client
                 ],
                 'items' => $this->prepareItems($order),
             ],
-            'configuration' => [
-                'auto_capture' => $this->configHelper->canAutoCapture()
-            ]
         ];
 
         if ($order->getShippingAddress()) {
