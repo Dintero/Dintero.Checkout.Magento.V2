@@ -209,7 +209,7 @@ class Client
         /** @var \Dintero\Checkout\Model\Payment\Token $token */
         $token = $this->tokenFactory->create(['data' => $this->getAccessToken()]);
         if (!$token->getToken()) {
-            throw new \Exception('Failed to get access token');
+            throw new \Exception(__('Failed to get access token'));
         }
         return $token;
     }
@@ -239,7 +239,7 @@ class Client
             $response = $this->client->placeRequest($request->build());
 
             if (!isset($response['access_token'])) {
-                throw new \Exception('Could not retrieve the access token');
+                throw new \Exception(__('Could not retrieve the access token'));
             }
 
             return $response;
@@ -413,7 +413,7 @@ class Client
         $transaction = $this->getTransaction($transactionId);
 
         if (!$this->canCaptureTransaction($transaction)) {
-            throw new \Exception('This transaction cannot be captured');
+            throw new \Exception(__('This transaction cannot be captured'));
         }
 
         $requestData = [
