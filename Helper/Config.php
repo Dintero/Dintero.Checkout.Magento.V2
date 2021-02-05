@@ -9,6 +9,7 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Config
@@ -84,26 +85,34 @@ class Config extends AbstractHelper
      */
     private $encryptor;
 
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
     /**
      * Config constructor.
      *
      * @param Context $context
      * @param EncryptorInterface $encryptor
      */
-    public function __construct(Context $context, EncryptorInterface $encryptor)
-    {
+    public function __construct(
+        Context $context,
+        EncryptorInterface $encryptor,
+        StoreManagerInterface $storeManager
+    ) {
         parent::__construct($context);
         $this->encryptor = $encryptor;
+        $this->storeManager = $storeManager;
     }
 
     /**
      * Checking whether the payment method is active or not
      *
-     * @param $store Store
+     * @param $store Store|null
      * @return bool
      */
-    public function isActive(Store $store)
+    public function isActive(Store $store = null)
     {
+        $store = $store ?? $this->storeManager->getStore();
         return $this->scopeConfig->isSetFlag(self::XPATH_IS_ACTIVE, $store->getScopeType());
     }
 
