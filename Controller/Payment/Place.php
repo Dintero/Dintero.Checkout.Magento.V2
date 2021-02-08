@@ -2,6 +2,7 @@
 
 namespace Dintero\Checkout\Controller\Payment;
 
+use Dintero\Checkout\Helper\Config;
 use Dintero\Checkout\Model\Api\Client;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\Type\Onepage;
@@ -63,6 +64,11 @@ class Place extends Action
     protected $logger;
 
     /**
+     * @var Config $configHelper
+     */
+    protected $configHelper;
+
+    /**
      * SessionController constructor.
      *
      * @param Context $context
@@ -72,6 +78,7 @@ class Place extends Action
      * @param OrderRepositoryInterface $orderRepository
      * @param JsonFactory $resultJsonFactory
      * @param LoggerInterface $logger
+     * @param Config $configHelper
      */
     public function __construct(
         Context $context,
@@ -80,7 +87,8 @@ class Place extends Action
         CartManagementInterface $cartManagement,
         OrderRepositoryInterface $orderRepository,
         JsonFactory $resultJsonFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Config $configHelper
     ) {
         parent::__construct($context);
         $this->client = $client;
@@ -89,6 +97,7 @@ class Place extends Action
         $this->orderRepository = $orderRepository;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -115,6 +124,9 @@ class Place extends Action
             if (!isset($data['url'])) {
                 throw new \Exception('Something went wrong');
             }
+
+            $data['url'] = $this->configHelper->resolveCheckoutUrl($data['url']);
+            $this->logger->info($data['url']);
             $data = array_merge(['success' => true], $data);
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());

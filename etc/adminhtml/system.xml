@@ -15,6 +15,10 @@
                     <label>Sandbox</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="language" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Language</label>
+                    <source_model>Magento\Config\Model\Config\Source\Locale</source_model>
+                </field>
                 <field id="account_id" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Account Id</label>
                 </field>

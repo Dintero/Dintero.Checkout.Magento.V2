@@ -14,7 +14,6 @@ use Magento\Payment\Gateway\Http\TransferBuilderFactory;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\AbstractModel;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Item;
 use Psr\Log\LoggerInterface;
 
 /**
