@@ -69,6 +69,11 @@ class Config extends AbstractHelper
     const XPATH_LOGO_WIDTH = 'payment/dintero/logo_width';
 
     /*
+     * Checkout Language
+     */
+    const XPATH_LANGUAGE = 'payment/dintero/language';
+
+    /*
      * Default logo width
      */
     const DEFAULT_LOGO_WIDTH = 500;
@@ -313,5 +318,29 @@ class Config extends AbstractHelper
             str_replace('#', '', $this->getLogoColor()),
             $this->getLogoWidth()
         );
+    }
+
+    /**
+     * Retrieving language code
+     *
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return str_replace('_', '-', $this->scopeConfig->getValue(self::XPATH_LANGUAGE));
+    }
+
+    /**
+     * Resolving checkout url
+     *
+     * @param array $queryParams
+     * @return string
+     */
+    public function resolveCheckoutUrl($url)
+    {
+        $queryParams = parse_url($url, PHP_URL_QUERY);
+        $queryParams['language'] = $this->getLanguage();
+        list($baseUrl) = explode('?', $url);
+        return implode('?', [$baseUrl, http_build_query($queryParams)]);
     }
 }
