@@ -25,6 +25,7 @@ use Magento\Sales\Model\OrderFactory;
 use Psr\Log\LoggerInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 /**
  * Class Dintero
@@ -177,6 +178,11 @@ class Dintero extends AbstractMethod
     protected $paymentSession;
 
     /**
+     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+     */
+    protected $orderSender;
+
+    /**
      * Dintero constructor.
      *
      * @param Context $context
@@ -190,6 +196,7 @@ class Dintero extends AbstractMethod
      * @param AbstractDb|null $resourceCollection
      * @param array $data
      * @param DirectoryHelper|null $directory
+     * @param OrderSender $orderSender
      */
     public function __construct(
         Context $context,
@@ -206,7 +213,8 @@ class Dintero extends AbstractMethod
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null
+        DirectoryHelper $directory = null,
+        OrderSender $orderSender
     ) {
         parent::__construct(
             $context,
@@ -227,6 +235,7 @@ class Dintero extends AbstractMethod
         $this->response = $responseFactory->create();
         $this->paymentSession = $responseFactory->create();
         $this->adapter = $adapter;
+        $this->orderSender = $orderSender;
     }
 
     /**
@@ -312,6 +321,29 @@ class Dintero extends AbstractMethod
         $payment->place();
         $this->addStatusComment($payment);
         $order->save();
+
+        // TODO: Send order confirmation email based on user config
+        $this->sendOrderEmail($order);
+    }
+
+    /**
+     * Send order confirmation email
+     *
+     * @param Order $order
+     * @throws \Exception
+     */
+    public function sendOrderEmail($order)
+    {
+        try {
+            $this->orderSender->send($order);
+            $order->addStatusHistoryComment(__("Notified customer about order #%1", $order->getIncrementId()))
+                ->setIsCustomerNotified(1)
+                ->save();
+        } catch (\Exception $e) {
+            $order->addStatusHistoryComment(__("Could not send order confirmation for order #%1", $order->getIncrementId()))
+                ->setIsCustomerNotified(0)
+                ->save();
+        }
     }
 
     /**
