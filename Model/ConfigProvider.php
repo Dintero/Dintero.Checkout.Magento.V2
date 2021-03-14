@@ -8,7 +8,6 @@ use Dintero\Checkout\Helper\Config as ConfigHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
-
 /**
  * Class ConfigProvider
  *
@@ -34,7 +33,6 @@ class ConfigProvider implements ConfigProviderInterface
      * ConfigProvider constructor.
      *
      * @param ConfigHelper $configHelper
-     * @param Session $session
      */
     public function __construct(
         ConfigHelper $configHelper,
@@ -45,11 +43,11 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * Return payment config for frontend JS to use
-     *
-     * @return string[][]
+     * @return \array[][]
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Payment\Gateway\Http\ConverterException
      */
     public function getConfig()
     {
@@ -62,6 +60,10 @@ class ConfigProvider implements ConfigProviderInterface
                     'enabled'           => $this->configHelper->isActive($store),
                     'placeOrderUrl'     => $this->configHelper->getPlaceOrderUrl(),
                     'logoUrl'           => $this->configHelper->getCheckoutLogoUrl(),
+                    'isEmbedded'        => $this->configHelper->isEmbedded(),
+                    'isExpress'         => $this->configHelper->isExpress(),
+                    'profile'           => $this->configHelper->getProfileId(),
+                    'language'          => $this->configHelper->getLanguage(),
                     'available_methods' => [
                         'type'      => 'dintero',
                         'component' => 'Dintero_Checkout/js/view/payment/method-renderer/dintero'
@@ -72,7 +74,6 @@ class ConfigProvider implements ConfigProviderInterface
 
         if (!$this->configHelper->isActive($store)) {
             $paymentConfig['payment']['dintero']['message'] = __('Dintero Payments is not enabled');
-            return $paymentConfig;
         }
 
         return $paymentConfig;

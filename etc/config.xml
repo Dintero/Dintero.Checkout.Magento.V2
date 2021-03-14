@@ -6,6 +6,8 @@
                 <active>0</active>
                 <sandbox>1</sandbox>
                 <title>Dintero</title>
+                <is_embedded>1</is_embedded>
+                <is_express>1</is_express>
                 <payment_action>authorize_capture</payment_action>
                 <model>Dintero\Checkout\Model\Dintero</model>
                 <order_place_redirect_url>http://localhost/</order_place_redirect_url>

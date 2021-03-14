@@ -8,17 +8,41 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/customer-data',
         'ko',
-        'Magento_Checkout/js/model/full-screen-loader'
+        'Magento_Checkout/js/model/full-screen-loader',
+        'dinteroSdk',
+        'Magento_Checkout/js/model/url-builder',
+        'mage/storage'
     ],
-    function ($, Component, placeOrderAction, setPaymentMethodAction, additionalValidators, quote, customerData, ko, fullScreenLoader) {
+    function ($, Component, placeOrderAction, setPaymentMethodAction, additionalValidators, quote, customerData, ko, fullScreenLoader, dintero, urlBuilder, storage) {
         'use strict';
+
+        let dinteroTemplate = window.checkoutConfig.payment.dintero.isEmbedded ? 'Dintero_Checkout/payment/dintero-embedded' : 'Dintero_Checkout/payment/dintero';
         return Component.extend({
             defaults: {
-                template: 'Dintero_Checkout/payment/dintero'
+                template: dinteroTemplate
             },
             redirectAfterPlaceOrder: false,
             isVisible: ko.observable(true),
             showButton: ko.observable(true),
+            initElement: function() {
+                this._super();
+                if (window.checkoutConfig.payment.dintero.isEmbedded) {
+                    const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-init', {}),
+                        payload = {cartId: quote.getQuoteId()};
+                    storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json').success(function(session) {
+                        dintero.embed({
+                            container: $('#dintero-embedded-checkout-container').get(0),
+                            sid: session.id,
+                            language: window.checkoutConfig.payment.dintero.language,
+                            onPaymentError: function(event, checkout) {
+                                alert($.mage.__('Unable to place the order'));
+                                checkout.destroy();
+                            }
+                        });
+                    });
+                }
+                return this;
+            },
             getLogoUrl: function() {
                 return window.checkoutConfig.payment.dintero.logoUrl;
             },
@@ -29,7 +53,6 @@ define(
                     return false;
                 }
             },
-
             placeOrder: function () {
                 customerData.invalidate(['cart']);
                 $.ajax({

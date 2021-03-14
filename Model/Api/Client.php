@@ -6,15 +6,17 @@ use Dintero\Checkout\Helper\Config as ConfigHelper;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferBuilderFactory;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\AbstractModel;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Item;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -48,6 +50,21 @@ class Client
      * Status partially captured
      */
     const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
+
+    /*
+     * Standard
+     */
+    const TYPE_STANDARD = 'standard';
+
+    /*
+     * Express
+     */
+    const TYPE_EXPRESS = 'express';
+
+    /*
+     * Embedded
+     */
+    const TYPE_EMBEDDED = 'embedded';
 
     /**
      * HTTP Client
@@ -92,6 +109,16 @@ class Client
     private $converter;
 
     /**
+     * @var string $type
+     */
+    private $type;
+
+    /**
+     * @var \Magento\Quote\Model\ResourceModel\Quote $quoteResource
+     */
+    protected $quoteResource;
+
+    /**
      * Client constructor.
      *
      * @param DinteroHpClient $client
@@ -100,6 +127,7 @@ class Client
      * @param TokenFactory $tokenFactory
      * @param LoggerInterface $logger
      * @param Json $converter
+     * @param \Magento\Quote\Model\ResourceModel\Quote $quoteResource
      */
     public function __construct(
         DinteroHpClient $client,
@@ -107,7 +135,8 @@ class Client
         TransferBuilderFactory $transferBuilderFactory,
         TokenFactory $tokenFactory,
         LoggerInterface $logger,
-        Json $converter
+        Json $converter,
+        \Magento\Quote\Model\ResourceModel\Quote $quoteResource
     ) {
         $this->client = $client;
         $this->configHelper = $configHelper;
@@ -115,6 +144,53 @@ class Client
         $this->tokenFactory = $tokenFactory;
         $this->logger = $logger;
         $this->converter = $converter;
+        $this->quoteResource = $quoteResource;
+        $this->type = self::TYPE_STANDARD;
+    }
+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type ?? self::TYPE_STANDARD;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCallbackUrl()
+    {
+        if ($this->isExpress()) {
+            return $this->configHelper->getExpressCheckoutCallback();
+        }
+
+        if ($this->isEmbedded()) {
+            return $this->configHelper->getEmbeddedCheckoutCallback();
+        }
+
+        return $this->configHelper->getCallbackUrl();
+    }
+
+    /**
+     * Retrieving actual version of Magento
+     *
+     * @return string
+     */
+    private function getVersion()
+    {
+        return ObjectManager::getInstance()->get(ProductMetadata::class)
+            ->getVersion();
     }
 
     /**
@@ -165,6 +241,35 @@ class Client
     }
 
     /**
+     * Retrieving metadata
+     *
+     * @return array
+     */
+    private function getMetaData()
+    {
+        return [
+            'system_x_id' => __('Magento'),
+            'number_x' => $this->getVersion(),
+        ];
+    }
+
+    /**
+     * @return bool
+     */
+    private function isExpress()
+    {
+        return $this->getType() === self::TYPE_EXPRESS && $this->configHelper->isExpress();
+    }
+
+    /**
+     * @return bool
+     */
+    private function isEmbedded()
+    {
+        return $this->getType() === self::TYPE_EMBEDDED && $this->configHelper->isEmbedded();
+    }
+
+    /**
      * Initialize checkout
      *
      * @param Order $order
@@ -177,9 +282,40 @@ class Client
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
-        )->setBody($this->converter->serialize($this->prepareData($order)));
+        )->setBody($this->converter->serialize($this->prepareData($order, null, $this->getMetaData())));
 
         return $this->client->placeRequest($request->build());
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order|\Magento\Quote\Model\Quote $salesObject
+     * @return array|bool|float|int|mixed|string|null
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    private function initSession($salesObject)
+    {
+        $request = $this->initRequest(
+            $this->getCheckoutApiUri('sessions-profile'),
+            $this->getToken()
+        )->setBody($this->converter->serialize($this->prepareData($salesObject, null, $this->getMetaData())));
+        return $this->client->placeRequest($request->build());
+    }
+
+    /**
+     * @param Quote $quote
+     * @return array|bool|float|int|mixed|string|null
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    public function initSessionFromQuote(Quote $quote)
+    {
+        if (!$quote->getReservedOrderId()) {
+            $quote->reserveOrderId();
+            $this->quoteResource->save($quote);
+        }
+
+        return $this->initSession($quote);
     }
 
     /**
@@ -193,7 +329,7 @@ class Client
         /** @var \Dintero\Checkout\Model\Payment\Token $token */
         $token = $this->tokenFactory->create(['data' => $this->getAccessToken()]);
         if (!$token->getToken()) {
-            throw new \Exception('Failed to get access token');
+            throw new \Exception(__('Failed to get access token'));
         }
         return $token;
     }
@@ -223,7 +359,7 @@ class Client
             $response = $this->client->placeRequest($request->build());
 
             if (!isset($response['access_token'])) {
-                throw new \Exception('Could not retrieve the access token');
+                throw new \Exception(__('Could not retrieve the access token'));
             }
 
             return $response;
@@ -237,55 +373,70 @@ class Client
     /**
      * Preparing data for submission
      *
-     * @param Order $order
+     * @param Order|\Magento\Quote\Model\Quote $salesObject
      * @param AbstractModel|null $salesDocument
+     * @param array $metaData
      * @return array
      */
-    private function prepareData(Order $order, $salesDocument = null)
+    private function prepareData($salesObject, $salesDocument = null, $metaData = [])
     {
-        $customerEmail = $order->getCustomerIsGuest() ?
-            $order->getBillingAddress()->getEmail() :
-            $order->getCustomerEmail();
-        $baseOrderTotal = $salesDocument ? $salesDocument->getBaseGrandTotal() : $order->getBaseGrandTotal();
+        $customerEmail = $salesObject->getCustomerIsGuest() ?
+            $salesObject->getBillingAddress()->getEmail() :
+            $salesObject->getCustomerEmail();
+        $baseOrderTotal = $salesDocument ? $salesDocument->getBaseGrandTotal() : $salesObject->getBaseGrandTotal();
         $orderData = [
             'profile_id' => $this->configHelper->getProfileId(),
             'url' => [
                 'return_url' => $this->configHelper->getReturnUrl(),
-                'callback_url' => $this->configHelper->getCallbackUrl(),
-            ],
-            'customer' => [
-                'email' => $customerEmail,
-                'phone_number' => $order->getBillingAddress()->getTelephone()
+                'callback_url' => $this->getCallbackUrl(),
             ],
             'order' => [
                 'amount' => $baseOrderTotal * 100,
-                'currency' => $order->getBaseCurrencyCode(),
-                'merchant_reference' => $order->getIncrementId(),
-                'billing_address' => [
-                    'first_name' => $order->getBillingAddress()->getFirstname(),
-                    'last_name' => $order->getBillingAddress()->getLastname(),
-                    'address_line' => implode(',', $order->getBillingAddress()->getStreet()),
-                    'postal_code' => $order->getBillingAddress()->getPostcode(),
-                    'postal_place' => $order->getBillingAddress()->getCity(),
-                    'country' => $order->getBillingAddress()->getCountryId(),
-                ],
-                'items' => $this->prepareItems($order),
+                'currency' => $salesObject->getBaseCurrencyCode(),
+                'merchant_reference' =>  $salesObject->getReservedOrderId() ?? $salesObject->getIncrementId(),
+                'items' => $this->prepareItems($salesObject),
             ],
-            'configuration' => [
-                'auto_capture' => $this->configHelper->canAutoCapture()
-            ]
         ];
 
-        if ($order->getShippingAddress()) {
-            $orderData['shipping_address'] = [
-                'first_name' => $order->getShippingAddress()->getFirstname(),
-                'last_name' => $order->getShippingAddress()->getLastname(),
-                'address_line' => implode(',', $order->getShippingAddress()->getStreet()),
-                'postal_code' => $order->getShippingAddress()->getPostcode(),
-                'postal_place' => $order->getShippingAddress()->getCity(),
-                'country' => $order->getShippingAddress()->getCountryId(),
+        if ($salesObject->getBillingAddress()->getPostcode()) {
+            $orderData['customer'] = [
+                'phone_number' => $salesObject->getBillingAddress()->getTelephone()
+            ];
+            $orderData['order']['billing_address'] = [
+                'first_name' => $salesObject->getBillingAddress()->getFirstname(),
+                'last_name' => $salesObject->getBillingAddress()->getLastname(),
+                'address_line' => implode(',', $salesObject->getBillingAddress()->getStreet()),
+                'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
+                'postal_place' => $salesObject->getBillingAddress()->getCity(),
+                'country' => $salesObject->getBillingAddress()->getCountryId(),
             ];
         }
+
+        if ($this->isExpress()) {
+            $orderData['express']['customer_types'] = ['b2c', 'b2b'];
+            $orderData['express']['shipping_address_callback_url'] = $this->configHelper->getShippingCallbackUrl();
+            $orderData['express']['shipping_options'] = [];
+        }
+
+        if (!empty($customerEmail)) {
+            $orderData['customer']['email'] = $customerEmail;
+        }
+
+        if ($salesObject->getShippingAddress() && $salesObject->getShippingAddress()->getPostcode()) {
+            $orderData['shipping_address'] = [
+                'first_name' => $salesObject->getShippingAddress()->getFirstname(),
+                'last_name' => $salesObject->getShippingAddress()->getLastname(),
+                'address_line' => implode(',', $salesObject->getShippingAddress()->getStreet()),
+                'postal_code' => $salesObject->getShippingAddress()->getPostcode(),
+                'postal_place' => $salesObject->getShippingAddress()->getCity(),
+                'country' => $salesObject->getShippingAddress()->getCountryId(),
+            ];
+        }
+
+        if (!empty($metaData) && is_array($metaData)) {
+            $orderData['metadata'] = $metaData;
+        }
+
         $dataObject = new DataObject($orderData);
         return $dataObject->toArray();
     }
@@ -301,6 +452,10 @@ class Client
         $items = [];
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
+            if ($item->isDeleted() || $item->getOrderItem()->getParentItemId()) {
+                continue;
+            }
+
             array_push($items, [
                 'id' => $item->getSku(),
                 'line_id' => $item->getSku(),
@@ -311,11 +466,11 @@ class Client
         // adding shipping as a separate item
         if ($invoice->getBaseShippingAmount() > 0) {
             array_push($items, [
-                'id' => 'shipping',
-                'description' => 'Shipping',
+                'id' => $invoice->getOrder()->getShippingMethod(),
+                'description' => str_replace(' - ', ', ', $invoice->getOrder()->getShippingDescription()),
                 'vat_amount' => $invoice->getBaseShippingTaxAmount() * 100,
                 'amount' => $invoice->getBaseShippingInclTax() * 100,
-                'line_id' => 'shipping',
+                'line_id' => $invoice->getOrder()->getShippingMethod(),
             ]);
         }
 
@@ -325,18 +480,18 @@ class Client
     /**
      * Preparing order items for sending
      *
-     * @param Order $order
+     * @param Order|\Magento\Quote\Model\Quote $order
      * @return array
      */
-    private function prepareItems(Order $order)
+    private function prepareItems($salesObject)
     {
         $items = [];
-
-        foreach ($order->getAllVisibleItems() as $item) {
+        $isQuote = $salesObject instanceof \Magento\Quote\Model\Quote;
+        foreach ($salesObject->getAllVisibleItems() as $item) {
             array_push($items, [
                 'id' => $item->getSku(),
                 'description' => sprintf('%s (%s)', $item->getName(), $item->getSku()),
-                'quantity' => $item->getQtyOrdered() * 1,
+                'quantity' => ($isQuote ? $item->getQty() : $item->getQtyOrdered()) * 1,
                 'amount' =>  ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
                 'line_id' => $item->getSku(),
                 'vat_amount' => $item->getBaseTaxAmount() * 100, // NOK cannot be floating
@@ -344,15 +499,22 @@ class Client
             ]);
         }
 
+        $shippingTotalsObject = $isQuote ? $salesObject->getShippingAddress() : $salesObject;
+
+        // no need to add shipping items for express checkout as shipping options are retrieved via callback
+        if ($this->isExpress()) {
+            return $items;
+        }
+
         // adding shipping as a separate item
-        if (!$order->getIsVirtual() && $order->getBaseShippingAmount() > 0) {
+        if (!$salesObject->getIsVirtual() && $shippingTotalsObject->getBaseShippingAmount() > 0) {
             array_push($items, [
-                'id' => 'shipping',
-                'description' => 'Shipping',
+                'id' => $shippingTotalsObject->getShippingMethod(),
+                'description' => str_replace(' - ', ',', $shippingTotalsObject->getShippingDescription()),
                 'quantity' => 1,
-                'vat_amount' => $order->getBaseShippingTaxAmount() * 100,
-                'amount' => $order->getBaseShippingInclTax() * 100,
-                'line_id' => 'shipping',
+                'vat_amount' => $shippingTotalsObject->getBaseShippingTaxAmount() * 100,
+                'amount' => $shippingTotalsObject->getBaseShippingInclTax() * 100,
+                'line_id' => $shippingTotalsObject->getShippingMethod(),
             ]);
         }
 
@@ -391,7 +553,7 @@ class Client
         $transaction = $this->getTransaction($transactionId);
 
         if (!$this->canCaptureTransaction($transaction)) {
-            throw new \Exception('This transaction cannot be captured');
+            throw new \Exception(__('This transaction cannot be captured'));
         }
 
         $requestData = [

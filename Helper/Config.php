@@ -9,6 +9,7 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Config
@@ -68,6 +69,21 @@ class Config extends AbstractHelper
     const XPATH_LOGO_WIDTH = 'payment/dintero/logo_width';
 
     /*
+     * Checkout Language
+     */
+    const XPATH_LANGUAGE = 'payment/dintero/language';
+
+    /*
+     * XPATH Embedded checkout enabled
+     */
+    const XPATH_IS_EMBEDDED = 'payment/dintero/is_embedded';
+
+    /*
+     * XPATH Express checkout enabled
+     */
+    const XPATH_IS_EXPRESS = 'payment/dintero/is_express';
+
+    /*
      * Default logo width
      */
     const DEFAULT_LOGO_WIDTH = 500;
@@ -77,6 +93,11 @@ class Config extends AbstractHelper
      */
     const DEFAULT_LOGO_COLOR = '#c4c4c4';
 
+    /*
+     * Enable pay button on product page
+     */
+    const XPATH_PRODUCT_PAGE_BUTTON_ENABLED = 'payment/dintero/product_page_button_enabled';
+
     /**
      * Encryptor object used to encrypt/decrypt sensitive data
      *
@@ -84,26 +105,34 @@ class Config extends AbstractHelper
      */
     private $encryptor;
 
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
     /**
      * Config constructor.
      *
      * @param Context $context
      * @param EncryptorInterface $encryptor
      */
-    public function __construct(Context $context, EncryptorInterface $encryptor)
-    {
+    public function __construct(
+        Context $context,
+        EncryptorInterface $encryptor,
+        StoreManagerInterface $storeManager
+    ) {
         parent::__construct($context);
         $this->encryptor = $encryptor;
+        $this->storeManager = $storeManager;
     }
 
     /**
      * Checking whether the payment method is active or not
      *
-     * @param $store Store
+     * @param $store Store|null
      * @return bool
      */
-    public function isActive(Store $store)
+    public function isActive(Store $store = null)
     {
+        $store = $store ?? $this->storeManager->getStore();
         return $this->scopeConfig->isSetFlag(self::XPATH_IS_ACTIVE, $store->getScopeType());
     }
 
@@ -198,16 +227,6 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Can auto-capture
-     *
-     * @return bool
-     */
-    public function canAutoCapture()
-    {
-        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION) == Dintero::ACTION_AUTHORIZE_CAPTURE;
-    }
-
-    /**
      * Retrieving invoice pay success url
      *
      * @return string
@@ -215,6 +234,32 @@ class Config extends AbstractHelper
     public function getInvoicePayUrl()
     {
         return $this->_getUrl('sales/order/history');
+    }
+
+    /**
+     * Retrieving Shipping url callback
+     *
+     * @return string
+     */
+    public function getShippingCallbackUrl()
+    {
+        return $this->_getUrl('rest/default/V1', ['dintero' => 'shipping']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getExpressCheckoutCallback()
+    {
+        return $this->_getUrl('rest/default/V1', ['dintero' => 'express', '_query' => ['method' => 'POST']]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmbeddedCheckoutCallback()
+    {
+        return $this->_getUrl('rest/default/V1', ['dintero' => 'embedded', '_query' => ['method' => 'POST']]);
     }
 
     /**
@@ -267,6 +312,16 @@ class Config extends AbstractHelper
      */
     public function getFooterLogoUrl()
     {
+        return $this->getProfileId() ? $this->getCheckoutLogoUrl() : $this->getDefaultLogoUrl();
+    }
+
+    /**
+     * Retrieving default logo url
+     *
+     * @return string
+     */
+    public function getDefaultLogoUrl()
+    {
         $baseUrl = Client::CHECKOUT_API_BASE_URL;
         $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_instabank/'
             . 'variant/%s/colors/color/%s/width/%d/dintero_left_frame.svg';
@@ -276,7 +331,13 @@ class Config extends AbstractHelper
                 . 'variant/%s/color/%s/width/%d/dintero_left_frame.svg';
         }
 
-        return sprintf($pattern, $baseUrl, $this->getLogoType(), str_replace('#', '', $this->getLogoColor()), $this->getLogoWidth());
+        return sprintf(
+            $pattern,
+            $baseUrl,
+            $this->getLogoType(),
+            str_replace('#', '', $this->getLogoColor()),
+            $this->getLogoWidth()
+        );
     }
 
     /**
@@ -298,5 +359,77 @@ class Config extends AbstractHelper
             str_replace('#', '', $this->getLogoColor()),
             $this->getLogoWidth()
         );
+    }
+
+    /**
+     * Retrieving language code
+     *
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return str_replace('_', '-', $this->scopeConfig->getValue(self::XPATH_LANGUAGE));
+    }
+
+    /**
+     * Resolving checkout url
+     *
+     * @param array $queryParams
+     * @return string
+     */
+    public function resolveCheckoutUrl($url)
+    {
+        $queryParams = parse_url($url, PHP_URL_QUERY);
+        $queryParams['language'] = $this->getLanguage();
+        list($baseUrl) = explode('?', $url);
+        return implode('?', [$baseUrl, http_build_query($queryParams)]);
+    }
+
+    /**
+     * Checking whether embedded checkout is enabled
+     *
+     * @return bool
+     */
+    public function isEmbedded()
+    {
+        return $this->scopeConfig->isSetFlag(self::XPATH_IS_EMBEDDED);
+    }
+
+    /**
+     * Checking if express checkout is enabled
+     *
+     * @return bool
+     */
+    public function isExpress()
+    {
+        return $this->scopeConfig->isSetFlag(self::XPATH_IS_EXPRESS);
+    }
+
+    /**
+     * Checking if payment button is enabled for product page
+     *
+     * @return bool
+     */
+    public function isProductPagePaymentButtonEnabled()
+    {
+        return $this->isExpress() && $this->scopeConfig->isSetFlag(self::XPATH_PRODUCT_PAGE_BUTTON_ENABLED);
+    }
+
+    /**
+     * Retrieving payment action
+     *
+     * @return string
+     */
+    public function getPaymentAction()
+    {
+        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutocaptureEnabled()
+    {
+        return $this->getPaymentAction() == Dintero::ACTION_AUTHORIZE_CAPTURE;
     }
 }

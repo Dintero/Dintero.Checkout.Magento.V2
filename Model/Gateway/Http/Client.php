@@ -90,9 +90,11 @@ class Client implements ClientInterface
                     )
                 );
         }
+
         if ($transferObject->getAuthUsername() && $transferObject->getAuthPassword()) {
             $client->setAuth($transferObject->getAuthUsername(), $transferObject->getAuthPassword());
         }
+
         $client->setHeaders($transferObject->getHeaders());
         $client->setUrlEncodeBody($transferObject->shouldEncode());
         $client->setUri($transferObject->getUri());

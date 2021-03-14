@@ -2,12 +2,12 @@
 
 namespace Dintero\Checkout\Controller\Payment;
 
+use Dintero\Checkout\Helper\Config;
 use Dintero\Checkout\Model\Api\Client;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
  *
  * @package Dintero\Checkout\Controller
  */
-class Place extends Action implements HttpPostActionInterface
+class Place extends Action
 {
     /**
      * Client
@@ -64,6 +64,11 @@ class Place extends Action implements HttpPostActionInterface
     protected $logger;
 
     /**
+     * @var Config $configHelper
+     */
+    protected $configHelper;
+
+    /**
      * SessionController constructor.
      *
      * @param Context $context
@@ -73,6 +78,7 @@ class Place extends Action implements HttpPostActionInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param JsonFactory $resultJsonFactory
      * @param LoggerInterface $logger
+     * @param Config $configHelper
      */
     public function __construct(
         Context $context,
@@ -81,7 +87,8 @@ class Place extends Action implements HttpPostActionInterface
         CartManagementInterface $cartManagement,
         OrderRepositoryInterface $orderRepository,
         JsonFactory $resultJsonFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Config $configHelper
     ) {
         parent::__construct($context);
         $this->client = $client;
@@ -90,6 +97,7 @@ class Place extends Action implements HttpPostActionInterface
         $this->orderRepository = $orderRepository;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -116,6 +124,8 @@ class Place extends Action implements HttpPostActionInterface
             if (!isset($data['url'])) {
                 throw new \Exception('Something went wrong');
             }
+
+            $data['url'] = $this->configHelper->resolveCheckoutUrl($data['url']);
             $data = array_merge(['success' => true], $data);
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
