@@ -2,6 +2,7 @@
 
 namespace Dintero\Checkout\Controller\Payment;
 
+use Dintero\Checkout\Model\CreateOrder;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -33,6 +34,11 @@ class Success extends Action
     protected $quoteFactory;
 
     /**
+     * @var CreateOrder $createOrder
+     */
+    protected $createOrder;
+
+    /**
      * Success constructor.
      *
      * @param Context $context
@@ -42,12 +48,14 @@ class Success extends Action
         Context $context,
         OrderFactory $orderFactory,
         Session $checkoutSession,
-        QuoteFactory $quoteFactory
+        QuoteFactory $quoteFactory,
+        CreateOrder $createOrder
     ) {
         parent::__construct($context);
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
         $this->quoteFactory = $quoteFactory;
+        $this->createOrder = $createOrder;
     }
 
     /**
@@ -61,13 +69,21 @@ class Success extends Action
         $order = $this->orderFactory->create()
             ->loadByIncrementId($this->getRequest()->getParam('merchant_reference'));
 
-        if ($order->getId()) {
-            $this->checkoutSession->setLastSuccessQuoteId($order->getQuoteId())
-                ->setLastQuoteId($order->getQuoteId())
-                ->setLastOrderId($order->getIncrementId());
+        $transactionId = $this->getRequest()->getParam('transaction_id');
+
+        if ($transactionId && !$order->getId()) {
+            // $order = $this->createOrder->createFromTransaction($this->checkoutSession->getQuote(), $transactionId);
         }
 
-        if ($this->getRequest()->getParam('transaction_id')) {
+        if ($order->getId()) {
+            $this->checkoutSession->setLastSuccessQuoteId($this->checkoutSession->getQuote()->getId())
+                ->setLastQuoteId($order->getQuoteId())
+                ->setLastOrderId($order->getId())
+                ->setLastRealOrderId($order->getIncrementId())
+                ->setLastOrderStatus($order->getStatus());
+        }
+
+        if ($order->getId() && $transactionId) {
             return $result->setPath('checkout/onepage/success');
         }
 

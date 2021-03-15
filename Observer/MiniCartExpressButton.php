@@ -37,6 +37,7 @@ class MiniCartExpressButton implements ObserverInterface
         if (!$this->configHelper->isExpress() || !$this->configHelper->isProductPagePaymentButtonEnabled()) {
             return;
         }
+
         /** @var \Magento\Catalog\Block\ShortcutButtons $container */
         $container = $observer->getContainer();
         $expressButton = $container->getLayout()->createBlock(Express::class, 'dintero.express');

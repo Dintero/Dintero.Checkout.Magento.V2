@@ -409,6 +409,7 @@ class Client
                 'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getBillingAddress()->getCity(),
                 'country' => $salesObject->getBillingAddress()->getCountryId(),
+                'phone_number' => $salesObject->getBillingAddress()->getTelephone(),
             ];
         }
 
@@ -430,6 +431,7 @@ class Client
                 'postal_code' => $salesObject->getShippingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getShippingAddress()->getCity(),
                 'country' => $salesObject->getShippingAddress()->getCountryId(),
+                'phone_number' => $salesObject->getShippingAddress()->getTelephone(),
             ];
         }
 

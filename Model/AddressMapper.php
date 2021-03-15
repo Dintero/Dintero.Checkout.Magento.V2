@@ -55,8 +55,9 @@ class AddressMapper
     {
         $type = $this->resolveType();
         foreach ($this->fieldsMap as $dinteroField => $magentoField) {
-            $value = $this->dataObject->getDataByPath(sprintf('%s/%s', $type, $dinteroField));
-            $this->address->setData($magentoField, $value);
+            if ($value = $this->dataObject->getDataByPath(sprintf('%s/%s', $type, $dinteroField))) {
+                $this->address->setData($magentoField, $value);
+            }
         }
     }
 

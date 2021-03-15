@@ -2,6 +2,7 @@
 
 namespace Dintero\Checkout\Block;
 
+use Magento\Catalog\Block\ShortcutInterface;
 use Magento\Framework\View\Element\Template;
 
 /**
@@ -10,8 +11,8 @@ use Magento\Framework\View\Element\Template;
  * @package Dintero\Checkout\Block
  */
 class Express
-    extends \Magento\Framework\View\Element\Template
-    implements \Magento\Catalog\Block\ShortcutInterface
+    extends Template
+    implements ShortcutInterface
 {
     /**
      * @return string
