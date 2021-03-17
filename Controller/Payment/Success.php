@@ -8,6 +8,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\OrderFactory;
+use Dintero\Checkout\Model\DinteroFactory;
 
 /**
  * Class Success
@@ -38,24 +39,23 @@ class Success extends Action
      */
     protected $createOrder;
 
-    /**
-     * Success constructor.
-     *
-     * @param Context $context
-     * @param OrderFactory $orderFactory
-     */
+    private $paymentMethodFactory;
+
+
     public function __construct(
         Context $context,
         OrderFactory $orderFactory,
         Session $checkoutSession,
         QuoteFactory $quoteFactory,
-        CreateOrder $createOrder
+        CreateOrder $createOrder,
+        DinteroFactory $paymentMethodFactory
     ) {
         parent::__construct($context);
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
         $this->quoteFactory = $quoteFactory;
         $this->createOrder = $createOrder;
+        $this->paymentMethodFactory = $paymentMethodFactory;
     }
 
     /**
@@ -71,12 +71,18 @@ class Success extends Action
 
         $transactionId = $this->getRequest()->getParam('transaction_id');
 
+        // processing standard checkout
+        if ($transactionId && $order->getId()) {
+            $this->paymentMethodFactory->create()->process($order->getIncrementId(), $transactionId);
+        }
+
+        // processing express and embedded checkout
         if ($transactionId && !$order->getId()) {
             $order = $this->createOrder->createFromTransaction($this->checkoutSession->getQuote(), $transactionId);
         }
 
         if ($order->getId()) {
-            $this->checkoutSession->setLastSuccessQuoteId($this->checkoutSession->getQuote()->getId())
+            $this->checkoutSession->setLastSuccessQuoteId($order->getQuoteId())
                 ->setLastQuoteId($order->getQuoteId())
                 ->setLastOrderId($order->getId())
                 ->setLastRealOrderId($order->getIncrementId())

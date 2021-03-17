@@ -270,7 +270,7 @@ class Dintero extends AbstractMethod
      * @throws \Magento\Payment\Gateway\Http\ClientException
      * @throws \Magento\Payment\Gateway\Http\ConverterException
      */
-    public function process($merchantOrderId, $transactionId, $sessionId)
+    public function process($merchantOrderId, $transactionId, $sessionId = null)
     {
         $order = $this->orderFactory->create()->loadByIncrementId($merchantOrderId);
         $payment = $order->getPayment();
@@ -281,7 +281,10 @@ class Dintero extends AbstractMethod
         }
 
         $this->getResponse()->setData($this->client->getTransaction($transactionId));
-        $this->getPaymentSession()->setData($this->client->getSessionInfo($sessionId));
+
+        $this->getPaymentSession()->setData(
+            $this->client->getSessionInfo($sessionId ?? $this->getResponse()->getSessionId())
+        );
 
         if ($order->getId()) {
             $this->processOrder($order);
