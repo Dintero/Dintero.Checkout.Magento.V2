@@ -409,7 +409,7 @@ class Client
                 'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getBillingAddress()->getCity(),
                 'country' => $salesObject->getBillingAddress()->getCountryId(),
-                'phone_number' => $salesObject->getBillingAddress()->getTelephone(),
+                // 'phone_number' => $salesObject->getBillingAddress()->getTelephone(),
             ];
         }
 

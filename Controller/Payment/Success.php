@@ -72,7 +72,7 @@ class Success extends Action
         $transactionId = $this->getRequest()->getParam('transaction_id');
 
         if ($transactionId && !$order->getId()) {
-            // $order = $this->createOrder->createFromTransaction($this->checkoutSession->getQuote(), $transactionId);
+            $order = $this->createOrder->createFromTransaction($this->checkoutSession->getQuote(), $transactionId);
         }
 
         if ($order->getId()) {

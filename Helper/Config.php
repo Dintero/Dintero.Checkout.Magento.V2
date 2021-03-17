@@ -84,6 +84,11 @@ class Config extends AbstractHelper
     const XPATH_IS_EXPRESS = 'payment/dintero/is_express';
 
     /*
+     * Default callback delay in seconds
+     */
+    const DEFAULT_CALLBACK_DELAY = 30;
+
+    /*
      * Default logo width
      */
     const DEFAULT_LOGO_WIDTH = 500;
@@ -203,7 +208,12 @@ class Config extends AbstractHelper
      */
     public function getCallbackUrl()
     {
-        return $this->_getUrl('dintero/payment/response');
+        return $this->_getUrl('dintero/payment/response', [
+            '_query' => [
+                'method' => 'POST',
+                'delay_callback' => self::DEFAULT_CALLBACK_DELAY
+            ]
+        ]);
     }
 
     /**
@@ -251,7 +261,16 @@ class Config extends AbstractHelper
      */
     public function getExpressCheckoutCallback()
     {
-        return $this->_getUrl('rest/default/V1', ['dintero' => 'express', '_query' => ['method' => 'POST']]);
+        return $this->_getUrl(
+            'rest/default/V1',
+            [
+                'dintero' => 'express',
+                '_query' => [
+                    'method' => 'POST',
+                    'delay_callback' => self::DEFAULT_CALLBACK_DELAY
+                ]
+            ]
+        );
     }
 
     /**
@@ -259,7 +278,16 @@ class Config extends AbstractHelper
      */
     public function getEmbeddedCheckoutCallback()
     {
-        return $this->_getUrl('rest/default/V1', ['dintero' => 'embedded', '_query' => ['method' => 'POST']]);
+        return $this->_getUrl(
+            'rest/default/V1',
+            [
+                'dintero' => 'embedded',
+                '_query' => [
+                    'method' => 'POST',
+                    'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
+                ]
+            ]
+        );
     }
 
     /**
