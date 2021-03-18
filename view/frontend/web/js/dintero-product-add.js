@@ -25,10 +25,6 @@ define([
             this.cart = customerData.get('cart');
             // setup binds for click
             $('.dintero-addToCart').on('click', function () {
-                if ($(this).closest(_this.options.addToCartForm).length < 1) {
-                    document.location.href = _this.options.checkoutUrl;
-                    return;
-                }
                 if ($(_this.options.addToCartForm).valid()) {
                     $(_this.options.addToCartForm).submit();
                     _this.productAdded = true;

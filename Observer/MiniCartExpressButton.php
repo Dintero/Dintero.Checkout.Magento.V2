@@ -34,7 +34,7 @@ class MiniCartExpressButton implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if (!$this->configHelper->isExpress() || !$this->configHelper->isProductPagePaymentButtonEnabled()) {
+        if (!$this->configHelper->isExpress() || $observer->getIsCatalogProduct()) {
             return;
         }
 
@@ -42,7 +42,7 @@ class MiniCartExpressButton implements ObserverInterface
         $container = $observer->getContainer();
         $expressButton = $container->getLayout()->createBlock(Express::class, 'dintero.express');
         $container->addShortcut(
-            $expressButton->setTemplate('Dintero_Checkout::product/payment-link-product-page.phtml')
+            $expressButton->setTemplate('Dintero_Checkout::checkout/express-button.phtml')
         );
     }
 }
