@@ -34,6 +34,13 @@
                         <field id="is_express">1</field>
                     </depends>
                 </field>
+                <field id="express_button_type" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Pay button on product page</label>
+                    <source_model>Dintero\Checkout\Model\Source\ExpressButtonType</source_model>
+                    <depends>
+                        <field id="is_express">1</field>
+                    </depends>
+                </field>
                 <field id="account_id" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Account Id</label>
                 </field>

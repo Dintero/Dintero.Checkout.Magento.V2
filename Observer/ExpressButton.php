@@ -10,7 +10,7 @@ use Dintero\Checkout\Block\Express;
  *
  * @package Dintero\Checkout\Observer
  */
-class MiniCartExpressButton implements ObserverInterface
+class ExpressButton implements ObserverInterface
 {
 
     /**

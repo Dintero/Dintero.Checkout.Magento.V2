@@ -84,6 +84,11 @@ class Config extends AbstractHelper
     const XPATH_IS_EXPRESS = 'payment/dintero/is_express';
 
     /*
+     * XPATH Express button image
+     */
+    const XPATH_EXPRESS_BUTTON_IMAGE = 'payment/dintero/express_button_type';
+
+    /*
      * Default callback delay in seconds
      */
     const DEFAULT_CALLBACK_DELAY = 30;
@@ -459,5 +464,13 @@ class Config extends AbstractHelper
     public function isAutocaptureEnabled()
     {
         return $this->getPaymentAction() == Dintero::ACTION_AUTHORIZE_CAPTURE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExpressButtonImage()
+    {
+        return $this->scopeConfig->getValue(self::XPATH_EXPRESS_BUTTON_IMAGE);
     }
 }

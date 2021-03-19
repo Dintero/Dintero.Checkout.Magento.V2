@@ -51,4 +51,12 @@ class ProductPagePaymentLink extends Template
     {
         return $this->getUrl('dintero/checkout/express');
     }
+
+    /**
+     * @return string
+     */
+    public function getButtonImageUrl()
+    {
+        return $this->getViewFileUrl($this->configHelper->getExpressButtonImage());
+    }
 }
