@@ -43,7 +43,7 @@ class FetchTransactionCommand implements CommandInterface
         $payment = $commandSubject['payment']->getPayment();
         $result = $this->api->getTransaction($commandSubject['transaction_id']);
         if (isset($result['error'])) {
-            throw new \Exception('Failed to void the transaction');
+            throw new \Exception(__('Failed to void the transaction'));
         }
 
         $payment->setTransactionId($commandSubject['transaction_id']);

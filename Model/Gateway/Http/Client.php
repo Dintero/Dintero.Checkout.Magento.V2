@@ -85,7 +85,7 @@ class Client implements ClientInterface
             default:
                 throw new \LogicException(
                     sprintf(
-                        'Unsupported HTTP method %s',
+                        __('Unsupported HTTP method %s'),
                         $transferObject->getMethod()
                     )
                 );

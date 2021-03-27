@@ -25,6 +25,7 @@
                 <logo_type>mono</logo_type>
                 <logo_color>444444</logo_color>
                 <logo_width>600</logo_width>
+                <language>en_US</language>
             </dintero>
         </payment>
     </default>

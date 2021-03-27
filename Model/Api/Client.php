@@ -6,9 +6,9 @@ use Dintero\Checkout\Helper\Config as ConfigHelper;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
@@ -118,6 +118,9 @@ class Client
      */
     protected $quoteResource;
 
+
+    protected $objectManager;
+
     /**
      * Client constructor.
      *
@@ -128,6 +131,7 @@ class Client
      * @param LoggerInterface $logger
      * @param Json $converter
      * @param \Magento\Quote\Model\ResourceModel\Quote $quoteResource
+     * @param ObjectManagerInterface $objectManager
      */
     public function __construct(
         DinteroHpClient $client,
@@ -136,7 +140,8 @@ class Client
         TokenFactory $tokenFactory,
         LoggerInterface $logger,
         Json $converter,
-        \Magento\Quote\Model\ResourceModel\Quote $quoteResource
+        \Magento\Quote\Model\ResourceModel\Quote $quoteResource,
+        ObjectManagerInterface $objectManager
     ) {
         $this->client = $client;
         $this->configHelper = $configHelper;
@@ -146,6 +151,7 @@ class Client
         $this->converter = $converter;
         $this->quoteResource = $quoteResource;
         $this->type = self::TYPE_STANDARD;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -189,8 +195,7 @@ class Client
      */
     private function getVersion()
     {
-        return ObjectManager::getInstance()->get(ProductMetadata::class)
-            ->getVersion();
+        return $this->objectManager->get(ProductMetadata::class)->getVersion();
     }
 
     /**
@@ -282,7 +287,7 @@ class Client
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
-        )->setBody($this->converter->serialize($this->prepareData($order, null, $this->getMetaData())));
+        )->setBody($this->converter->serialize($this->prepareData($order, null)));
 
         return $this->client->placeRequest($request->build());
     }
@@ -298,7 +303,7 @@ class Client
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
-        )->setBody($this->converter->serialize($this->prepareData($salesObject, null, $this->getMetaData())));
+        )->setBody($this->converter->serialize($this->prepareData($salesObject, null)));
         return $this->client->placeRequest($request->build());
     }
 
@@ -375,10 +380,9 @@ class Client
      *
      * @param Order|\Magento\Quote\Model\Quote $salesObject
      * @param AbstractModel|null $salesDocument
-     * @param array $metaData
      * @return array
      */
-    private function prepareData($salesObject, $salesDocument = null, $metaData = [])
+    private function prepareData($salesObject, $salesDocument = null)
     {
         $customerEmail = $salesObject->getCustomerIsGuest() ?
             $salesObject->getBillingAddress()->getEmail() :
@@ -435,8 +439,8 @@ class Client
             ];
         }
 
-        if (!empty($metaData) && is_array($metaData)) {
-            $orderData['metadata'] = $metaData;
+        if (!empty($this->getMetaData()) && is_array($this->getMetaData())) {
+            $orderData['metadata'] = $this->getMetaData();
         }
 
         $dataObject = new DataObject($orderData);

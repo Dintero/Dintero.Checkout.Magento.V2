@@ -71,7 +71,7 @@ class CaptureCommand implements CommandInterface
         );
 
         if (isset($result['error'])) {
-            throw new \Exception('Failed to capture the payment');
+            throw new \Exception(__('Failed to capture the payment'));
         }
 
         return $this;

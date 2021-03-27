@@ -39,6 +39,9 @@ class Success extends Action
      */
     protected $createOrder;
 
+    /**
+     * @var DinteroFactory $paymentMethodFactory
+     */
     private $paymentMethodFactory;
 
 
