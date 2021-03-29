@@ -7,7 +7,7 @@
     "require": {
         "magento/framework": ">=101 <104",
         "magento/module-backend": ">=101 <104",
-        "magento/module-catalog": ">=102 <104",
+        "magento/module-catalog": ">=102",
         "magento/module-checkout": ">=100 < 104",
         "magento/module-payment": "100.*",
         "magento/module-quote": ">=101 <104",
