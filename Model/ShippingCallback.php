@@ -89,6 +89,16 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     protected $countryCollectionFactory;
 
     /**
+     * @var \Dintero\Checkout\Api\Data\OrderInterfaceFactory $orderFactory
+     */
+    protected $orderFactory;
+
+    /**
+     * @var \Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory $orderItemFactory
+     */
+    protected $orderItemFactory;
+
+    /**
      * ShippingCallback constructor.
      *
      * @param \Magento\Framework\App\RequestInterface $request
@@ -104,6 +114,8 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param ShippingMethodInterfaceFactory $shippingOptionFactory
      * @param Carrier $carrierHelper
      * @param CollectionFactory $countryCollectionFactory
+     * @param \Dintero\Checkout\Api\Data\OrderInterfaceFactory $orderFactory
+     * @param \Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory $orderItemFactory
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -118,7 +130,9 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         ShippingMethodManagementInterface $shippingMethodManagement,
         ShippingMethodInterfaceFactory $shippingOptionFactory,
         Carrier $carrierHelper,
-        CollectionFactory $countryCollectionFactory
+        CollectionFactory $countryCollectionFactory,
+        \Dintero\Checkout\Api\Data\OrderInterfaceFactory $orderFactory,
+        \Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory $orderItemFactory
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -133,6 +147,8 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $this->shippingOptionFactory = $shippingOptionFactory;
         $this->carrierHelper = $carrierHelper;
         $this->countryCollectionFactory = $countryCollectionFactory;
+        $this->orderFactory = $orderFactory;
+        $this->orderItemFactory = $orderItemFactory;
     }
 
     /**
@@ -205,7 +221,9 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             array_push($shippingOptions, $shippingOption);
         }
 
-        return $this->responseFactory->create()->setShippingOptions($shippingOptions);
+        return $this->responseFactory->create()
+            ->setShippingOptions($shippingOptions)
+            ->setOrder($this->prepareOrder($quote));
     }
 
     /**
@@ -222,5 +240,35 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             );
         }
         return $this->countryCollectionFactory->create()->getAllIds();
+    }
+
+    /**
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return \Dintero\Checkout\Api\Data\OrderInterface
+     */
+    protected function prepareOrder(\Magento\Quote\Model\Quote $quote)
+    {
+        /** @var \Dintero\Checkout\Api\Data\OrderInterface $order */
+        $order = $this->orderFactory->create();
+        $order->setAmount($quote->getBaseGrandTotal() * 100)
+            ->setCurrency($quote->getBaseCurrencyCode());
+
+        $items = [];
+
+        foreach ($quote->getAllVisibleItems() as $quoteItem) {
+            /** @var \Dintero\Checkout\Api\Data\Order\ItemInterface $orderItem */
+            $orderItem = $this->orderItemFactory->create();
+            $orderItem->setAmount(($quoteItem->getBaseRowTotalInclTax() - $quoteItem->getBaseDiscountAmount()) * 100)
+                ->setId($quoteItem->getSku())
+                ->setLineId($quoteItem->getSku())
+                ->setDescription(sprintf('%s (%s)', $quoteItem->getName(), $quoteItem->getSku()))
+                ->setQuantity($quoteItem->getQty() * 1)
+                ->setVat($quoteItem->getTaxPercent())
+                ->setVatAmount($quoteItem->getBaseTaxAmount() * 100);
+            array_push($items, $orderItem);
+        }
+        $tax = $quote->getShippingAddress()->getBaseTaxAmount() * 100;
+        $order->setVatAmount($tax ?? 0);
+        return $order->setItems($items);
     }
 }
