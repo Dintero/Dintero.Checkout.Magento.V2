@@ -11,6 +11,8 @@
     <preference for="Dintero\Checkout\Api\Data\Shipping\RequestInterface" type="Dintero\Checkout\Model\Shipping\Request" />
     <preference for="Dintero\Checkout\Api\Data\ItemInterface" type="Dintero\Checkout\Model\Item" />
     <preference for="Dintero\Checkout\Api\Data\AddressInterface" type="Dintero\Checkout\Model\Address" />
+    <preference for="Dintero\Checkout\Api\Data\OrderInterface" type="Dintero\Checkout\Model\Order" />
+    <preference for="Dintero\Checkout\Api\Data\Order\ItemInterface" type="Dintero\Checkout\Model\Order\Item" />
     <virtualType name="DinteroVirtual" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
             <argument name="code" xsi:type="const">Dintero\Checkout\Model\Dintero::METHOD_CODE</argument>
