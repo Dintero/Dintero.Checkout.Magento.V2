@@ -80,7 +80,7 @@ class Express extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        if (!$this->configHelper->isExpress()) {
+        if (!$this->configHelper->isActive() || !$this->configHelper->isExpress()) {
             $this->messageManager->addErrorMessage(__('Dintero Express Checkout is disabled'));
             return $this->resultRedirectFactory->create()->setPath('/');
         }
