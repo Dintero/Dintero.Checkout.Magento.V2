@@ -445,7 +445,9 @@ class Config extends AbstractHelper
      */
     public function isProductPagePaymentButtonEnabled()
     {
-        return $this->isExpress() && $this->scopeConfig->isSetFlag(self::XPATH_PRODUCT_PAGE_BUTTON_ENABLED);
+        return $this->isActive()
+            && $this->isExpress()
+            && $this->scopeConfig->isSetFlag(self::XPATH_PRODUCT_PAGE_BUTTON_ENABLED);
     }
 
     /**
