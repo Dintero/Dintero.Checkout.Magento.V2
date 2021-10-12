@@ -433,7 +433,7 @@ class Client
         }
 
         if ($salesObject->getShippingAddress() && $salesObject->getShippingAddress()->getPostcode()) {
-            $orderData['shipping_address'] = [
+            $orderData['order']['shipping_address'] = [
                 'first_name' => $salesObject->getShippingAddress()->getFirstname(),
                 'last_name' => $salesObject->getShippingAddress()->getLastname(),
                 'address_line' => implode(',', $salesObject->getShippingAddress()->getStreet()),
