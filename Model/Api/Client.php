@@ -376,6 +376,19 @@ class Client
     }
 
     /**
+     * Replace whitespaces and dashes in phoneNumber
+     */
+    private function normalizePhoneNumber($phoneNumber)
+    {
+        if (!isset($phoneNumber)) {
+            return $phoneNumber;
+        }
+        $normalized = preg_replace('/\s+/', '', $phoneNumber);
+        $normalized = preg_replace('/-/', '', $phoneNumber);
+        return $normalized;
+    }
+
+    /**
      * Preparing data for submission
      *
      * @param Order|\Magento\Quote\Model\Quote $salesObject
@@ -413,7 +426,7 @@ class Client
                 'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getBillingAddress()->getCity(),
                 'country' => $salesObject->getBillingAddress()->getCountryId(),
-                // 'phone_number' => $salesObject->getBillingAddress()->getTelephone(),
+                'phone_number' => $this->normalizePhoneNumber($salesObject->getBillingAddress()->getTelephone()),
             ];
         }
 
@@ -435,7 +448,7 @@ class Client
                 'postal_code' => $salesObject->getShippingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getShippingAddress()->getCity(),
                 'country' => $salesObject->getShippingAddress()->getCountryId(),
-                'phone_number' => $salesObject->getShippingAddress()->getTelephone(),
+                'phone_number' => $this->normalizePhoneNumber($salesObject->getShippingAddress()->getTelephone()),
             ];
         }
 
