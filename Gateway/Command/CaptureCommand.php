@@ -70,7 +70,7 @@ class CaptureCommand implements CommandInterface
             $commandSubject['amount']
         );
 
-        if (isset($result['error'])) {
+        if (!is_array($result) || isset($result['error'])) {
             throw new \Exception(__('Failed to capture the payment'));
         }
 

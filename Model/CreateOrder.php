@@ -52,6 +52,11 @@ class CreateOrder
 
     protected $orderRepository;
 
+    /**
+     * @var DinteroFactory $paymentMethodFactory
+     */
+    protected $paymentMethodFactory;
+
     public function __construct(
         Client $apiClient,
         CartManagementInterface $cartManagement,
@@ -66,7 +71,8 @@ class CreateOrder
         TransactionStatusResolver $transactionStatusResolver,
         InvoiceManagementInterface $invoiceManagement,
         ObjectManagerInterface $objectManager,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        \Dintero\Checkout\Model\DinteroFactory $paymentMethodFactory
     ) {
         $this->apiClient = $apiClient;
         $this->cartManagement = $cartManagement;
@@ -82,6 +88,7 @@ class CreateOrder
         $this->objectManager = $objectManager;
         $this->invoiceManagement = $invoiceManagement;
         $this->orderRepository = $orderRepository;
+        $this->paymentMethodFactory = $paymentMethodFactory;
     }
 
     /**
@@ -151,7 +158,7 @@ class CreateOrder
 
         $transaction->setIsClosed($dinteroTransaction->getStatus() == Client::STATUS_CAPTURED)->save();
 
-        if ($order->canInvoice()) {
+        if ($order->canInvoice() && $dinteroTransaction->getStatus() != Client::STATUS_ON_HOLD) {
             /** @var Invoice $invoice */
             $invoice = $order->prepareInvoice()
                 ->setTransactionId($transaction->getId())
@@ -161,6 +168,11 @@ class CreateOrder
                 $this->triggerCapture($invoice);
             }
         }
+
+        if ($dinteroTransaction->getStatus() == Client::STATUS_ON_HOLD) {
+            $this->paymentMethodFactory->create()->process($order->getIncrementId(), $transactionId);
+        }
+
         return $this->orderRepository->get($order->getId());
     }
 
