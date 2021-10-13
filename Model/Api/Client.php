@@ -381,7 +381,16 @@ class Client
      */
     protected function sanitizePhoneNumber($phoneNumber)
     {
-        return preg_replace('/\D+/', '', $phoneNumber);
+        if (!isset($phoneNumber)) {
+            return $phoneNumber;
+        }
+        $sanitized = trim($phoneNumber);
+        $firstCharIsPlus = substr($sanitized, 0, 1) === '+';
+        $sanitized = preg_replace('/\D/', '', $sanitized);
+        if ($firstCharIsPlus) {
+            $sanitized = '+' . $sanitized;
+        }
+        return $sanitized;
     }
 
     /**
