@@ -214,7 +214,7 @@ class Dintero extends AbstractMethod
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null,
+        DirectoryHelper $directory = null
     ) {
         parent::__construct(
             $context,
