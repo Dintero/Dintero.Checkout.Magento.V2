@@ -210,11 +210,11 @@ class Dintero extends AbstractMethod
         Client $client,
         Adapter $adapter,
         ResponseFactory $responseFactory,
+        OrderSender $orderSender,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null,
-        OrderSender $orderSender
+        DirectoryHelper $directory = null
     ) {
         parent::__construct(
             $context,
