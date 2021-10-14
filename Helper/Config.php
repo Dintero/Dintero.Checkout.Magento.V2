@@ -8,6 +8,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -163,7 +164,9 @@ class Config extends AbstractHelper
      */
     public function getClientId()
     {
-        return $this->encryptor->decrypt($this->scopeConfig->getValue(self::XPATH_CLIENT_ID));
+        return $this->encryptor->decrypt(
+            $this->scopeConfig->getValue(self::XPATH_CLIENT_ID, ScopeInterface::SCOPE_STORE)
+        );
     }
 
     /**
@@ -173,7 +176,9 @@ class Config extends AbstractHelper
      */
     public function getClientSecret()
     {
-        return $this->encryptor->decrypt($this->scopeConfig->getValue(self::XPATH_CLIENT_SECRET));
+        return $this->encryptor->decrypt(
+            $this->scopeConfig->getValue(self::XPATH_CLIENT_SECRET, ScopeInterface::SCOPE_STORE)
+        );
     }
 
     /**
@@ -183,7 +188,7 @@ class Config extends AbstractHelper
      */
     public function getAccountId()
     {
-        return $this->scopeConfig->getValue(self::XPATH_ACCOUNT_ID);
+        return $this->scopeConfig->getValue(self::XPATH_ACCOUNT_ID, ScopeInterface::SCOPE_STORE);
     }
 
     /**
@@ -228,7 +233,9 @@ class Config extends AbstractHelper
      */
     public function getProfileId()
     {
-        return $this->encryptor->decrypt($this->scopeConfig->getValue(self::XPATH_PROFILE_ID));
+        return $this->encryptor->decrypt(
+            $this->scopeConfig->getValue(self::XPATH_PROFILE_ID, ScopeInterface::SCOPE_STORE)
+        );
     }
 
     /**
@@ -425,7 +432,7 @@ class Config extends AbstractHelper
      */
     public function isEmbedded()
     {
-        return $this->scopeConfig->isSetFlag(self::XPATH_IS_EMBEDDED);
+        return $this->scopeConfig->isSetFlag(self::XPATH_IS_EMBEDDED, ScopeInterface::SCOPE_WEBSITE);
     }
 
     /**
@@ -447,7 +454,7 @@ class Config extends AbstractHelper
     {
         return $this->isActive()
             && $this->isExpress()
-            && $this->scopeConfig->isSetFlag(self::XPATH_PRODUCT_PAGE_BUTTON_ENABLED);
+            && $this->scopeConfig->isSetFlag(self::XPATH_PRODUCT_PAGE_BUTTON_ENABLED, ScopeInterface::SCOPE_STORE);
     }
 
     /**
@@ -457,7 +464,7 @@ class Config extends AbstractHelper
      */
     public function getPaymentAction()
     {
-        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION);
+        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION, ScopeInterface::SCOPE_STORE);
     }
 
     /**
@@ -473,6 +480,6 @@ class Config extends AbstractHelper
      */
     public function getExpressButtonImage()
     {
-        return $this->scopeConfig->getValue(self::XPATH_EXPRESS_BUTTON_IMAGE);
+        return $this->scopeConfig->getValue(self::XPATH_EXPRESS_BUTTON_IMAGE, ScopeInterface::SCOPE_STORE);
     }
 }

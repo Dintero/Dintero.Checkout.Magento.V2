@@ -376,6 +376,24 @@ class Client
     }
 
     /**
+     * @param string $phoneNumber
+     * @return string
+     */
+    protected function sanitizePhoneNumber($phoneNumber)
+    {
+        if (!isset($phoneNumber)) {
+            return $phoneNumber;
+        }
+
+        $phoneNumber = trim($phoneNumber);
+        $sanitized = preg_replace('/\D/', '', $phoneNumber);
+        if (strpos($phoneNumber, '+') === 0) {
+            $sanitized = '+' . $sanitized;
+        }
+        return $sanitized;
+    }
+
+    /**
      * Preparing data for submission
      *
      * @param Order|\Magento\Quote\Model\Quote $salesObject
@@ -413,7 +431,9 @@ class Client
                 'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getBillingAddress()->getCity(),
                 'country' => $salesObject->getBillingAddress()->getCountryId(),
-                // 'phone_number' => $salesObject->getBillingAddress()->getTelephone(),
+                'phone_number' => urlencode(
+                    $this->sanitizePhoneNumber($salesObject->getBillingAddress()->getTelephone())
+                ),
             ];
         }
 
@@ -435,7 +455,9 @@ class Client
                 'postal_code' => $salesObject->getShippingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getShippingAddress()->getCity(),
                 'country' => $salesObject->getShippingAddress()->getCountryId(),
-                'phone_number' => $salesObject->getShippingAddress()->getTelephone(),
+                'phone_number' => urlencode(
+                    $this->sanitizePhoneNumber($salesObject->getShippingAddress()->getTelephone())
+                ),
             ];
         }
 
