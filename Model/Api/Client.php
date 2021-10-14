@@ -377,17 +377,17 @@ class Client
 
     /**
      * @param string $phoneNumber
-     * @return array|string|string[]|null
+     * @return string
      */
     protected function sanitizePhoneNumber($phoneNumber)
     {
         if (!isset($phoneNumber)) {
             return $phoneNumber;
         }
-        $sanitized = trim($phoneNumber);
-        $firstCharIsPlus = substr($sanitized, 0, 1) === '+';
-        $sanitized = preg_replace('/\D/', '', $sanitized);
-        if ($firstCharIsPlus) {
+
+        $phoneNumber = trim($phoneNumber);
+        $sanitized = preg_replace('/\D/', '', $phoneNumber);
+        if (strpos($phoneNumber, '+') === 0) {
             $sanitized = '+' . $sanitized;
         }
         return $sanitized;
@@ -431,7 +431,9 @@ class Client
                 'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getBillingAddress()->getCity(),
                 'country' => $salesObject->getBillingAddress()->getCountryId(),
-                'phone_number' => $this->sanitizePhoneNumber($salesObject->getBillingAddress()->getTelephone()),
+                'phone_number' => urlencode(
+                    $this->sanitizePhoneNumber($salesObject->getBillingAddress()->getTelephone())
+                ),
             ];
         }
 
@@ -453,7 +455,9 @@ class Client
                 'postal_code' => $salesObject->getShippingAddress()->getPostcode(),
                 'postal_place' => $salesObject->getShippingAddress()->getCity(),
                 'country' => $salesObject->getShippingAddress()->getCountryId(),
-                'phone_number' => $this->sanitizePhoneNumber($salesObject->getShippingAddress()->getTelephone()),
+                'phone_number' => urlencode(
+                    $this->sanitizePhoneNumber($salesObject->getShippingAddress()->getTelephone())
+                ),
             ];
         }
 
