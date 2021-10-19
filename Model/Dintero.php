@@ -289,10 +289,13 @@ class Dintero extends AbstractMethod
             );
         }
 
-        $this->getResponse()->setData($this->client->getTransaction($transactionId));
+        $this->getResponse()->setData($this->client->getTransaction($transactionId, $order->getStoreId()));
 
         $this->getPaymentSession()->setData(
-            $this->client->getSessionInfo($sessionId ?? $this->getResponse()->getSessionId())
+            $this->client->getSessionInfo(
+                $sessionId ?? $this->getResponse()->getSessionId(),
+                $order->getStoreId()
+            )
         );
 
         if ($order->getId()) {

@@ -160,55 +160,60 @@ class Config extends AbstractHelper
     /**
      * Retrieving client id from configuration
      *
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getClientId()
+    public function getClientId($scopeCode = null)
     {
         return $this->encryptor->decrypt(
-            $this->scopeConfig->getValue(self::XPATH_CLIENT_ID, ScopeInterface::SCOPE_STORE)
+            $this->scopeConfig->getValue(self::XPATH_CLIENT_ID, ScopeInterface::SCOPE_STORE, $scopeCode)
         );
     }
 
     /**
      * Retrieving client secret from configuration
      *
+     * @param int|string
      * @return string
      */
-    public function getClientSecret()
+    public function getClientSecret($scopeCode = null)
     {
         return $this->encryptor->decrypt(
-            $this->scopeConfig->getValue(self::XPATH_CLIENT_SECRET, ScopeInterface::SCOPE_STORE)
+            $this->scopeConfig->getValue(self::XPATH_CLIENT_SECRET, ScopeInterface::SCOPE_STORE, $scopeCode)
         );
     }
 
     /**
      * Retrieving account id from configuration
      *
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getAccountId()
+    public function getAccountId($scopeCode = null)
     {
-        return $this->scopeConfig->getValue(self::XPATH_ACCOUNT_ID, ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->getValue(self::XPATH_ACCOUNT_ID, ScopeInterface::SCOPE_STORE, $scopeCode);
     }
 
     /**
      * Retrieving environment
      *
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getEnvironment()
+    public function getEnvironment($scopeCode = null)
     {
-        return $this->scopeConfig->isSetFlag(self::XPATH_ENVIRONMENT) ? 'T' : 'P';
+        return $this->scopeConfig->isSetFlag(self::XPATH_ENVIRONMENT, ScopeInterface::SCOPE_STORE, $scopeCode) ? 'T' : 'P';
     }
 
     /**
      * Retrieving account id with environment prefix
      *
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getFullAccountId()
+    public function getFullAccountId($scopeCode = null)
     {
-        return $this->getEnvironment() . $this->getAccountId();
+        return $this->getEnvironment($scopeCode) . $this->getAccountId($scopeCode);
     }
 
     /**
@@ -229,12 +234,13 @@ class Config extends AbstractHelper
     /**
      * Retrieving profile id from configuration
      *
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getProfileId()
+    public function getProfileId($scopeCode = null)
     {
         return $this->encryptor->decrypt(
-            $this->scopeConfig->getValue(self::XPATH_PROFILE_ID, ScopeInterface::SCOPE_STORE)
+            $this->scopeConfig->getValue(self::XPATH_PROFILE_ID, ScopeInterface::SCOPE_STORE, $scopeCode)
         );
     }
 
@@ -383,9 +389,10 @@ class Config extends AbstractHelper
     /**
      * Retrieving checkout logo url
      *
+     * @param int|string
      * @return string
      */
-    public function getCheckoutLogoUrl()
+    public function getCheckoutLogoUrl($scopeCode = null)
     {
         $baseUrl = Client::CHECKOUT_API_BASE_URL;
         $pattern = '%s/branding/profiles/%s/'
@@ -394,7 +401,7 @@ class Config extends AbstractHelper
         return sprintf(
             $pattern,
             $baseUrl,
-            $this->getProfileId(),
+            $this->getProfileId($scopeCode),
             $this->getLogoType(),
             str_replace('#', '', $this->getLogoColor()),
             $this->getLogoWidth()
@@ -460,26 +467,29 @@ class Config extends AbstractHelper
     /**
      * Retrieving payment action
      *
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getPaymentAction()
+    public function getPaymentAction($scopeCode = null)
     {
-        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION, ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_ACTION, ScopeInterface::SCOPE_STORE, $scopeCode);
     }
 
     /**
+     * @param int|string $scopeCode
      * @return bool
      */
-    public function isAutocaptureEnabled()
+    public function isAutocaptureEnabled($scopeCode = null)
     {
-        return $this->getPaymentAction() == Dintero::ACTION_AUTHORIZE_CAPTURE;
+        return $this->getPaymentAction($scopeCode) == Dintero::ACTION_AUTHORIZE_CAPTURE;
     }
 
     /**
+     * @param int|string $scopeCode
      * @return string
      */
-    public function getExpressButtonImage()
+    public function getExpressButtonImage($scopeCode = null)
     {
-        return $this->scopeConfig->getValue(self::XPATH_EXPRESS_BUTTON_IMAGE, ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->getValue(self::XPATH_EXPRESS_BUTTON_IMAGE, ScopeInterface::SCOPE_STORE, $scopeCode);
     }
 }

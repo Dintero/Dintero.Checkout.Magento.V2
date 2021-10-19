@@ -114,11 +114,18 @@ class Client
     private $type;
 
     /**
+     * @var null|int|string $scope
+     */
+    private $scope = null;
+
+    /**
      * @var \Magento\Quote\Model\ResourceModel\Quote $quoteResource
      */
     protected $quoteResource;
 
-
+    /**
+     * @var ObjectManagerInterface $objectManager
+     */
     protected $objectManager;
 
     /**
@@ -347,14 +354,14 @@ class Client
      */
     private function getAccessToken()
     {
-        $accountsUrl = $this->getApiUri(sprintf('accounts/%s', $this->configHelper->getFullAccountId()));
+        $accountsUrl = $this->getApiUri(sprintf('accounts/%s', $this->configHelper->getFullAccountId($this->scope)));
         $accessTokenUrl = $this->getApiUri(
-            sprintf('accounts/%s/auth/token', $this->configHelper->getFullAccountId())
+            sprintf('accounts/%s/auth/token', $this->configHelper->getFullAccountId($this->scope))
         );
 
         $request = $this->initRequest($accessTokenUrl)
-            ->setAuthUsername($this->configHelper->getClientId())
-            ->setAuthPassword($this->configHelper->getClientSecret())
+            ->setAuthUsername($this->configHelper->getClientId($this->scope))
+            ->setAuthPassword($this->configHelper->getClientSecret($this->scope))
             ->setBody($this->converter->serialize([
                 'grant_type' => 'client_credentials',
                 'audience' => $accountsUrl
@@ -553,12 +560,14 @@ class Client
      * Retrieving transaction by id
      *
      * @param string $transactionId
+     * @param null|string|int $scopeCode
      * @return array|bool|float|int|mixed|string|null
      * @throws ClientException
      * @throws ConverterException
      */
-    public function getTransaction($transactionId)
+    public function getTransaction($transactionId, $scopeCode = null)
     {
+        $this->scope = $scopeCode;
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s', $transactionId));
         $request = $this->initRequest($endpoint, $this->getToken())
             ->setMethod(\Zend_Http_Client::GET);
@@ -578,8 +587,11 @@ class Client
      */
     public function capture($transactionId, \Magento\Sales\Model\Order\Payment $payment, $amount)
     {
-        $transaction = $this->getTransaction($transactionId);
+        /** @var \Magento\Sales\Model\Order|\Magento\Quote\Model\Quote $salesDocument */
+        $salesDocument = $payment->getSalesDocument();
+        $this->scope = $salesDocument->getStoreId();
 
+        $transaction = $this->getTransaction($transactionId, $this->scope);
         if (!$this->canCaptureTransaction($transaction)) {
             throw new \Exception(__('This transaction cannot be captured'));
         }
@@ -610,15 +622,18 @@ class Client
      */
     public function refund(\Magento\Sales\Model\Order\Payment $payment, $amount)
     {
+        $this->scope = $payment->getSalesDocument()->getStoreId();
         $transactionId = str_replace(
             '-' . TransactionInterface::TYPE_CAPTURE,
             '',
             $payment->getParentTransactionId()
         );
+
         $requestData = [
             'id' => $transactionId,
             'amount' => $amount * 100,
-            'items' => $this->prepareSalesItems($payment->getSalesDocument())
+            // @todo fix incorrect items amount
+            // 'items' => $this->prepareSalesItems($payment->getSalesDocument())
         ];
 
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s/refund', $transactionId));
@@ -632,13 +647,15 @@ class Client
     /**
      * Voiding transaction
      *
-     * @param $transactionId
+     * @param \Magento\Sales\Model\Order\Payment $payment
      * @return array|bool|float|int|mixed|string|null
      * @throws ClientException
      * @throws ConverterException
      */
-    public function void($transactionId)
+    public function void($payment)
     {
+        $transactionId = $payment->getParentTransactionId() ?: $payment->getLastTransId();
+        $this->scope = $payment->getOrder()->getStoreId();
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s/void', $transactionId));
         $request = $this->initRequest($endpoint, $this->getToken())->setBody(null);
         return $this->client->placeRequest($request->build());
@@ -648,13 +665,15 @@ class Client
      * Retrieving session
      *
      * @param string $sessionId
+     * @param null|int|string $scopeCode
      * @return array|bool|float|int|mixed|string|null
      * @throws ClientException
      * @throws ConverterException
      */
-    public function getSessionInfo($sessionId)
+    public function getSessionInfo($sessionId, $scopeCode = null)
     {
-        $endpoint = $this->getCheckoutApiUri(sprintf('session/%s', $sessionId));
+        $this->scope = $scopeCode;
+        $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId));
         $request = $this->initRequest($endpoint, $this->getToken())->setBody(null);
         return $this->client->placeRequest($request->build());
     }

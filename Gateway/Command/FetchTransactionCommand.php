@@ -41,7 +41,11 @@ class FetchTransactionCommand implements CommandInterface
     {
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $commandSubject['payment']->getPayment();
-        $result = $this->api->getTransaction($commandSubject['transaction_id']);
+        $result = $this->api->getTransaction(
+            $commandSubject['transaction_id'],
+            $payment->getOrder()->getStoreId()
+        );
+
         if (isset($result['error'])) {
             throw new \Exception(__('Failed to void the transaction'));
         }
