@@ -654,7 +654,7 @@ class Client
      */
     public function getSessionInfo($sessionId)
     {
-        $endpoint = $this->getCheckoutApiUri(sprintf('session/%s', $sessionId));
+        $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId));
         $request = $this->initRequest($endpoint, $this->getToken())->setBody(null);
         return $this->client->placeRequest($request->build());
     }
