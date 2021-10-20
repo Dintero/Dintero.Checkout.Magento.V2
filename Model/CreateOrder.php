@@ -95,7 +95,7 @@ class CreateOrder
      */
     public function createFromTransaction($quote, $transactionId)
     {
-        $transactionData = $this->apiClient->getTransaction($transactionId);
+        $transactionData = $this->apiClient->getTransaction($transactionId, $quote->getStoreId());
         if (isset($transactionData['error'])) {
             throw new \Exception(__('Transaction is invalid'));
         }
