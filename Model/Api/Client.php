@@ -47,6 +47,11 @@ class Client
     const STATUS_AUTHORIZED = 'AUTHORIZED';
 
     /*
+     * Status on hold
+     */
+    const STATUS_ON_HOLD = 'ON_HOLD';
+
+    /*
      * Status partially captured
      */
     const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';

@@ -62,6 +62,11 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
     protected $createOrder;
 
     /**
+     * @var DinteroFactory $paymentMethodFactory
+     */
+    protected $paymentMethodFactory;
+
+    /**
      * EmbeddedCallback constructor.
      *
      * @param LoggerInterface $logger
@@ -83,7 +88,8 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
         DataObjectFactory $dataObjectFactory,
         ObjectManagerInterface $objectManager,
         OrderFactory $orderFactory,
-        CreateOrder $createOrder
+        CreateOrder $createOrder,
+        DinteroFactory $paymentMethodFactory
     ) {
         $this->logger = $logger;
         $this->request = $request;
@@ -94,6 +100,7 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
         $this->objectManager = $objectManager;
         $this->orderFactory = $orderFactory;
         $this->createOrder = $createOrder;
+        $this->paymentMethodFactory = $paymentMethodFactory;
     }
 
     /**
@@ -108,6 +115,7 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
         try {
             $order = $this->orderFactory->create()->loadByIncrementId($request->getMerchantReference());
             if ($order->getId()) {
+                $this->paymentMethodFactory->create()->process($order->getIncrementId(), $request->getId());
                 return;
             }
 
