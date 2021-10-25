@@ -311,6 +311,7 @@ class Dintero extends AbstractMethod
      */
     public function processOrder($order)
     {
+        $isFailed = false;
         try {
             $this->checkPaymentSession();
             $this->checkTransaction($order);
@@ -318,18 +319,25 @@ class Dintero extends AbstractMethod
             //decline the order (in case of wrong response code) but don't return money to customer.
             $message = $e->getMessage();
             $this->declineOrder($order, $message, false);
+            $isFailed = true;
         }
 
         $payment = $order->getPayment();
         $this->fillPaymentByResponse($payment);
         $payment->getMethodInstance()->setIsInitializeNeeded(false);
         $payment->getMethodInstance()->setResponseData($this->getResponse()->getData());
-        $payment->place();
+
+        // allow placing only if transaction is not pending (on hold)
+        if (!$payment->getIsTransactionPending() && !$order->isCanceled()) {
+            $payment->place();
+        }
+
         $this->addStatusComment($payment);
         $order->save();
 
-        // TODO: Send order confirmation email based on user config
-        $this->sendOrderEmail($order);
+        if (!$isFailed) {
+            $this->sendOrderEmail($order);
+        }
     }
 
     /**
@@ -367,6 +375,10 @@ class Dintero extends AbstractMethod
         if (!$this->getResponse()->getId() ||
             $order->getIncrementId() !== $this->getResponse()->getMerchantReference()) {
             throw new \Exception(__('Invalid transaction or merchant reference'));
+        }
+
+        if ($this->getResponse()->getStatus() === 'FAILED') {
+            throw new \Exception(__('Transaction status: '. $this->getResponse()->getStatus()));
         }
     }
 
@@ -433,7 +445,8 @@ class Dintero extends AbstractMethod
         $response = $this->getResponse();
         $payment->setTransactionId($response->getId())
             ->setParentTransactionId(null)
-            ->setIsTransactionClosed(0);
+            ->setIsTransactionClosed(0)
+            ->setIsTransactionPending($response->getStatus() === Client::STATUS_ON_HOLD);
     }
 
     /**

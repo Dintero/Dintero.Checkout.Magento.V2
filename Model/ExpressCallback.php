@@ -64,6 +64,8 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
      */
     protected $createOrder;
 
+    protected $paymentMethodFactory;
+
     /**
      * ExpressCallback constructor.
      * @param LoggerInterface $logger
@@ -75,6 +77,7 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
      * @param ObjectManagerInterface $objectManager
      * @param OrderFactory $orderFactory
      * @param CreateOrder $createOrder
+     * @param DinteroFactory $createOrder
      */
     public function __construct(
         LoggerInterface $logger,
@@ -85,7 +88,8 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
         QuoteFactory $quoteFactory,
         ObjectManagerInterface $objectManager,
         OrderFactory $orderFactory,
-        CreateOrder $createOrder
+        CreateOrder $createOrder,
+        DinteroFactory $paymentMethodFactory
     ) {
         $this->logger = $logger;
         $this->request = $request;
@@ -96,6 +100,7 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
         $this->objectManager = $objectManager;
         $this->orderFactory = $orderFactory;
         $this->createOrder = $createOrder;
+        $this->paymentMethodFactory = $paymentMethodFactory;
     }
 
     /**
@@ -112,6 +117,7 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
             /** @var \Magento\Sales\Model\Order $order */
             $order = $this->orderFactory->create()->loadByIncrementId($request->getMerchantReference());
             if ($order->getId()) {
+                $this->paymentMethodFactory->create()->process($order->getIncrementId(), $request->getId());
                 return;
             }
 

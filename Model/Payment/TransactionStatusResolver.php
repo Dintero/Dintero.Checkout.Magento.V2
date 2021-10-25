@@ -19,6 +19,7 @@ class TransactionStatusResolver
         Client::STATUS_AUTHORIZED => TransactionInterface::TYPE_AUTH,
         Client::STATUS_CAPTURED => TransactionInterface::TYPE_CAPTURE,
         Client::STATUS_PARTIALLY_CAPTURED => TransactionInterface::TYPE_CAPTURE,
+        Client::STATUS_ON_HOLD => TransactionInterface::TYPE_ORDER,
     ];
 
     /**
