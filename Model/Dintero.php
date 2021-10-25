@@ -210,11 +210,11 @@ class Dintero extends AbstractMethod
         Client $client,
         Adapter $adapter,
         ResponseFactory $responseFactory,
+        OrderSender $orderSender,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = [],
-        DirectoryHelper $directory = null,
-        OrderSender $orderSender
+        DirectoryHelper $directory = null
     ) {
         parent::__construct(
             $context,
@@ -289,10 +289,13 @@ class Dintero extends AbstractMethod
             );
         }
 
-        $this->getResponse()->setData($this->client->getTransaction($transactionId));
+        $this->getResponse()->setData($this->client->getTransaction($transactionId, $order->getStoreId()));
 
         $this->getPaymentSession()->setData(
-            $this->client->getSessionInfo($sessionId ?? $this->getResponse()->getSessionId())
+            $this->client->getSessionInfo(
+                $sessionId ?? $this->getResponse()->getSessionId(),
+                $order->getStoreId()
+            )
         );
 
         if ($order->getId()) {

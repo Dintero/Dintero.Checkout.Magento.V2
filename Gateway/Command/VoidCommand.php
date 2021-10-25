@@ -41,7 +41,7 @@ class VoidCommand implements CommandInterface
     {
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $commandSubject['payment']->getPayment();
-        $result = $this->api->void($payment->getParentTransactionId() ?: $payment->getLastTransId());
+        $result = $this->api->void($payment);
 
         if (isset($result['error'])) {
             throw new \Exception(__('Failed to void the transaction'));
