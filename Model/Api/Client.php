@@ -203,11 +203,11 @@ class Client
     /**
      * Retrieving actual version of Magento
      *
-     * @return string
+     * @return ProductMetadata
      */
-    private function getVersion()
+    private function getSystemMeta()
     {
-        return $this->objectManager->get(ProductMetadata::class)->getVersion();
+        return $this->objectManager->get(ProductMetadata::class);
     }
 
     /**
@@ -244,6 +244,10 @@ class Client
         $defaultHeaders = [
             'Content-type' => 'application/json; charset=utf-8',
             'Accept' => 'application/json',
+            'Dintero-System-Name' => __('Magento'),
+            'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
+            'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
+            'Dintero-System-Plugin-Version' => '1.6.3',
         ];
 
         if ($token && $token instanceof Token) {
@@ -265,8 +269,8 @@ class Client
     private function getMetaData()
     {
         return [
-            'system_x_id' => __('Magento'),
-            'number_x' => $this->getVersion(),
+            'system_x_id' => $this->getSystemMeta()->getName() . ' ' . $this->getSystemMeta()->getEdition(),
+            'number_x' => $this->getSystemMeta()->getVersion(),
         ];
     }
 
