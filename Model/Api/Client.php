@@ -500,10 +500,14 @@ class Client
                 continue;
             }
 
+            $itemBasePrice = $invoice->roundPrice($item->getBasePrice());
+            $itemBaseDiscount = $invoice->roundPrice($item->getBaseDiscountAmount());
+            $baseTaxAmount = $invoice->roundPrice($item->getBaseTaxAmount());
+
             array_push($items, [
                 'id' => $item->getSku(),
                 'line_id' => $item->getSku(),
-                'amount' => ($item->getBasePrice() * $item->getQty() - $item->getBaseDiscountAmount() + $item->getBaseTaxAmount()) * 100,
+                'amount' => ($itemBasePrice * $item->getQty() - $itemBaseDiscount + $baseTaxAmount) * 100,
             ]);
         }
 

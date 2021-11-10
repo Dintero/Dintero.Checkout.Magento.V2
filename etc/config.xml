@@ -12,6 +12,8 @@
                 <express_button_type>Dintero_Checkout::images/checkout-express-dark-round.svg</express_button_type>
                 <model>Dintero\Checkout\Model\Dintero</model>
                 <order_place_redirect_url>http://localhost/</order_place_redirect_url>
+                <can_initialize>0</can_initialize>
+                <can_use_internal>0</can_use_internal>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
                 <can_capture_partial>1</can_capture_partial>
