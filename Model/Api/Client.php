@@ -683,7 +683,8 @@ class Client
     {
         $this->scope = $scopeCode;
         $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId));
-        $request = $this->initRequest($endpoint, $this->getToken())->setBody(null);
+        $request = $this->initRequest($endpoint, $this->getToken())->setBody(null)
+            ->setMethod(\Zend_Http_Client::GET);
         return $this->client->placeRequest($request->build());
     }
 
