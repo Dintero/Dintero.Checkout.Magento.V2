@@ -247,7 +247,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.6.3',
+            'Dintero-System-Plugin-Version' => '1.6.4',
         ];
 
         if ($token && $token instanceof Token) {
@@ -503,7 +503,7 @@ class Client
             array_push($items, [
                 'id' => $item->getSku(),
                 'line_id' => $item->getSku(),
-                'amount' => ($item->getBasePrice() * $item->getQty() - $item->getBaseDiscountAmount() + $item->getBaseTaxAmount()) * 100,
+                'amount' => ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
             ]);
         }
 
@@ -683,7 +683,8 @@ class Client
     {
         $this->scope = $scopeCode;
         $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId));
-        $request = $this->initRequest($endpoint, $this->getToken())->setBody(null);
+        $request = $this->initRequest($endpoint, $this->getToken())
+            ->setMethod(\Zend_Http_Client::GET);
         return $this->client->placeRequest($request->build());
     }
 

@@ -100,7 +100,7 @@ class Dintero extends AbstractMethod
      *
      * @var bool
      */
-    protected $_canUseInternal = true;
+    protected $_canUseInternal = false;
 
     /**
      * Payment Method feature
@@ -389,7 +389,7 @@ class Dintero extends AbstractMethod
      */
     protected function checkPaymentSession()
     {
-        if ($this->getResponse()->getTransactionId() !== $this->getPaymentSession()->getTransactionId()) {
+        if ($this->getResponse()->getId() !== $this->getPaymentSession()->getTransactionId()) {
             throw new \Exception(__('Payment session validation failed!'));
         }
     }
