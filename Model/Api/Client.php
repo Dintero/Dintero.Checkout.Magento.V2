@@ -499,15 +499,11 @@ class Client
             if ($item->isDeleted() || $item->getOrderItem()->getParentItemId()) {
                 continue;
             }
-
-            $itemBasePrice = $invoice->roundPrice($item->getBasePrice());
-            $itemBaseDiscount = $invoice->roundPrice($item->getBaseDiscountAmount());
-            $baseTaxAmount = $invoice->roundPrice($item->getBaseTaxAmount());
-
+            $this->logger->error(var_export([$item->getBaseRowTotalInclTax(), $item->getBaseDiscountAmount()], true));
             array_push($items, [
                 'id' => $item->getSku(),
                 'line_id' => $item->getSku(),
-                'amount' => ($itemBasePrice * $item->getQty() - $itemBaseDiscount + $baseTaxAmount) * 100,
+                'amount' => ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
             ]);
         }
 
