@@ -499,7 +499,7 @@ class Client
             if ($item->isDeleted() || $item->getOrderItem()->getParentItemId()) {
                 continue;
             }
-            $this->logger->error(var_export([$item->getBaseRowTotalInclTax(), $item->getBaseDiscountAmount()], true));
+
             array_push($items, [
                 'id' => $item->getSku(),
                 'line_id' => $item->getSku(),
