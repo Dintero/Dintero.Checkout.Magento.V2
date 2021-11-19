@@ -281,6 +281,7 @@ class Dintero extends AbstractMethod
      */
     public function process($merchantOrderId, $transactionId, $sessionId = null)
     {
+        /** @var \Magento\Sales\Model\Order $order */
         $order = $this->orderFactory->create()->loadByIncrementId($merchantOrderId);
         $payment = $order->getPayment();
         if (!$payment || $payment->getMethod() != $this->getCode()) {
@@ -290,6 +291,11 @@ class Dintero extends AbstractMethod
         }
 
         $this->getResponse()->setData($this->client->getTransaction($transactionId, $order->getStoreId()));
+
+        // if payment has transaction that means that it was already processed
+        if ($payment->getLastTransId()) {
+            return;
+        }
 
         $this->getPaymentSession()->setData(
             $this->client->getSessionInfo(
@@ -335,7 +341,7 @@ class Dintero extends AbstractMethod
         $this->addStatusComment($payment);
         $order->save();
 
-        if (!$isFailed) {
+        if (!$isFailed && !$order->getEmailSent()) {
             $this->sendOrderEmail($order);
         }
     }
