@@ -26,6 +26,7 @@ use Psr\Log\LoggerInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use \Magento\Sales\Model\ResourceModel\Order as OrderResource;
 
 /**
  * Class Dintero
@@ -183,8 +184,11 @@ class Dintero extends AbstractMethod
     protected $orderSender;
 
     /**
-     * Dintero constructor.
-     *
+     * @var OrderResource $orderResource
+     */
+    protected $orderResource;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -192,29 +196,35 @@ class Dintero extends AbstractMethod
      * @param Data $paymentData
      * @param ScopeConfigInterface $scopeConfig
      * @param Logger $logger
+     * @param OrderFactory $orderFactory
+     * @param Client $client
+     * @param Adapter $adapter
+     * @param ResponseFactory $responseFactory
+     * @param OrderSender $orderSender
+     * @param \Dintero\Checkout\Model\Order $orderResource
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
      * @param DirectoryHelper|null $directory
-     * @param OrderSender $orderSender
      */
     public function __construct(
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
-        AttributeValueFactory $customAttributeFactory,
-        Data $paymentData,
-        ScopeConfigInterface $scopeConfig,
-        Logger $logger,
-        OrderFactory $orderFactory,
-        Client $client,
-        Adapter $adapter,
-        ResponseFactory $responseFactory,
-        OrderSender $orderSender,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directory = null
+        AttributeValueFactory      $customAttributeFactory,
+        Data                       $paymentData,
+        ScopeConfigInterface       $scopeConfig,
+        Logger                     $logger,
+        OrderFactory               $orderFactory,
+        Client                     $client,
+        Adapter                    $adapter,
+        ResponseFactory            $responseFactory,
+        OrderSender                $orderSender,
+        OrderResource              $orderResource,
+        AbstractResource           $resource = null,
+        AbstractDb                 $resourceCollection = null,
+        array                      $data = [],
+        DirectoryHelper            $directory = null
     ) {
         parent::__construct(
             $context,
@@ -236,6 +246,7 @@ class Dintero extends AbstractMethod
         $this->paymentSession = $responseFactory->create();
         $this->adapter = $adapter;
         $this->orderSender = $orderSender;
+        $this->orderResource = $orderResource;
     }
 
     /**
@@ -339,21 +350,25 @@ class Dintero extends AbstractMethod
         }
 
         $this->addStatusComment($payment);
-        $order->save();
-
-        if (!$isFailed && !$order->getEmailSent()) {
-            $this->sendOrderEmail($order);
-        }
+        $this->orderResource->save($order);
+        $this->sendOrderEmail($order, !$isFailed);
     }
 
     /**
      * Send order confirmation email
      *
-     * @param Order $order
+     * @param \Magento\Sales\Model\Order $order
      * @throws \Exception
      */
-    public function sendOrderEmail($order)
+    public function sendOrderEmail($order, $canSend = false)
     {
+        // reloading order to avoid duplicate sending
+        $this->orderResource->load($order, $order->getId());
+
+        if (!$canSend || $order->getSendEmail()) {
+            return;
+        }
+
         try {
             $this->orderSender->send($order);
             $order->addStatusHistoryComment(__("Notified customer about order #%1", $order->getIncrementId()))
