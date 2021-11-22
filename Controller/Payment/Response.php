@@ -65,7 +65,6 @@ class Response extends Action
                 'status' => 'error',
                 'message' => __('Missing required params')
             ]);
-
         }
 
         $this->paymentMethodFactory->create()->process($merchantOrderId, $transactionId, $sessionId);
