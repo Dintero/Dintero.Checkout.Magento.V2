@@ -485,7 +485,7 @@ class Dintero extends AbstractMethod
 
             $message = __(
                     $message,
-                    $payment->getOrder()->getBaseCurrency()->formatTxt($this->getResponse()->getAmount()),
+                    $payment->getOrder()->getBaseCurrency()->formatTxt($this->getResponse()->getAmount()/100),
                     $transactionId,
                     $this->getResponse()->getStatus()
                 );
