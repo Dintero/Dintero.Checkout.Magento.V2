@@ -10,6 +10,7 @@ use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferBuilderFactory;
@@ -247,7 +248,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.6.5',
+            'Dintero-System-Plugin-Version' => '1.6.6',
         ];
 
         if ($token && $token instanceof Token) {
@@ -424,6 +425,7 @@ class Client
         $baseOrderTotal = $salesDocument ? $salesDocument->getBaseGrandTotal() : $salesObject->getBaseGrandTotal();
         $orderData = [
             'profile_id' => $this->configHelper->getProfileId(),
+            'expires_at' => date('Y-m-d\TH:i:s.z\Z', strtotime('+4hour')),
             'url' => [
                 'return_url' => $this->configHelper->getReturnUrl(),
                 'callback_url' => $this->getCallbackUrl(),
@@ -685,6 +687,23 @@ class Client
         $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId));
         $request = $this->initRequest($endpoint, $this->getToken())
             ->setMethod(\Zend_Http_Client::GET);
+        return $this->client->placeRequest($request->build());
+    }
+
+    /**
+     * @param $sessionId
+     * @param null $scopeCode
+     * @return array|bool|float|int|mixed|string|null
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    public function cancelSession($sessionId, $scopeCode = null)
+    {
+        $this->scope = $scopeCode;
+        $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s/cancel', $sessionId));
+        $request = $this->initRequest($endpoint, $this->getToken())
+            ->setMethod(\Zend_Http_Client::POST)
+            ->setBody(null);
         return $this->client->placeRequest($request->build());
     }
 

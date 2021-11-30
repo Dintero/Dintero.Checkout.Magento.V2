@@ -125,6 +125,8 @@ class Place extends Action
                 throw new \Exception('Something went wrong');
             }
 
+            $order->getPayment()->setAdditionalInformation('session_id', $data['id'] ?? null);
+            $this->orderRepository->save($order);
             $data['url'] = $this->configHelper->resolveCheckoutUrl($data['url']);
             $data = array_merge(['success' => true], $data);
         } catch (\Exception $e) {

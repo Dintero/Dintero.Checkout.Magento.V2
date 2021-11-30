@@ -2,6 +2,7 @@
 
 namespace Dintero\Checkout\Controller\Payment;
 
+use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\CreateOrder;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
@@ -44,14 +45,25 @@ class Success extends Action
      */
     private $paymentMethodFactory;
 
+    private $client;
 
+    /**
+     * @param Context $context
+     * @param OrderFactory $orderFactory
+     * @param Session $checkoutSession
+     * @param QuoteFactory $quoteFactory
+     * @param CreateOrder $createOrder
+     * @param DinteroFactory $paymentMethodFactory
+     * @param Client $client
+     */
     public function __construct(
         Context $context,
         OrderFactory $orderFactory,
         Session $checkoutSession,
         QuoteFactory $quoteFactory,
         CreateOrder $createOrder,
-        DinteroFactory $paymentMethodFactory
+        DinteroFactory $paymentMethodFactory,
+        Client $client
     ) {
         parent::__construct($context);
         $this->orderFactory = $orderFactory;
@@ -59,6 +71,7 @@ class Success extends Action
         $this->quoteFactory = $quoteFactory;
         $this->createOrder = $createOrder;
         $this->paymentMethodFactory = $paymentMethodFactory;
+        $this->client = $client;
     }
 
     /**
@@ -97,6 +110,11 @@ class Success extends Action
         }
 
         if ($order->getId() && $order->canCancel()) {
+
+            if ($sessionId = $order->getPayment()->getAdditionalInformation('session_id')) {
+                $this->client->cancelSession($sessionId);
+            }
+
             $order->getPayment()
                 ->setTransactionId(null)
                 ->cancel();
