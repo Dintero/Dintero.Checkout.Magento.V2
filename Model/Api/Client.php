@@ -442,17 +442,7 @@ class Client
             $orderData['customer'] = [
                 'phone_number' => $salesObject->getBillingAddress()->getTelephone()
             ];
-            $orderData['order']['billing_address'] = [
-                'first_name' => $salesObject->getBillingAddress()->getFirstname(),
-                'last_name' => $salesObject->getBillingAddress()->getLastname(),
-                'address_line' => implode(',', $salesObject->getBillingAddress()->getStreet()),
-                'postal_code' => $salesObject->getBillingAddress()->getPostcode(),
-                'postal_place' => $salesObject->getBillingAddress()->getCity(),
-                'country' => $salesObject->getBillingAddress()->getCountryId(),
-                'phone_number' => urlencode(
-                    $this->sanitizePhoneNumber($salesObject->getBillingAddress()->getTelephone())
-                ),
-            ];
+            $orderData['order']['billing_address'] = $this->prepareAddress($salesObject->getBillingAddress());
         }
 
         if ($this->isExpress()) {
@@ -466,17 +456,7 @@ class Client
         }
 
         if ($salesObject->getShippingAddress() && $salesObject->getShippingAddress()->getPostcode()) {
-            $orderData['order']['shipping_address'] = [
-                'first_name' => $salesObject->getShippingAddress()->getFirstname(),
-                'last_name' => $salesObject->getShippingAddress()->getLastname(),
-                'address_line' => implode(',', $salesObject->getShippingAddress()->getStreet()),
-                'postal_code' => $salesObject->getShippingAddress()->getPostcode(),
-                'postal_place' => $salesObject->getShippingAddress()->getCity(),
-                'country' => $salesObject->getShippingAddress()->getCountryId(),
-                'phone_number' => urlencode(
-                    $this->sanitizePhoneNumber($salesObject->getShippingAddress()->getTelephone())
-                ),
-            ];
+            $orderData['order']['shipping_address'] = $this->prepareAddress($salesObject->getShippingAddress());
         }
 
         if (!empty($this->getMetaData()) && is_array($this->getMetaData())) {
@@ -485,6 +465,30 @@ class Client
 
         $dataObject = new DataObject($orderData);
         return $dataObject->toArray();
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
+     * @return array
+     */
+    private function prepareAddress(\Magento\Sales\Api\Data\OrderAddressInterface $address)
+    {
+        $addressData = [
+            'first_name' => $address->getFirstname(),
+            'last_name' => $address->getLastname(),
+            'address_line' => implode(',', $address->getStreet()),
+            'postal_code' => $address->getPostcode(),
+            'postal_place' => $address->getCity(),
+            'country' => $address->getCountryId(),
+            'phone_number' => urlencode($this->sanitizePhoneNumber($address->getTelephone())),
+        ];
+
+        if (!empty($address->getCompany()) && !empty($address->getVatId())) {
+            $addressData['business_name'] = $address->getCompany();
+            $addressData['organization_number'] = $address->getVatId();
+        }
+
+        return $addressData;
     }
 
     /**
