@@ -82,6 +82,8 @@ class Success extends Action
     public function execute()
     {
         $result = $this->resultRedirectFactory->create();
+
+        /** @var \Magento\Sales\Model\Order $order */
         $order = $this->orderFactory->create()
             ->loadByIncrementId($this->getRequest()->getParam('merchant_reference'));
 
@@ -109,7 +111,9 @@ class Success extends Action
             return $result->setPath('checkout/onepage/success');
         }
 
-        if ($order->getId() && $order->canCancel()) {
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
+        $payment = $order->getPayment();
+        if ($order->getId() && $order->canCancel() && !$payment->getAuthorizationTransaction()) {
 
             if ($sessionId = $order->getPayment()->getAdditionalInformation('session_id')) {
                 $this->client->cancelSession($sessionId);
