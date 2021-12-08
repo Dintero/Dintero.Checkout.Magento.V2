@@ -315,6 +315,11 @@ class Dintero extends AbstractMethod
             )
         );
 
+        $this->logger->debug([
+            'Processing order #: '.$merchantOrderId,
+            'Order real id: ' . $order->getId(),
+        ]);
+
         if ($order->getId()) {
             $this->processOrder($order);
         }

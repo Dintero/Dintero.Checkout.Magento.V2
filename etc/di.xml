@@ -73,6 +73,11 @@
             <argument name="logger" xsi:type="object">DinteroPaymentLogger</argument>
         </arguments>
     </type>
+    <type name="Dintero\Checkout\Model\Dintero">
+        <arguments>
+            <argument name="logger" xsi:type="object">DinteroPaymentLogger</argument>
+        </arguments>
+    </type>
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="dintero_csrf_validator_skip" type="Dintero\Checkout\Plugin\CsrfValidatorSkip" />
     </type>
