@@ -9,6 +9,7 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\InvalidArgumentException;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -121,6 +122,10 @@ class Place extends Action
             $order = $this->orderRepository->get($orderId);
             $data = $this->client->initCheckout($order);
 
+            if (!empty($data['error']) && $data['error']['code'] == 'INVALID_REQUEST_PARAMETER' ) {
+                throw new InvalidArgumentException(__($this->_processErrors($data['error']['errors'])));
+            }
+
             if (!isset($data['url'])) {
                 throw new \Exception('Something went wrong');
             }
@@ -129,6 +134,8 @@ class Place extends Action
             $this->orderRepository->save($order);
             $data['url'] = $this->configHelper->resolveCheckoutUrl($data['url']);
             $data = array_merge(['success' => true], $data);
+        } catch (InvalidArgumentException $e) {
+            $data = ['success' => false, 'error' => $e->getMessage()];
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
             $data = ['success' => false, 'error' => __('Something went wrong')];
@@ -145,5 +152,17 @@ class Place extends Action
     protected function _getCheckout()
     {
         return $this->_objectManager->get(CheckoutSession::class);
+    }
+
+    /**
+     * @param array $errors
+     * @return string
+     */
+    private function _processErrors($errors)
+    {
+        $errors = array_map(function($error) {
+            return $error['description'] ?? null;
+        }, $errors);
+        return implode(PHP_EOL, array_unique($errors));
     }
 }

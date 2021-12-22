@@ -64,16 +64,7 @@ define(
                         fullScreenLoader.startLoader();
                     },
                     success: function (response) {
-                        var preparedData,
-                            msg,
-
-                            /**
-                             * {Function}
-                             */
-                            alertActionHandler = function () {
-                                // default action
-                            };
-
+                        var msg;
                         if (response.url) {
                             $.mage.redirect(response.url);
                         } else {
@@ -85,18 +76,7 @@ define(
                             }
 
                             if (msg) {
-                                alert(
-                                    {
-                                        content: msg,
-                                        actions: {
-
-                                            /**
-                                             * {Function}
-                                             */
-                                            always: alertActionHandler
-                                        }
-                                    }
-                                );
+                                alert(msg);
                             }
                         }
                     }
