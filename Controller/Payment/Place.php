@@ -9,7 +9,7 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\DataObject;
-use Magento\Framework\Exception\InvalidArgumentException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -123,7 +123,7 @@ class Place extends Action
             $data = $this->client->initCheckout($order);
 
             if (!empty($data['error']) && $data['error']['code'] == 'INVALID_REQUEST_PARAMETER' ) {
-                throw new InvalidArgumentException(__($this->_processErrors($data['error']['errors'])));
+                throw new LocalizedException(__($this->_processErrors($data['error']['errors'])));
             }
 
             if (!isset($data['url'])) {
@@ -134,7 +134,7 @@ class Place extends Action
             $this->orderRepository->save($order);
             $data['url'] = $this->configHelper->resolveCheckoutUrl($data['url']);
             $data = array_merge(['success' => true], $data);
-        } catch (InvalidArgumentException $e) {
+        } catch (LocalizedException $e) {
             $data = ['success' => false, 'error' => $e->getMessage()];
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
