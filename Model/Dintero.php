@@ -350,8 +350,15 @@ class Dintero extends AbstractMethod
         $payment->getMethodInstance()->setResponseData($this->getResponse()->getData());
 
         // allow placing only if transaction is not pending (on hold)
-        if (!$payment->getIsTransactionPending() && !$order->isCanceled()) {
+        if (!$payment->getIsTransactionPending()
+            && !$order->isCanceled()
+            && $this->getResponse()->getStatus() !== Client::STATUS_FAILED
+        ) {
             $payment->place();
+        }
+
+        if ($this->getResponse()->getStatus() === Client::STATUS_ON_HOLD) {
+            $order->setStatus('dintero_pending_approval');
         }
 
         $this->addStatusComment($payment);
@@ -403,7 +410,7 @@ class Dintero extends AbstractMethod
             throw new \Exception(__('Invalid transaction or merchant reference'));
         }
 
-        if ($this->getResponse()->getStatus() === 'FAILED') {
+        if ($this->getResponse()->getStatus() === Client::STATUS_FAILED) {
             throw new \Exception(__('Transaction status: '. $this->getResponse()->getStatus()));
         }
     }
@@ -441,8 +448,8 @@ class Dintero extends AbstractMethod
             $order->registerCancellation($message)->save();
             $this->_eventManager->dispatch('order_cancel_after', ['order' => $order ]);
         } catch (\Exception $e) {
-            //quiet decline
             $this->getPsrLogger()->critical($e);
+            throw $e;
         }
     }
 
