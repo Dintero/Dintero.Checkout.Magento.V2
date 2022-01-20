@@ -60,6 +60,10 @@
                     <label>Payment Action</label>
                     <source_model>Dintero\Checkout\Model\Source\PaymentAction</source_model>
                 </field>
+                <field id="order_on_hold_status" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Holded Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
                 <field id="logo_type" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Is logo type mono?</label>
                     <comment><![CDATA[Logo type]]></comment>

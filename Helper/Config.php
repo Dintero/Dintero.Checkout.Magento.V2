@@ -4,6 +4,7 @@ namespace Dintero\Checkout\Helper;
 
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Dintero;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -33,6 +34,11 @@ class Config extends AbstractHelper
      * XPATH for client secret
      */
     const XPATH_CLIENT_SECRET = 'payment/dintero/client_secret';
+
+    /*
+     * On Hold Order Status
+     */
+    const XPATH_ON_HOLD_STATUS = 'payment/dintero/order_on_hold_status';
 
     /*
      * XPATH for account id
@@ -491,5 +497,14 @@ class Config extends AbstractHelper
     public function getExpressButtonImage($scopeCode = null)
     {
         return $this->scopeConfig->getValue(self::XPATH_EXPRESS_BUTTON_IMAGE, ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * @param string $scopeCode
+     * @return mixed
+     */
+    public function getOnHoldOrderStatus($scopeCode = null)
+    {
+        return $this->scopeConfig->getValue(self::XPATH_ON_HOLD_STATUS, ScopeInterface::SCOPE_STORE, $scopeCode);
     }
 }

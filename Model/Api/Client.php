@@ -53,6 +53,11 @@ class Client
     const STATUS_ON_HOLD = 'ON_HOLD';
 
     /*
+     * Status failed
+     */
+    const STATUS_FAILED = 'FAILED';
+
+    /*
      * Status partially captured
      */
     const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
@@ -248,7 +253,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.6.10',
+            'Dintero-System-Plugin-Version' => '1.6.11',
         ];
 
         if ($token && $token instanceof Token) {
