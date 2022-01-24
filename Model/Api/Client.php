@@ -253,7 +253,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.6.12',
+            'Dintero-System-Plugin-Version' => '1.6.13',
         ];
 
         if ($token && $token instanceof Token) {
@@ -264,7 +264,8 @@ class Client
             ->setUri($endpoint)
             ->setHeaders($defaultHeaders)
             ->shouldEncode(false)
-            ->setMethod(\Zend_Http_Client::POST);
+            ->setMethod(\Zend_Http_Client::POST)
+            ->setClientConfig(['timeout' => 30]);
     }
 
     /**
