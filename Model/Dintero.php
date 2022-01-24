@@ -189,6 +189,11 @@ class Dintero extends AbstractMethod
     protected $orderResource;
 
     /**
+     * @var string
+     */
+    protected $_infoBlockType = \Dintero\Checkout\Block\Info::class;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -480,6 +485,8 @@ class Dintero extends AbstractMethod
             ->setParentTransactionId(null)
             ->setIsTransactionClosed(0)
             ->setIsTransactionPending($response->getStatus() === Client::STATUS_ON_HOLD);
+
+        $payment->setAdditionalInformation('payment_product', $response->getData('payment_product_type'));
     }
 
     /**

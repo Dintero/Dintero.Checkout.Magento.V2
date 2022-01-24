@@ -17,7 +17,7 @@
         <arguments>
             <argument name="code" xsi:type="const">Dintero\Checkout\Model\Dintero::METHOD_CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="infoBlockType" xsi:type="string">Dintero\Checkout\Block\Info</argument>
             <argument name="commandPool" xsi:type="object">DinteroCommandPool</argument>
             <argument name="valueHandlerPool" xsi:type="object">DinteroValueHandlerPool</argument>
         </arguments>
