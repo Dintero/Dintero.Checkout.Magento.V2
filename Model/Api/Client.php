@@ -253,7 +253,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.6.11',
+            'Dintero-System-Plugin-Version' => '1.6.12',
         ];
 
         if ($token && $token instanceof Token) {
@@ -473,10 +473,10 @@ class Client
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface|\Magento\Quote\Api\Data\AddressInterface $address
      * @return array
      */
-    private function prepareAddress(\Magento\Sales\Api\Data\OrderAddressInterface $address)
+    private function prepareAddress($address)
     {
         $addressData = [
             'first_name' => $address->getFirstname(),
