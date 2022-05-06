@@ -9,7 +9,7 @@
                 <is_embedded>1</is_embedded>
                 <is_express>1</is_express>
                 <order_on_hold_status>dintero_pending_approval</order_on_hold_status>
-                <payment_action>authorize_capture</payment_action>
+                <payment_action>authorize</payment_action>
                 <express_button_type>Dintero_Checkout::images/checkout-express-dark-round.svg</express_button_type>
                 <model>Dintero\Checkout\Model\Dintero</model>
                 <order_place_redirect_url>http://localhost/</order_place_redirect_url>
