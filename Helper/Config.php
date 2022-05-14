@@ -96,6 +96,11 @@ class Config extends AbstractHelper
     const XPATH_EXPRESS_BUTTON_IMAGE = 'payment/dintero/express_button_type';
 
     /*
+     * Create Invoice
+     */
+    const XPATH_CREATE_INVOICE = 'payment/dintero/create_invoice';
+
+    /*
      * Default callback delay in seconds
      */
     const DEFAULT_CALLBACK_DELAY = 30;
@@ -506,5 +511,14 @@ class Config extends AbstractHelper
     public function getOnHoldOrderStatus($scopeCode = null)
     {
         return $this->scopeConfig->getValue(self::XPATH_ON_HOLD_STATUS, ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * @param string|null $scopeCode
+     * @return bool
+     */
+    public function canCreateInvoice($scopeCode = null)
+    {
+        return $this->scopeConfig->isSetFlag(self::XPATH_CREATE_INVOICE, ScopeInterface::SCOPE_STORE, $scopeCode);
     }
 }

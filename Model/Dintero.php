@@ -2,6 +2,7 @@
 
 namespace Dintero\Checkout\Model;
 
+use Dintero\Checkout\Helper\Config;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Gateway\ResponseFactory;
 
@@ -194,6 +195,11 @@ class Dintero extends AbstractMethod
     protected $_infoBlockType = \Dintero\Checkout\Block\Info::class;
 
     /**
+     * @var Config $config
+     */
+    protected $config;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -206,7 +212,8 @@ class Dintero extends AbstractMethod
      * @param Adapter $adapter
      * @param ResponseFactory $responseFactory
      * @param OrderSender $orderSender
-     * @param \Dintero\Checkout\Model\Order $orderResource
+     * @param OrderResource $orderResource
+     * @param Config $config
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -226,6 +233,7 @@ class Dintero extends AbstractMethod
         ResponseFactory            $responseFactory,
         OrderSender                $orderSender,
         OrderResource              $orderResource,
+        Config                     $config,
         AbstractResource           $resource = null,
         AbstractDb                 $resourceCollection = null,
         array                      $data = [],
@@ -252,6 +260,7 @@ class Dintero extends AbstractMethod
         $this->adapter = $adapter;
         $this->orderSender = $orderSender;
         $this->orderResource = $orderResource;
+        $this->config = $config;
     }
 
     /**
@@ -368,6 +377,14 @@ class Dintero extends AbstractMethod
 
         $this->addStatusComment($payment);
         $this->orderResource->save($order);
+
+        if ($this->getResponse()->getStatus() === Client::STATUS_AUTHORIZED && $this->config->canCreateInvoice()) {
+            $order->prepareInvoice()
+                ->setTransactionId($this->getResponse()->getId())
+                ->register()
+                ->save();
+        }
+
         $this->sendOrderEmail($order, !$isFailed);
     }
 

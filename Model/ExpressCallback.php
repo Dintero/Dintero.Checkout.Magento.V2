@@ -64,6 +64,9 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
      */
     protected $createOrder;
 
+    /**
+     * @var DinteroFactory $paymentMethodFactory
+     */
     protected $paymentMethodFactory;
 
     /**

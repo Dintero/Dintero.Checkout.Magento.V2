@@ -608,9 +608,7 @@ class Client
      */
     public function capture($transactionId, \Magento\Sales\Model\Order\Payment $payment, $amount)
     {
-        /** @var \Magento\Sales\Model\Order|\Magento\Quote\Model\Quote $salesDocument */
-        $salesDocument = $payment->getSalesDocument();
-        $this->scope = $salesDocument->getStoreId();
+        $this->scope = $payment->getOrder()->getStoreId();
 
         $transaction = $this->getTransaction($transactionId, $this->scope);
         if (!$this->canCaptureTransaction($transaction)) {
