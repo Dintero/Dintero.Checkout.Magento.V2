@@ -158,12 +158,13 @@ class CreateOrder
 
         $transaction->setIsClosed($dinteroTransaction->getStatus() == Client::STATUS_CAPTURED)->save();
 
-        if ($order->canInvoice() && $dinteroTransaction->getStatus() != Client::STATUS_ON_HOLD) {
+        if ($this->canInvoice($order, $dinteroTransaction)) {
             /** @var Invoice $invoice */
             $invoice = $order->prepareInvoice()
                 ->setTransactionId($transaction->getId())
                 ->register()
                 ->save();
+
             if ($invoice->canCapture() && $this->configHelper->isAutocaptureEnabled()) {
                 $this->triggerCapture($invoice);
             }
@@ -205,5 +206,25 @@ class CreateOrder
             ->addObject($invoice)
             ->addObject($invoice->getOrder())
             ->save();
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @param \Magento\Framework\DataObject $dinteroTransaction
+     * @return bool
+     */
+    private function canInvoice($order, $dinteroTransaction)
+    {
+        if (!$order->canInvoice()) {
+            return false;
+        }
+
+        if ($dinteroTransaction->getStatus() == Client::STATUS_AUTHORIZED
+            && !$this->configHelper->canCreateInvoice()
+        ) {
+            return false;
+        }
+
+        return $dinteroTransaction->getStatus() != Client::STATUS_ON_HOLD;
     }
 }

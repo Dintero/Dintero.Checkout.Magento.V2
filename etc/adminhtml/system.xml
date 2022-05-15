@@ -60,6 +60,11 @@
                     <label>Payment Action</label>
                     <source_model>Dintero\Checkout\Model\Source\PaymentAction</source_model>
                 </field>
+                <field id="create_invoice" translate="label" type="select" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enable Pending Invoice Creation</label>
+                    <comment><![CDATA[Create pending invoice for authorization transaction.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="order_on_hold_status" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Holded Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
