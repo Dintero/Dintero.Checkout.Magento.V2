@@ -193,14 +193,14 @@ class Client
     /**
      * @return string
      */
-    protected function getCallbackUrl()
+    protected function getCallbackUrl($storeCode = null)
     {
         if ($this->isExpress()) {
-            return $this->configHelper->getExpressCheckoutCallback();
+            return $this->configHelper->getExpressCheckoutCallback($storeCode);
         }
 
         if ($this->isEmbedded()) {
-            return $this->configHelper->getEmbeddedCheckoutCallback();
+            return $this->configHelper->getEmbeddedCheckoutCallback($storeCode);
         }
 
         return $this->configHelper->getCallbackUrl();
@@ -253,7 +253,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.6.13',
+            'Dintero-System-Plugin-Version' => '1.6.14',
         ];
 
         if ($token && $token instanceof Token) {
@@ -425,6 +425,7 @@ class Client
      */
     private function prepareData($salesObject, $salesDocument = null)
     {
+        ;
         $customerEmail = $salesObject->getCustomerIsGuest() ?
             $salesObject->getBillingAddress()->getEmail() :
             $salesObject->getCustomerEmail();
@@ -434,7 +435,7 @@ class Client
             'expires_at' => date('Y-m-d\TH:i:s.z\Z', strtotime('+4hour')),
             'url' => [
                 'return_url' => $this->configHelper->getReturnUrl(),
-                'callback_url' => $this->getCallbackUrl(),
+                'callback_url' => $this->getCallbackUrl($salesObject->getStore()->getCode()),
             ],
             'order' => [
                 'amount' => $baseOrderTotal * 100,
@@ -453,7 +454,9 @@ class Client
 
         if ($this->isExpress()) {
             $orderData['express']['customer_types'] = ['b2c', 'b2b'];
-            $orderData['express']['shipping_address_callback_url'] = $this->configHelper->getShippingCallbackUrl();
+            $orderData['express']['shipping_address_callback_url'] = $this->configHelper->getShippingCallbackUrl(
+                $salesObject->getStore()->getCode()
+            );
             $orderData['express']['shipping_options'] = [];
         }
 

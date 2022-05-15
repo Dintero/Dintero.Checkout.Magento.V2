@@ -280,18 +280,18 @@ class Config extends AbstractHelper
      *
      * @return string
      */
-    public function getShippingCallbackUrl()
+    public function getShippingCallbackUrl($storeCode)
     {
-        return $this->_getUrl('rest/default/V1', ['dintero' => 'shipping']);
+        return $this->_getUrl(sprintf('rest/%s/V1', $storeCode), ['dintero' => 'shipping']);
     }
 
     /**
      * @return string
      */
-    public function getExpressCheckoutCallback()
+    public function getExpressCheckoutCallback($storeCode)
     {
         return $this->_getUrl(
-            'rest/default/V1',
+            sprintf('rest/%s/V1', $storeCode),
             [
                 'dintero' => 'express',
                 '_query' => [
@@ -305,10 +305,10 @@ class Config extends AbstractHelper
     /**
      * @return string
      */
-    public function getEmbeddedCheckoutCallback()
+    public function getEmbeddedCheckoutCallback($storeCode)
     {
         return $this->_getUrl(
-            'rest/default/V1',
+            sprintf('rest/%s/V1', $storeCode),
             [
                 'dintero' => 'embedded',
                 '_query' => [
