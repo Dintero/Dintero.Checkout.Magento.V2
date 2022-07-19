@@ -1,0 +1,16 @@
+<!--@subject {{trans "Order from %store_name is ready for payment" store_name=$store_name}} @-->
+{{template config_path="design/email/header_template"}}
+
+<table>
+    <tr class="email-intro">
+        <td>
+            <p>
+                {{trans "Your order from %store_name for %amount %currency is ready for payment." store_name=$store_name amount=$order.getGrandTotal() currency=$order.getOrderCurrencyCode()}}
+                {{trans "Please visit our payment partner Dintero here to pay the order. This link is valid for %days day(s)." days=1}}
+                {{trans "<a href="%checkout_url">Pay with Dintero</a>" checkout_url=$link|raw}}
+            </p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

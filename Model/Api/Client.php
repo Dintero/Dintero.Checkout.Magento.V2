@@ -432,7 +432,10 @@ class Client
         $baseOrderTotal = $salesDocument ? $salesDocument->getBaseGrandTotal() : $salesObject->getBaseGrandTotal();
         $orderData = [
             'profile_id' => $this->configHelper->getProfileId(),
-            'expires_at' => date('Y-m-d\TH:i:s.z\Z', strtotime('+4hour')),
+            'expires_at' => date(
+                'Y-m-d\TH:i:s.z\Z',
+                $salesObject->getSessionExpiresAt() ?: strtotime('+4hour')
+            ),
             'url' => [
                 'return_url' => $this->configHelper->getReturnUrl(),
                 'callback_url' => $this->getCallbackUrl($salesObject->getStore()->getCode()),

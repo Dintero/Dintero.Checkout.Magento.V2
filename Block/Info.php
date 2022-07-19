@@ -11,7 +11,14 @@ class Info extends \Magento\Payment\Block\Info
     protected function _prepareSpecificInformation($transport = null)
     {
         $info = parent::_prepareSpecificInformation($transport);
-        $info->setData('Payment Type', $this->getInfo()->getAdditionalInformation('payment_product'));
+
+        if ($paymentType = $this->getInfo()->getAdditionalInformation('payment_product')) {
+            $info->setData('Payment Type', $paymentType);
+        }
+
+        if ($paymentLink = $this->getInfo()->getAdditionalInformation('payment_link')) {
+            $info->setData('Payment Link', $paymentLink);
+        }
         return $info;
     }
 }
