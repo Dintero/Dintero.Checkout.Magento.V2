@@ -5,7 +5,6 @@ namespace Dintero\Checkout\Model;
 use Dintero\Checkout\Helper\Config;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Gateway\ResponseFactory;
-
 use Dintero\Checkout\Model\Payment\Response;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -102,7 +101,7 @@ class Dintero extends AbstractMethod
      *
      * @var bool
      */
-    protected $_canUseInternal = false;
+    protected $_canUseInternal = true;
 
     /**
      * Payment Method feature

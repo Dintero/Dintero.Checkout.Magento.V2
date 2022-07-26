@@ -120,6 +120,16 @@ class Config extends AbstractHelper
      */
     const XPATH_PRODUCT_PAGE_BUTTON_ENABLED = 'payment/dintero/product_page_button_enabled';
 
+    /*
+     * Number of days for session expiration
+     */
+    const XPATH_SESSION_EXP_DAY = 'payment/dintero/expiration_days';
+
+    /*
+     * Payment Email Template
+     */
+    const XPATH_PAYMENT_EMAIL_TPL = 'payment/dintero/payment_email';
+
     /**
      * Encryptor object used to encrypt/decrypt sensitive data
      *
@@ -511,6 +521,59 @@ class Config extends AbstractHelper
     public function getOnHoldOrderStatus($scopeCode = null)
     {
         return $this->scopeConfig->getValue(self::XPATH_ON_HOLD_STATUS, ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * Retrieve payment link email template
+     *
+     * @param string $scopeCode
+     * @return mixed
+     */
+    public function getPaymentLinkTemplate($scopeCode = null)
+    {
+        return $this->scopeConfig->getValue(self::XPATH_PAYMENT_EMAIL_TPL, ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * Retrieve sender name
+     *
+     * @param string $scopeCode
+     * @return string
+     */
+    public function getSenderName($scopeCode = null)
+    {
+        return $this->scopeConfig->getValue('trans_email/ident_support/name', ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * Retrieve sender email
+     *
+     * @param string $scopeCode
+     * @return string
+     */
+    public function getSenderEmail($scopeCode = null)
+    {
+        return $this->scopeConfig->getValue('trans_email/ident_support/email', ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * Retrieve session expiration in days
+     *
+     * @return mixed
+     */
+    public function getSessionExpirationDays()
+    {
+        return  $this->scopeConfig->getValue(self::XPATH_SESSION_EXP_DAY);
+    }
+
+    /**
+     * Retrieve session expiration date time
+     *
+     * @return integer
+     */
+    public function getSessionExpirationDate()
+    {
+        return strtotime(sprintf('+%dday', $this->getSessionExpirationDays()));
     }
 
     /**

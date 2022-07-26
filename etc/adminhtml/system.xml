@@ -56,9 +56,17 @@
                     <label>Checkout Profile Id</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
-                <field id="payment_action" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <field id="expiration_days" translate="label" sortOrder="16" showInDefault="1" canRestore="1">
+                    <label>Session Expiration (Days)</label>
+                </field>
+                <field id="payment_action" translate="label" type="select" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Payment Action</label>
                     <source_model>Dintero\Checkout\Model\Source\PaymentAction</source_model>
+                </field>
+                <field id="payment_email"  type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Payment Link Email Template</label>
+                    <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                 </field>
                 <field id="create_invoice" translate="label" type="select" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Enable Pending Invoice Creation</label>
