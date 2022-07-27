@@ -130,6 +130,7 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
             $this->createOrder->createFromTransaction($quote, $request->getId());
         } catch (\Exception $e) {
             $this->logger->critical($e);
+            throw $e;
         }
     }
 }
