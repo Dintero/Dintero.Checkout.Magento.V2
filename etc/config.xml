@@ -29,7 +29,7 @@
                 <logo_color>444444</logo_color>
                 <logo_width>600</logo_width>
                 <language>en_US</language>
-                <payment_email>payment_us_dintero_payment_email</payment_email>
+                <payment_email>payment_dintero_payment_email</payment_email>
                 <expiration_days>1</expiration_days>
             </dintero>
         </payment>

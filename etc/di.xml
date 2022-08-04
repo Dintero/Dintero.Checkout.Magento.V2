@@ -81,4 +81,7 @@
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="dintero_csrf_validator_skip" type="Dintero\Checkout\Plugin\CsrfValidatorSkip" />
     </type>
+    <type name="Magento\Email\Model\Template\Config">
+        <plugin name="dintero_fix_email_template_id" type="Dintero\Checkout\Plugin\EmailConfig" />
+    </type>
 </config>
