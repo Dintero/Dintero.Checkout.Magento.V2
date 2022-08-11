@@ -20,7 +20,7 @@ define(
                             sid: session.id,
                             language: window.checkoutConfig.payment.dintero.language,
                             onPaymentError: function(event, checkout) {
-                                alert($.mage.__('Unable to place the order'));
+                                alert($.mage.__('The payment was out of date. Refresh the page to try again'));
                                 checkout.destroy();
                             }
                         });

@@ -22,6 +22,10 @@ define(
             redirectAfterPlaceOrder: false,
             isVisible: ko.observable(true),
             showButton: ko.observable(true),
+            initElement: function() {
+                this._super();
+                paymentService.init();
+            },
             getLogoUrl: function() {
                 return window.checkoutConfig.payment.dintero.logoUrl;
             },
