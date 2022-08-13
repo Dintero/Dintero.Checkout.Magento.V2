@@ -23,8 +23,15 @@ define(
             isVisible: ko.observable(true),
             showButton: ko.observable(true),
             initElement: function() {
+                var _this = this;
                 this._super();
                 paymentService.init();
+                $(paymentService).on('dintero.payment.failed', function(event, message) {
+                    _this.errorHandler(event, message)
+                })
+            },
+            errorHandler: function(event, errorMessage) {
+                this.messageContainer.addErrorMessage({message: errorMessage});
             },
             getLogoUrl: function() {
                 return window.checkoutConfig.payment.dintero.logoUrl;
