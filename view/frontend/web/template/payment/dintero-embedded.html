@@ -11,6 +11,9 @@
         </label>
     </div>
     <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
         <div id="dintero-embedded-checkout-container"></div>
     </div>
 </div>

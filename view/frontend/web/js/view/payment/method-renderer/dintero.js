@@ -9,11 +9,9 @@ define(
         'Magento_Customer/js/customer-data',
         'ko',
         'Magento_Checkout/js/model/full-screen-loader',
-        'dinteroSdk',
-        'Magento_Checkout/js/model/url-builder',
-        'mage/storage'
+        'Dintero_Checkout/js/action/dintero-payment-service'
     ],
-    function ($, Component, placeOrderAction, setPaymentMethodAction, additionalValidators, quote, customerData, ko, fullScreenLoader, dintero, urlBuilder, storage) {
+    function ($, Component, placeOrderAction, setPaymentMethodAction, additionalValidators, quote, customerData, ko, fullScreenLoader, paymentService) {
         'use strict';
 
         let dinteroTemplate = window.checkoutConfig.payment.dintero.isEmbedded ? 'Dintero_Checkout/payment/dintero-embedded' : 'Dintero_Checkout/payment/dintero';
@@ -25,23 +23,15 @@ define(
             isVisible: ko.observable(true),
             showButton: ko.observable(true),
             initElement: function() {
+                var _this = this;
                 this._super();
-                if (window.checkoutConfig.payment.dintero.isEmbedded) {
-                    const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-init', {}),
-                        payload = {cartId: quote.getQuoteId()};
-                    storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json').success(function(session) {
-                        dintero.embed({
-                            container: $('#dintero-embedded-checkout-container').get(0),
-                            sid: session.id,
-                            language: window.checkoutConfig.payment.dintero.language,
-                            onPaymentError: function(event, checkout) {
-                                alert($.mage.__('Unable to place the order'));
-                                checkout.destroy();
-                            }
-                        });
-                    });
-                }
-                return this;
+                paymentService.init();
+                $(paymentService).on('dintero.payment.failed', function(event, message) {
+                    _this.errorHandler(event, message)
+                })
+            },
+            errorHandler: function(event, errorMessage) {
+                this.messageContainer.addErrorMessage({message: errorMessage});
             },
             getLogoUrl: function() {
                 return window.checkoutConfig.payment.dintero.logoUrl;
