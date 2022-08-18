@@ -1,0 +1,7 @@
+{
+    "sales_order_payment": {
+        "column": {
+            "dintero_payment_product": true
+        }
+    }
+}

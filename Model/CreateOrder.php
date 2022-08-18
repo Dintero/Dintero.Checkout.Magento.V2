@@ -23,33 +23,74 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 
 class CreateOrder
 {
-
+    /**
+     * @var Client $apiClient
+     */
     private $apiClient;
 
+    /**
+     * @var CartManagementInterface $cartManagement
+     */
     private $cartManagement;
 
+    /**
+     * @var Quote $quoteResource
+     */
     private $quoteResource;
 
+    /**
+     * @var QuoteFactory $quoteFactory
+     */
     private $quoteFactory;
 
+    /**
+     * @var AddressMapperFactory $addressMapperFactory
+     */
     private $addressMapperFactory;
 
+    /**
+     * @var Registry $registry
+     */
     private $registry;
 
+    /**
+     * @var InvoiceRepositoryInterface $invoiceRepository
+     */
     private $invoiceRepository;
 
+    /**
+     * @var CustomerRepositoryInterface $customerRepository
+     */
     private $customerRepository;
 
+    /**
+     * @var Config $configHelper
+     */
     private $configHelper;
 
+    /**
+     * @var Builder $transactionBuilder
+     */
     private $transactionBuilder;
 
+    /**
+     * @var TransactionStatusResolver $transactionStatusResolver
+     */
     private $transactionStatusResolver;
 
+    /**
+     * @var ObjectManagerInterface $objectManager
+     */
     private $objectManager;
 
+    /**
+     * @var InvoiceManagementInterface $invoiceManagement
+     */
     private $invoiceManagement;
 
+    /**
+     * @var OrderRepositoryInterface $orderRepository
+     */
     protected $orderRepository;
 
     /**
@@ -57,6 +98,25 @@ class CreateOrder
      */
     protected $paymentMethodFactory;
 
+    /**
+     * Define class dependencies
+     *
+     * @param Client $apiClient
+     * @param CartManagementInterface $cartManagement
+     * @param Quote $quoteResource
+     * @param QuoteFactory $quoteFactory
+     * @param AddressMapperFactory $addressMapperFactory
+     * @param Registry $registry
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param Config $config
+     * @param Builder $transactionBuilder
+     * @param TransactionStatusResolver $transactionStatusResolver
+     * @param InvoiceManagementInterface $invoiceManagement
+     * @param ObjectManagerInterface $objectManager
+     * @param OrderRepositoryInterface $orderRepository
+     * @param DinteroFactory $paymentMethodFactory
+     */
     public function __construct(
         Client $apiClient,
         CartManagementInterface $cartManagement,
@@ -72,7 +132,7 @@ class CreateOrder
         InvoiceManagementInterface $invoiceManagement,
         ObjectManagerInterface $objectManager,
         OrderRepositoryInterface $orderRepository,
-        \Dintero\Checkout\Model\DinteroFactory $paymentMethodFactory
+        DinteroFactory $paymentMethodFactory
     ) {
         $this->apiClient = $apiClient;
         $this->cartManagement = $cartManagement;
@@ -150,7 +210,10 @@ class CreateOrder
 
         $paymentObject = $order->getPayment();
         $paymentObject->setCcTransId($dinteroTransaction->getId())
-            ->setLastTransId($dinteroTransaction->getId());
+            ->setLastTransId($dinteroTransaction->getId())
+            ->setAdditionalInformation('payment_product', $dinteroTransaction->getData('payment_product_type'))
+            ->setDinteroPaymentProduct($dinteroTransaction->getData('payment_product_type'));
+        $paymentObject->save();
         $transaction = $this->transactionBuilder->setPayment($paymentObject)
             ->setOrder($order)
             ->setTransactionId($dinteroTransaction->getId())
