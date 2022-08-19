@@ -503,6 +503,7 @@ class Dintero extends AbstractMethod
             ->setIsTransactionPending($response->getStatus() === Client::STATUS_ON_HOLD);
 
         $payment->setAdditionalInformation('payment_product', $response->getData('payment_product_type'));
+        $payment->setDinteroPaymentProduct($response->getData('payment_product_type'));
     }
 
     /**

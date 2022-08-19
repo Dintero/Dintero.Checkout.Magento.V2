@@ -1,10 +1,26 @@
 # Changelog
 
-v1.6.14
+v1.6.19
+- Dintero Payment Method column added to sales order grid
+
+v1.6.18
+- Fixed issue with duplicate sessions
+
+v1.6.17
+- Error caused by wrong email id fixed.
+
+v1.6.16
+- Throw exception for embedded checkout callback
+
+v1.6.15
 - Added option to auto-create invoice for authorized transaction 
 - default payment action changed to "authorize"
 - store hardcode removed from callback urls
 
+- v1.6.14
+- Added option to auto-create invoice for authorized transaction 
+- default payment action changed to "authorize"
+- store hardcode removed from callback urls
 
 v1.6.13
 - Http Client Timeout increased
