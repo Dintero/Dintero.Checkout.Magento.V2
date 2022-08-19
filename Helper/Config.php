@@ -390,11 +390,11 @@ class Config extends AbstractHelper
     public function getDefaultLogoUrl()
     {
         $baseUrl = Client::CHECKOUT_API_BASE_URL;
-        $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_instabank/'
+        $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_walley/'
             . 'variant/%s/colors/color/%s/width/%d/dintero_left_frame.svg';
 
         if ($this->scopeConfig->isSetFlag(self::XPATH_LOGO_TYPE)) {
-            $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_instabank/'
+            $pattern = '%s/branding/logos/visa_mastercard_vipps_swish_walley/'
                 . 'variant/%s/color/%s/width/%d/dintero_left_frame.svg';
         }
 
@@ -416,12 +416,13 @@ class Config extends AbstractHelper
     public function getCheckoutLogoUrl($scopeCode = null)
     {
         $baseUrl = Client::CHECKOUT_API_BASE_URL;
-        $pattern = '%s/branding/profiles/%s/'
+        $pattern = '%s/branding/accounts/%s/profiles/%s/'
             . 'variant/%s/color/%s/width/%d/dintero_left_frame.svg';
 
         return sprintf(
             $pattern,
             $baseUrl,
+            $this->getFullAccountId($scopeCode),
             $this->getProfileId($scopeCode),
             $this->getLogoType(),
             str_replace('#', '', $this->getLogoColor()),
