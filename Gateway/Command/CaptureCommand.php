@@ -53,8 +53,9 @@ class CaptureCommand implements CommandInterface
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $commandSubject['payment']->getPayment();
 
-        $invoice = $this->registry->registry('current_invoice');
-        $payment->setSalesDocument($invoice);
+        if ($invoice = $this->registry->registry('current_invoice')) {
+            $payment->setSalesDocument($invoice);
+        }
 
         $transactionId = $payment->getTransactionId();
 
