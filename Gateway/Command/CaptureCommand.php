@@ -54,7 +54,9 @@ class CaptureCommand implements CommandInterface
         $payment = $commandSubject['payment']->getPayment();
 
         $invoice = $this->registry->registry('current_invoice');
-        $payment->setSalesDocument($invoice);
+        if ($invoice) {
+            $payment->setSalesDocument($invoice);
+        }
 
         $transactionId = $payment->getTransactionId();
 
