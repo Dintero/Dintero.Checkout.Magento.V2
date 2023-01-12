@@ -200,8 +200,8 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             $shippingOption = $this->shippingOptionFactory->create();
 
             $shippingOption->setAmount($shippingMethod->getPriceExclTax() * 100)
-                ->setVat(($shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()) * 100)
-                ->setVatAmount(0)
+                ->setVat(0)
+                ->setVatAmount(($shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()) * 100)
                 ->setOperator($shippingMethod->getCarrierTitle())
                 ->setOperatorProductId($shippingMethod->getMethodCode())
                 ->setDeliveryMethod(
