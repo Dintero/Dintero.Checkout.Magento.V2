@@ -1,5 +1,11 @@
 # Changelog
 
+v1.6.21
+- Fixed issue with wrong shipping tax amount and percent values during express checkout
+
+v1.6.20
+- Added observer to set invoice as sales document during capture
+
 v1.6.19
 - Dintero Payment Method column added to sales order grid
 

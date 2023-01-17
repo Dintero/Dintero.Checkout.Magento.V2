@@ -199,9 +199,9 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             /** @var \Dintero\Checkout\Api\Data\ShippingMethodInterface $shippingOption */
             $shippingOption = $this->shippingOptionFactory->create();
 
-            $shippingOption->setAmount($shippingMethod->getPriceExclTax() * 100)
-                ->setVat(($shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()) * 100)
-                ->setVatAmount(0)
+            $shippingOption->setAmount($shippingMethod->getPriceInclTax() * 100)
+                ->setVat(0)
+                ->setVatAmount(($shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()) * 100)
                 ->setOperator($shippingMethod->getCarrierTitle())
                 ->setOperatorProductId($shippingMethod->getMethodCode())
                 ->setDeliveryMethod(
@@ -215,7 +215,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
                 ->setCountries($this->getCountries($shippingMethod->getCarrierCode()));
 
             if ($shippingOption->getVatAmount() > 0) {
-                $shippingOption->setVat($shippingOption->getVatAmount() / ($shippingOption->getAmount() / 100));
+                $shippingOption->setVat($shippingOption->getVatAmount() / $shippingMethod->getPriceExclTax());
             }
 
             array_push($shippingOptions, $shippingOption);
