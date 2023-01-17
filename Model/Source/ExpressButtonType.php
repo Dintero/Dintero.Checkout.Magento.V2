@@ -16,11 +16,11 @@ class ExpressButtonType implements OptionSourceInterface
     {
         return [
             [
-                'value' => 'Dintero_Checkout::images/checkout-express-dark-round.svg',
+                'value' => 'Dintero_Checkout::images/dintero-express-btn-dark.svg',
                 'label' => __('Dark Round'),
             ],
             [
-                'value' => 'Dintero_Checkout::images/express-btn-dark-round-single-line.svg',
+                'value' => 'Dintero_Checkout::images/dintero-express-btn-light.svg',
                 'label' => __('Dark Round Single Line')
             ]
         ];
