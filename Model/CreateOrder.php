@@ -233,8 +233,13 @@ class CreateOrder
             }
         }
 
+        /** @var \Dintero\Checkout\Model\Dintero $paymentMethodInstance */
+        $paymentMethodInstance = $this->paymentMethodFactory->create();
+
         if ($dinteroTransaction->getStatus() == Client::STATUS_ON_HOLD) {
-            $this->paymentMethodFactory->create()->process($order->getIncrementId(), $transactionId);
+            $paymentMethodInstance->process($order->getIncrementId(), $transactionId);
+        } else {
+            $paymentMethodInstance->sendOrderEmail($order, !$order->getEmailSent());
         }
 
         return $this->orderRepository->get($order->getId());
