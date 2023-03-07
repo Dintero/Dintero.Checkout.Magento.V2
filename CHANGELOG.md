@@ -1,5 +1,12 @@
 # Changelog
 
+v1.7.1
+- order confirmation email is sent when creating order from transaction
+ 
+v1.7.0
+- version updated
+- syntax error fixed
+
 v1.6.21
 - Fixed issue with wrong shipping tax amount and percent values during express checkout
 
