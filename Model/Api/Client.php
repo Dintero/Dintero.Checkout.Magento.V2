@@ -3,6 +3,7 @@
 namespace Dintero\Checkout\Model\Api;
 
 use Dintero\Checkout\Helper\Config as ConfigHelper;
+use Dintero\Checkout\Model\Dintero;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
@@ -253,7 +254,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.7.1',
+            'Dintero-System-Plugin-Version' => '1.7.2',
         ];
 
         if ($token && $token instanceof Token) {
@@ -461,6 +462,8 @@ class Client
                 $salesObject->getStore()->getCode()
             );
             $orderData['express']['shipping_options'] = [];
+            $orderData['configuration']['auto_capture'] = $this->configHelper
+                    ->getPaymentAction() === Dintero::ACTION_AUTHORIZE_CAPTURE;
         }
 
         if (!empty($customerEmail)) {

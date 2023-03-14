@@ -152,6 +152,34 @@ class CreateOrder
     }
 
     /**
+     * Check and process invoice if allowed
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @param $transaction
+     * @return void
+     * @throws \Exception
+     */
+    private function processInvoice($order, $transaction)
+    {
+        // register offline capture if transaction is closed already
+        if ($transaction->getIsClosed()) {
+            $order->getPayment()->registerCaptureNotification($order->getGrandTotal());
+            $order->save();
+            return;
+        }
+
+        /** @var Invoice $invoice */
+        $invoice = $order->prepareInvoice()
+            ->setTransactionId($transaction->getId())
+            ->register()
+            ->save();
+
+        if ($invoice->canCapture() && $this->configHelper->isAutocaptureEnabled() && !$transaction->getIsClosed()) {
+            $this->triggerCapture($invoice);
+        }
+    }
+
+    /**
      * @param \Magento\Quote\Model\Quote $quote
      * @param string $transactionId
      * @throws LocalizedException
@@ -222,15 +250,7 @@ class CreateOrder
         $transaction->setIsClosed($dinteroTransaction->getStatus() == Client::STATUS_CAPTURED)->save();
 
         if ($this->canInvoice($order, $dinteroTransaction)) {
-            /** @var Invoice $invoice */
-            $invoice = $order->prepareInvoice()
-                ->setTransactionId($transaction->getId())
-                ->register()
-                ->save();
-
-            if ($invoice->canCapture() && $this->configHelper->isAutocaptureEnabled()) {
-                $this->triggerCapture($invoice);
-            }
+            $this->processInvoice($order, $transaction);
         }
 
         /** @var \Dintero\Checkout\Model\Dintero $paymentMethodInstance */

@@ -1,5 +1,8 @@
 # Changelog
 
+v1.7.2
+- fixed issue happening with authorize & capture transactions after redirect to success page
+
 v1.7.1
 - order confirmation email is sent when creating order from transaction
  
