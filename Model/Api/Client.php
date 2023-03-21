@@ -7,6 +7,7 @@ use Dintero\Checkout\Model\Dintero;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
+use Magento\Catalog\Helper\Image;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
@@ -141,6 +142,11 @@ class Client
     protected $objectManager;
 
     /**
+     * @var \Magento\Catalog\Helper\Image $imageHelper
+     */
+    protected $imageHelper;
+
+    /**
      * Client constructor.
      *
      * @param DinteroHpClient $client
@@ -151,6 +157,7 @@ class Client
      * @param Json $converter
      * @param \Magento\Quote\Model\ResourceModel\Quote $quoteResource
      * @param ObjectManagerInterface $objectManager
+     * @param \Magento\Catalog\Helper\Image $imageFactory
      */
     public function __construct(
         DinteroHpClient $client,
@@ -160,7 +167,8 @@ class Client
         LoggerInterface $logger,
         Json $converter,
         \Magento\Quote\Model\ResourceModel\Quote $quoteResource,
-        ObjectManagerInterface $objectManager
+        ObjectManagerInterface $objectManager,
+        Image $imageHelper
     ) {
         $this->client = $client;
         $this->configHelper = $configHelper;
@@ -171,6 +179,7 @@ class Client
         $this->quoteResource = $quoteResource;
         $this->type = self::TYPE_STANDARD;
         $this->objectManager = $objectManager;
+        $this->imageHelper = $imageHelper;
     }
 
     /**
@@ -525,6 +534,7 @@ class Client
                 'id' => $item->getSku(),
                 'line_id' => $item->getSku(),
                 'amount' => ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
+                'thumbnail_url' => $this->prepareImageUrl($item->getProduct()),
             ]);
         }
 
@@ -543,6 +553,20 @@ class Client
     }
 
     /**
+     * Prepare image url
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return string
+     */
+    private function prepareImageUrl($product)
+    {
+        return $this->imageHelper->init(
+            $product,
+            'product_page_image_small'
+        )->setImageFile($product->getImage())->resize(100)->getUrl();
+    }
+
+    /**
      * Preparing order items for sending
      *
      * @param Order|\Magento\Quote\Model\Quote $order
@@ -552,6 +576,7 @@ class Client
     {
         $items = [];
         $isQuote = $salesObject instanceof \Magento\Quote\Model\Quote;
+        /** @var \Magento\Sales\Model\Order\Item|\Magento\Quote\Model\Quote\Item $item */
         foreach ($salesObject->getAllVisibleItems() as $item) {
             array_push($items, [
                 'id' => $item->getSku(),
@@ -561,6 +586,7 @@ class Client
                 'line_id' => $item->getSku(),
                 'vat_amount' => $item->getBaseTaxAmount() * 100, // NOK cannot be floating
                 'vat' => $item->getTaxPercent() * 1,
+                'thumbnail_url' => $this->prepareImageUrl($item->getProduct()),
             ]);
         }
 
