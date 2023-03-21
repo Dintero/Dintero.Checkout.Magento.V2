@@ -219,8 +219,8 @@ class Dintero extends AbstractMethod
      * @param DirectoryHelper|null $directory
      */
     public function __construct(
-        Context $context,
-        Registry $registry,
+        Context                    $context,
+        Registry                   $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory      $customAttributeFactory,
         Data                       $paymentData,
@@ -237,7 +237,8 @@ class Dintero extends AbstractMethod
         AbstractDb                 $resourceCollection = null,
         array                      $data = [],
         DirectoryHelper            $directory = null
-    ) {
+    )
+    {
         parent::__construct(
             $context,
             $registry,
@@ -318,6 +319,7 @@ class Dintero extends AbstractMethod
 
         // if payment has transaction that means that it was already processed
         if ($payment->getLastTransId()) {
+            $this->processTransaction($payment);
             return;
         }
 
@@ -329,7 +331,7 @@ class Dintero extends AbstractMethod
         );
 
         $this->logger->debug([
-            'Processing order #: '.$merchantOrderId,
+            'Processing order #: ' . $merchantOrderId,
             'Order real id: ' . $order->getId(),
         ]);
 
@@ -385,6 +387,23 @@ class Dintero extends AbstractMethod
         }
 
         $this->sendOrderEmail($order, !$isFailed);
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @return void
+     */
+    private function processTransaction($payment)
+    {
+        $transaction = $payment->getAuthorizationTransaction();
+        if ($transaction->getTxnId() !== $payment->getLastTransId()) {
+            return;
+        }
+
+        if ($this->getResponse()->getData('status') === Client::STATUS_CAPTURED) {
+            $payment->registerCaptureNotification($this->getResponse()->getData('amount') / 100);
+            $payment->getOrder()->save();
+        }
     }
 
     /**
