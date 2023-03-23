@@ -462,8 +462,6 @@ class Client
                 $salesObject->getStore()->getCode()
             );
             $orderData['express']['shipping_options'] = [];
-            $orderData['configuration']['auto_capture'] = $this->configHelper
-                    ->getPaymentAction() === Dintero::ACTION_AUTHORIZE_CAPTURE;
         }
 
         if (!empty($customerEmail)) {
