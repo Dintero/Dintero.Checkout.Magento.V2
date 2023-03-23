@@ -237,8 +237,7 @@ class Dintero extends AbstractMethod
         AbstractDb                 $resourceCollection = null,
         array                      $data = [],
         DirectoryHelper            $directory = null
-    )
-    {
+    ) {
         parent::__construct(
             $context,
             $registry,
@@ -396,7 +395,7 @@ class Dintero extends AbstractMethod
     private function processTransaction($payment)
     {
         $transaction = $payment->getAuthorizationTransaction();
-        if ($transaction->getTxnId() !== $payment->getLastTransId()) {
+        if ($transaction && $transaction->getTxnId() !== $payment->getLastTransId()) {
             return;
         }
 

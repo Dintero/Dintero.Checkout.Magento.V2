@@ -254,7 +254,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.7.2',
+            'Dintero-System-Plugin-Version' => '1.7.3',
         ];
 
         if ($token && $token instanceof Token) {
@@ -462,8 +462,6 @@ class Client
                 $salesObject->getStore()->getCode()
             );
             $orderData['express']['shipping_options'] = [];
-            $orderData['configuration']['auto_capture'] = $this->configHelper
-                    ->getPaymentAction() === Dintero::ACTION_AUTHORIZE_CAPTURE;
         }
 
         if (!empty($customerEmail)) {
