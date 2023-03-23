@@ -1,5 +1,8 @@
 # Changelog
 
+v1.7.3
+- fixed error if there was no authorization transaction
+
 v1.7.2
 - fixed issue happening with authorize & capture transactions after redirect to success page
 
