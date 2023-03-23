@@ -396,7 +396,7 @@ class Dintero extends AbstractMethod
     private function processTransaction($payment)
     {
         $transaction = $payment->getAuthorizationTransaction();
-        if ($transaction->getTxnId() !== $payment->getLastTransId()) {
+        if ($transaction && $transaction->getTxnId() !== $payment->getLastTransId()) {
             return;
         }
 
