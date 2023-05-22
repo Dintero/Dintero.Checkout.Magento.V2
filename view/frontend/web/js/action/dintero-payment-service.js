@@ -13,6 +13,10 @@ define(
             currentRequest: false,
             init: function() {
                 var _this = this;
+                if (!window.checkoutConfig.payment.dintero.isEmbedded) {
+                    return this;
+                }
+
                 const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-init', {}),
                     payload = {cartId: quote.getQuoteId()};
                 try {

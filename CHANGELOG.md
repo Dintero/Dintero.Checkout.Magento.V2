@@ -1,5 +1,8 @@
 # Changelog
 
+v1.7.4
+- Fixed embedded checkout session initialization when embedded checkout is disabled
+
 v1.7.3
 - fixed error if there was no authorization transaction
 
