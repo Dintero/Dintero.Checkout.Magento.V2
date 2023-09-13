@@ -101,6 +101,11 @@ class Config extends AbstractHelper
     const XPATH_CREATE_INVOICE = 'payment/dintero/create_invoice';
 
     /*
+     * Shipping methods map
+     */
+    const XPATH_PICKUP_METHODS = 'payment/dintero/shipping_methods_map';
+
+    /*
      * Default callback delay in seconds
      */
     const DEFAULT_CALLBACK_DELAY = 30;
@@ -584,5 +589,19 @@ class Config extends AbstractHelper
     public function canCreateInvoice($scopeCode = null)
     {
         return $this->scopeConfig->isSetFlag(self::XPATH_CREATE_INVOICE, ScopeInterface::SCOPE_STORE, $scopeCode);
+    }
+
+    /**
+     * Retrieve pickup methods list
+     *
+     * @param string $scopeCode
+     * @return array
+     */
+    public function getPickupMethods($scopeCode = null)
+    {
+        return explode(
+            ',',
+            $this->scopeConfig->getValue(self::XPATH_PICKUP_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
+        );
     }
 }

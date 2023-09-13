@@ -1,4 +1,6 @@
 # Changelog
+v1.7.5
+- Added option allowing to configure which delivery method is pickup
 
 v1.7.4
 - Fixed embedded checkout session initialization when embedded checkout is disabled
