@@ -92,6 +92,10 @@
                     <comment><![CDATA[Logo width in pixels]]></comment>
                     <validate>validate-number</validate>
                 </field>
+                <field id="shipping_methods_map" type="multiselect" translate="label" sortOrder="150" showInDefault="1" showInWebsite="1">
+                    <label>Shipping Methods Mapping</label>
+                    <source_model>Dintero\Checkout\Model\Source\Carrier</source_model>
+                </field>
                 <field id="debug" translate="label" type="select" sortOrder="150" showInDefault="1" showInWebsite="1">
                     <label>Debug Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

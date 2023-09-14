@@ -2,10 +2,14 @@
 
 namespace Dintero\Checkout\Model;
 
+use Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory;
+use Dintero\Checkout\Api\Data\OrderInterfaceFactory;
 use Dintero\Checkout\Api\Data\Shipping\RequestInterface;
 use Dintero\Checkout\Api\Data\Shipping\RequestInterfaceFactory;
 use Dintero\Checkout\Api\Data\Shipping\ResponseInterfaceFactory;
+use Dintero\Checkout\Api\Data\ShippingMethodInterface;
 use Dintero\Checkout\Api\Data\ShippingMethodInterfaceFactory;
+use Dintero\Checkout\Helper\Config;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
@@ -89,12 +93,12 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     protected $countryCollectionFactory;
 
     /**
-     * @var \Dintero\Checkout\Api\Data\OrderInterfaceFactory $orderFactory
+     * @var OrderInterfaceFactory $orderFactory
      */
     protected $orderFactory;
 
     /**
-     * @var \Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory $orderItemFactory
+     * @var ItemInterfaceFactory $orderItemFactory
      */
     protected $orderItemFactory;
 
@@ -114,8 +118,9 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param ShippingMethodInterfaceFactory $shippingOptionFactory
      * @param Carrier $carrierHelper
      * @param CollectionFactory $countryCollectionFactory
-     * @param \Dintero\Checkout\Api\Data\OrderInterfaceFactory $orderFactory
-     * @param \Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory $orderItemFactory
+     * @param OrderInterfaceFactory $orderFactory
+     * @param ItemInterfaceFactory $orderItemFactory
+     * @param ConfigHelper $configHelper
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -131,8 +136,9 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         ShippingMethodInterfaceFactory $shippingOptionFactory,
         Carrier $carrierHelper,
         CollectionFactory $countryCollectionFactory,
-        \Dintero\Checkout\Api\Data\OrderInterfaceFactory $orderFactory,
-        \Dintero\Checkout\Api\Data\Order\ItemInterfaceFactory $orderItemFactory
+        OrderInterfaceFactory $orderFactory,
+        ItemInterfaceFactory $orderItemFactory,
+        Config $configHelper
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -149,6 +155,20 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $this->countryCollectionFactory = $countryCollectionFactory;
         $this->orderFactory = $orderFactory;
         $this->orderItemFactory = $orderItemFactory;
+        $this->configHelper = $configHelper;
+    }
+
+    /**
+     * Resolve Delivery type by shipping method
+     *
+     * @param string $shippingMethod
+     * @param string $scopeCode
+     * @return string
+     */
+    protected function resolveDeliveryType($shippingMethod, $scopeCode = null)
+    {
+        return in_array($shippingMethod, $this->configHelper->getPickupMethods($scopeCode))
+            ? ShippingMethodInterface::DELIVERY_METHOD_PICKUP : ShippingMethodInterface::DELIVERY_METHOD_DELIVERY;
     }
 
     /**
@@ -196,7 +216,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
 
         /** @var \Magento\Quote\Model\Cart\ShippingMethod $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
-            /** @var \Dintero\Checkout\Api\Data\ShippingMethodInterface $shippingOption */
+            /** @var ShippingMethodInterface $shippingOption */
             $shippingOption = $this->shippingOptionFactory->create();
 
             $shippingOption->setAmount($shippingMethod->getPriceInclTax() * 100)
@@ -204,10 +224,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
                 ->setVatAmount(($shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()) * 100)
                 ->setOperator($shippingMethod->getCarrierTitle())
                 ->setOperatorProductId($shippingMethod->getMethodCode())
-                ->setDeliveryMethod(
-                    $shippingMethod->getMethodCode() == 'pickup' ?
-                        $shippingOption::DELIVERY_METHOD_PICKUP : $shippingOption::DELIVERY_METHOD_DELIVERY
-                )
+                ->setDeliveryMethod($this->resolveDeliveryType($shippingMethod->getMethodCode(), $quote->getStoreId()))
                 ->setTitle($shippingMethod->getMethodTitle())
                 ->setDescription($shippingMethod->getMethodTitle())
                 ->setLineId(sprintf('%s_%s', $shippingMethod->getCarrierCode(), $shippingMethod->getMethodCode()))
