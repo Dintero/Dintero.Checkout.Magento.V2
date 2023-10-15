@@ -265,7 +265,7 @@ class Client
             ->setUri($endpoint)
             ->setHeaders($defaultHeaders)
             ->shouldEncode(false)
-            ->setMethod(\Zend_Http_Client::POST)
+            ->setMethod(DinteroHpClient::METHOD_POST)
             ->setClientConfig(['timeout' => 30]);
     }
 
@@ -311,7 +311,7 @@ class Client
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
-        )->setBody($this->converter->serialize($this->prepareData($order, null)));
+        )->setBody($this->prepareData($order, null));
 
         return $this->client->placeRequest($request->build());
     }
@@ -327,7 +327,7 @@ class Client
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
-        )->setBody($this->converter->serialize($this->prepareData($salesObject, null)));
+        )->setBody($this->prepareData($salesObject, null));
         return $this->client->placeRequest($request->build());
     }
 
@@ -379,12 +379,13 @@ class Client
         $request = $this->initRequest($accessTokenUrl)
             ->setAuthUsername($this->configHelper->getClientId($this->scope))
             ->setAuthPassword($this->configHelper->getClientSecret($this->scope))
-            ->setBody($this->converter->serialize([
+            ->setBody([
                 'grant_type' => 'client_credentials',
                 'audience' => $accountsUrl
-            ]));
+            ]);
 
         try {
+
             $response = $this->client->placeRequest($request->build());
 
             if (!isset($response['access_token'])) {
@@ -598,7 +599,7 @@ class Client
         $this->scope = $scopeCode;
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s', $transactionId));
         $request = $this->initRequest($endpoint, $this->getToken())
-            ->setMethod(\Zend_Http_Client::GET);
+            ->setMethod(DinteroHpClient::METHOD_GET);
 
         return $this->client->placeRequest($request->build());
     }
@@ -631,7 +632,7 @@ class Client
 
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s/capture', $transactionId));
         $request = $this->initRequest($endpoint, $this->getToken())
-            ->setBody($this->converter->serialize($requestData));
+            ->setBody($requestData);
 
         return $this->client->placeRequest($request->build());
     }
@@ -665,7 +666,7 @@ class Client
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s/refund', $transactionId));
 
         $request = $this->initRequest($endpoint, $this->getToken())
-            ->setBody($this->converter->serialize($requestData));
+            ->setBody($requestData);
 
         return $this->client->placeRequest($request->build());
     }
@@ -701,7 +702,7 @@ class Client
         $this->scope = $scopeCode;
         $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId));
         $request = $this->initRequest($endpoint, $this->getToken())
-            ->setMethod(\Zend_Http_Client::GET);
+            ->setMethod(DinteroHpClient::METHOD_GET);
         return $this->client->placeRequest($request->build());
     }
 
@@ -717,7 +718,7 @@ class Client
         $this->scope = $scopeCode;
         $endpoint = $this->getCheckoutApiUri(sprintf('sessions/%s/cancel', $sessionId));
         $request = $this->initRequest($endpoint, $this->getToken())
-            ->setMethod(\Zend_Http_Client::POST)
+            ->setMethod(DinteroHpClient::METHOD_POST)
             ->setBody(null);
         return $this->client->placeRequest($request->build());
     }
