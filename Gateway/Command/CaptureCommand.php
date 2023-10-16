@@ -66,6 +66,12 @@ class CaptureCommand implements CommandInterface
             $transactionId = $invoice->getTransactionId();
         }
 
+        $transactionInfo = $this->api->getTransaction($transactionId);
+
+        if (!empty($transactionInfo['status']) && $transactionInfo['status'] === Client::STATUS_CAPTURED) {
+            return $this;
+        }
+
         $result = $this->api->capture(
             $transactionId,
             $payment,
