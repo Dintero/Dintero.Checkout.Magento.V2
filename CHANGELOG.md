@@ -1,6 +1,11 @@
 # Changelog
-v1.7.6
+
+v1.7.7
 - Fixed javascript error during Dintero checkout initialization
+
+v1.7.6
+- Fix capture logic
+- Fix compatibility with Magento 2.4.6
 
 v1.7.5
 - Added option allowing to configure which delivery method is pickup
