@@ -11,7 +11,7 @@ define(
         'use strict';
         return {
             currentRequest: false,
-            init: function() {
+            init: async function() {
                 var _this = this;
                 if (!window.checkoutConfig.payment.dintero.isEmbedded) {
                     return this;
@@ -25,8 +25,8 @@ define(
                         _this.currentRequest.abort();
                         _this.currentRequest = false;
                     }
-                    _this.currentRequest = storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json')
-                        .success(function(session) {
+                    _this.currentRequest = await storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json')
+                        .then(function(session) {
                             dintero.embed({
                                 container: $('#dintero-embedded-checkout-container').get(0),
                                 sid: session.id,

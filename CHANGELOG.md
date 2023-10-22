@@ -1,4 +1,7 @@
 # Changelog
+v1.7.6
+- Fixed javascript error during Dintero checkout initialization
+
 v1.7.5
 - Added option allowing to configure which delivery method is pickup
 
