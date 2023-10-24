@@ -25,8 +25,9 @@ define(
                         _this.currentRequest.abort();
                         _this.currentRequest = false;
                     }
-                    _this.currentRequest = storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json')
-                        .then(function(session) {
+                    storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json')
+                        .then(function(session, status, request) {
+                            _this.currentRequest = request;
                             dintero.embed({
                                 container: $('#dintero-embedded-checkout-container').get(0),
                                 sid: session.id,
