@@ -1,5 +1,8 @@
 # Changelog
 
+v1.7.8
+- workaround for shipping callback added.
+
 v1.7.7
 - Fixed javascript error during Dintero checkout initialization
 
