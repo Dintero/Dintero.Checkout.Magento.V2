@@ -238,9 +238,14 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             array_push($shippingOptions, $shippingOption);
         }
 
+        $order = $this->prepareOrder($quote);
+        if ($shippingOptionAmount = $requestBody->getData('order/shipping_option/amount')) {
+            $order->setAmount($order->getAmount() + $shippingOptionAmount);
+        }
+
         return $this->responseFactory->create()
             ->setShippingOptions($shippingOptions)
-            ->setOrder($this->prepareOrder($quote));
+            ->setOrder($order);
     }
 
     /**
