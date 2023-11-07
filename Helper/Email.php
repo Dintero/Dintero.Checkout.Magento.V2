@@ -20,6 +20,11 @@ class Email extends AbstractHelper
     private $transportBuilder;
 
     /**
+     * @var Config $config
+     */
+    private $config;
+
+    /**
      * Define class dependencies
      *
      * @param Context $context
