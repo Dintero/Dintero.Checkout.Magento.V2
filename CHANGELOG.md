@@ -1,5 +1,9 @@
 # Changelog
 
+v1.7.9
+- Added Authorized transaction handling for callbacks
+- Fixed Fetch transaction info functionality
+
 v1.7.8
 - workaround for shipping callback added.
 

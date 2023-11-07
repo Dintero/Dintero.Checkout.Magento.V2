@@ -25,6 +25,7 @@
                 <can_cancel>1</can_cancel>
                 <precision>2</precision>
                 <fetch_transaction_information>1</fetch_transaction_information>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
                 <logo_type>mono</logo_type>
                 <logo_color>444444</logo_color>
                 <logo_width>600</logo_width>
