@@ -21,12 +21,14 @@ use Magento\Payment\Model\Method\AbstractMethod;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\OrderFactory;
 use Psr\Log\LoggerInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
-use \Magento\Sales\Model\ResourceModel\Order as OrderResource;
+use Magento\Sales\Model\ResourceModel\Order as OrderResource;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 
 /**
  * Class Dintero
@@ -199,6 +201,13 @@ class Dintero extends AbstractMethod
     protected $config;
 
     /**
+     * @var TransactionRepositoryInterface $transactionManager
+     */
+    protected $transactionRepository;
+
+    /**
+     * Define class dependencies
+     *
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -213,6 +222,7 @@ class Dintero extends AbstractMethod
      * @param OrderSender $orderSender
      * @param OrderResource $orderResource
      * @param Config $config
+     * @param TransactionRepositoryInterface $transactionRepository
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -233,6 +243,7 @@ class Dintero extends AbstractMethod
         OrderSender                $orderSender,
         OrderResource              $orderResource,
         Config                     $config,
+        TransactionRepositoryInterface $transactionRepository,
         AbstractResource           $resource = null,
         AbstractDb                 $resourceCollection = null,
         array                      $data = [],
@@ -260,6 +271,7 @@ class Dintero extends AbstractMethod
         $this->orderSender = $orderSender;
         $this->orderResource = $orderResource;
         $this->config = $config;
+        $this->transactionRepository = $transactionRepository;
     }
 
     /**
@@ -389,6 +401,36 @@ class Dintero extends AbstractMethod
     }
 
     /**
+     * Processing authorization transaction
+     *
+     * @param string $transactionId
+     * @param $payment
+     * @return void
+     * @throws \Magento\Framework\Exception\InputException
+     */
+    private function processAuthTransaction($transactionId, $payment)
+    {
+        try {
+            /** @var Transaction $transaction */
+            $transaction = $this->transactionRepository->getByTransactionId(
+                $transactionId,
+                $payment->getId(),
+                $payment->getOrder()->getId()
+            );
+
+            if ($transaction->getTxnType() != Transaction::TYPE_ORDER) {
+                return;
+            }
+
+            $transaction->setTxnType(Transaction::TYPE_AUTH);
+            $this->transactionRepository->save($transaction);
+
+        } catch (\Exception $e) {
+            $this->_logger->error($e->getMessage());
+        }
+    }
+
+    /**
      * @param \Magento\Sales\Model\Order\Payment $payment
      * @return void
      */
@@ -402,6 +444,10 @@ class Dintero extends AbstractMethod
         if ($this->getResponse()->getData('status') === Client::STATUS_CAPTURED) {
             $payment->registerCaptureNotification($this->getResponse()->getData('amount') / 100);
             $payment->getOrder()->save();
+        }
+
+        if ($this->response->getData('status') === Client::STATUS_AUTHORIZED) {
+            $this->processAuthTransaction($this->response->getData('id'), $payment);
         }
     }
 
