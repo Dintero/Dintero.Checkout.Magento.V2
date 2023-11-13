@@ -5,6 +5,7 @@ namespace Dintero\Checkout\Gateway\Command;
 use Dintero\Checkout\Model\Api\Client;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Framework\Registry;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -27,17 +28,25 @@ class FetchTransactionCommand implements CommandInterface
     private $registry;
 
     /**
+     * @var TransactionRepositoryInterface $repository
+     */
+    private $repository;
+
+    /**
      * Capture constructor.
      *
      * @param Client $client
      * @param Registry $registry
+     * @param TransactionRepositoryInterface $transactionRepository
      */
     public function __construct(
-        Client $client,
-        \Magento\Framework\Registry $registry
+        Client                                            $client,
+        Registry                                          $registry,
+        TransactionRepositoryInterface                    $transactionRepository
     ) {
         $this->api = $client;
         $this->registry = $registry;
+        $this->repository = $transactionRepository;
     }
 
     /**
@@ -71,16 +80,19 @@ class FetchTransactionCommand implements CommandInterface
     {
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $commandSubject['payment']->getPayment();
-        $result = $this->api->getTransaction(
-            $commandSubject['transactionId'],
-            $payment->getOrder()->getStoreId()
-        );
+        $transactionId = $commandSubject['transactionId'] ?? null;
 
-        if (isset($result['error'])) {
-            throw new \Exception(__('Failed to void the transaction'));
+        if ($payment->getTransactionId()) {
+            $transactionId = $this->repository->get($transactionId)->getTxnId();
         }
 
-        $payment->setTransactionId($commandSubject['transactionId']);
+        $result = $this->api->getTransaction($transactionId, $payment->getOrder()->getStoreId());
+
+        if (isset($result['error'])) {
+            throw new \Exception(__('Failed to fetch the transaction info'));
+        }
+
+        $payment->setTransactionId($transactionId);
         $this->updateTransactionType($result);
         $data = [];
         foreach ($result as $field => $value) {
