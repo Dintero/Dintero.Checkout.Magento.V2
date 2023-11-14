@@ -28,6 +28,7 @@ define(
                     storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json')
                         .then(function(session, status, request) {
                             _this.currentRequest = request;
+                            $('#dintero-embedded-checkout-container').html('');
                             dintero.embed({
                                 container: $('#dintero-embedded-checkout-container').get(0),
                                 sid: session.id,
