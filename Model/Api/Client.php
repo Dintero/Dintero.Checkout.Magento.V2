@@ -11,7 +11,6 @@ use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferBuilderFactory;
@@ -61,8 +60,11 @@ class Client
     /*
      * Status partially captured
      */
-    const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
+   const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
 
+   const STATUS_PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED';
+   const STATUS_REFUNDED = 'REFUNDED';
+   const STATUS_PARTIALLY_CAPTURED_REFUNDED = 'PARTIALLY_CAPTURED_REFUNDED';
     /*
      * Standard
      */

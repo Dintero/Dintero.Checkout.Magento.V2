@@ -68,7 +68,8 @@ class CaptureCommand implements CommandInterface
 
         $transactionInfo = $this->api->getTransaction($transactionId);
 
-        if (!empty($transactionInfo['status']) && $transactionInfo['status'] === Client::STATUS_CAPTURED) {
+        // If the transaction is in any post-capture state, we allow the completion of the order
+        if (!empty($transactionInfo['status']) && in_array($transactionInfo['status'], array(Client::STATUS_CAPTURED, Client::STATUS_PARTIALLY_CAPTURED, Client::STATUS_PARTIALLY_REFUNDED, Client::STATUS_REFUNDED, Client::STATUS_PARTIALLY_CAPTURED_REFUNDED))) {
             return $this;
         }
 
