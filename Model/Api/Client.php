@@ -254,7 +254,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.7.11',
+            'Dintero-System-Plugin-Version' => '1.7.12',
         ];
 
         if ($token && $token instanceof Token) {
@@ -328,6 +328,35 @@ class Client
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
         )->setBody($this->prepareData($salesObject, null));
+        return $this->client->placeRequest($request->build());
+    }
+
+    /**
+     * Updating session
+     *
+     * @param string $sessionId
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote $quote
+     * @return array|bool|float|int|mixed|string|null
+     * @throws ConverterException
+     */
+    public function updateSession($sessionId, $quote)
+    {
+        $requestData = [
+            'remove_lock' => true,
+            'order' => [
+                'amount' => $quote->getBaseGrandTotal() * 100,
+                'currency' => $quote->getBaseCurrencyCode(),
+                'merchant_reference' =>  $quote->getReservedOrderId(),
+                'items' => $this->prepareItems($quote),
+            ]
+        ];
+
+        $request = $this->initRequest(
+            $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId)),
+            $this->getToken()
+        )->setBody($requestData)
+            ->setMethod(DinteroHpClient::METHOD_PUT);
+
         return $this->client->placeRequest($request->build());
     }
 
@@ -506,6 +535,17 @@ class Client
     }
 
     /**
+     * Filter amount
+     *
+     * @param float $amount
+     * @return string
+     */
+    private function filterAmount($amount)
+    {
+        return sprintf("%f", $amount);
+    }
+
+    /**
      * Preparing invoice items
      *
      * @param Order\Invoice $invoice
@@ -552,11 +592,12 @@ class Client
         $items = [];
         $isQuote = $salesObject instanceof \Magento\Quote\Model\Quote;
         foreach ($salesObject->getAllVisibleItems() as $item) {
+            $itemAmount = $item->getBaseRowTotal() + $item->getBaseTaxAmount() - $item->getBaseDiscountAmount();
             array_push($items, [
                 'id' => $item->getSku(),
                 'description' => sprintf('%s (%s)', $item->getName(), $item->getSku()),
                 'quantity' => ($isQuote ? $item->getQty() : $item->getQtyOrdered()) * 1,
-                'amount' =>  ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
+                'amount' =>  $this->filterAmount($itemAmount) * 100,
                 'line_id' => $item->getSku(),
                 'vat_amount' => $item->getBaseTaxAmount() * 100, // NOK cannot be floating
                 'vat' => $item->getTaxPercent() * 1,

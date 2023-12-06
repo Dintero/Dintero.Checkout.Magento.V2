@@ -1,5 +1,16 @@
 # Changelog
 
+v1.7.12
+- fixed logic to update Dintero session when coupon code is applied/cancelled.
+
+v1.7.11
+- Fixed duplicate embedded checkout iframe
+
+v1.7.10
+- Fixed Authorization transaction handling and Fetch info
+- Fixed Order creation error
+- Fixed authorization transaction handling
+
 v1.7.9
 - Added Authorized transaction handling for callbacks
 - Fixed Fetch transaction info functionality

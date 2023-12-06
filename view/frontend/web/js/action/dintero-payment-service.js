@@ -5,10 +5,34 @@ define(
         'dinteroSdk',
         'Magento_Checkout/js/model/url-builder',
         'mage/storage',
-        'uiLayout'
+        'uiLayout',
+        'Magento_SalesRule/js/action/set-coupon-code',
+        'Magento_SalesRule/js/action/cancel-coupon',
     ],
-    function ($, quote, dintero, urlBuilder, storage, layout) {
+    function ($, quote, dintero, urlBuilder, storage, layout, setCoupon, cancelCoupon) {
         'use strict';
+
+        var checkoutInstance;
+
+        const refreshSession = function() {
+            if (checkoutInstance) {
+                checkoutInstance.refreshSession();
+            }
+        }
+
+        const lockSession = function() {
+            if (checkoutInstance) {
+                checkoutInstance.lockSession();
+            }
+        }
+
+        setCoupon.registerSuccessCallback(refreshSession);
+        setCoupon.registerFailCallback(refreshSession);
+        setCoupon.registerDataModifier(lockSession);
+
+        cancelCoupon.registerSuccessCallback(refreshSession);
+        $(document).on('coupon_cancel_before', lockSession)
+
         return {
             currentRequest: false,
             init: function() {
@@ -39,7 +63,12 @@ define(
                                         $.mage.__('The payment was out of date. Refresh the page to try again')
                                     );
                                     checkout.destroy();
+                                },
+                                onSessionLocked: function(event, checkout, callback) {
+                                    console.log(`Session type ${event.type}`);
                                 }
+                            }).then(function(checkout) {
+                                checkoutInstance = checkout;
                             });
                     });
                 } catch (error) {
