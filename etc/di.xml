@@ -84,4 +84,10 @@
     <type name="Magento\Email\Model\Template\Config">
         <plugin name="dintero_fix_email_template_id" type="Dintero\Checkout\Plugin\EmailConfig" />
     </type>
+    <type name="Magento\Email\Model\Template\Config">
+        <plugin name="dintero_fix_email_template_id" type="Dintero\Checkout\Plugin\EmailConfig" />
+    </type>
+    <type name="Magento\Quote\Api\CouponManagementInterface">
+        <plugin name="dintero_session_update" type="Dintero\Checkout\Plugin\CouponManagementPlugin" />
+    </type>
 </config>

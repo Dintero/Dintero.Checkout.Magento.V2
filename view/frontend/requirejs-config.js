@@ -3,6 +3,9 @@ var config = {
         mixins: {
             'Magento_Checkout/js/model/step-navigator': {
                 'Dintero_Checkout/js/model/step-navigator-mixin': true
+            },
+            'Magento_SalesRule/js/view/payment/discount': {
+                'Dintero_Checkout/js/view/payment/discount-mixin': true
             }
         }
     },

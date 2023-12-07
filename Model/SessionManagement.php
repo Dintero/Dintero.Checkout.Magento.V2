@@ -5,6 +5,7 @@ namespace Dintero\Checkout\Model;
 use Dintero\Checkout\Api\SessionManagementInterface;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Api\ClientFactory;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class Session
@@ -170,5 +171,34 @@ class SessionManagement implements SessionManagementInterface
             ->setAdditionalInformation('quote_hash', $this->generateHash($quote))
             ->save();
         return $this->sessionFactory->create()->setId($response['id'] ?? null);
+    }
+
+    /**
+     * Update dintero session
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return void
+     */
+    public function updateSession($quote)
+    {
+        $payment = $quote->getPayment();
+        $dinteroSessionId = $payment->getAdditionalInformation('id');
+        $session = $this->sessionFactory->create();
+
+        $sessionInfo = $this->client->getSessionInfo($dinteroSessionId);
+        $responseObject = $this->objectFactory->create()->setData($sessionInfo);
+
+        // validate order number
+        if (!$responseObject->getId()
+            || $responseObject->getData('order/merchant_reference') != $quote->getReservedOrderId()) {
+            throw new LocalizedException(__('Could not validate dintero session.'));
+        }
+
+        $quote->reserveOrderId();
+        $response = $this->client->updateSession($responseObject->getId(), $quote);
+
+        $session->setId($response['id'] ?? null);
+
+        return $session;
     }
 }

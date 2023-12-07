@@ -24,6 +24,16 @@ class Client implements ClientInterface
      */
     const METHOD_GET = 'GET';
 
+    /*
+     * HTTP PUT
+     */
+    const METHOD_PUT = 'PUT';
+
+    /*
+     * HTTP DELETE
+     */
+    const METHOD_DELETE = 'DELETE';
+
     /**
      * @var \Magento\Framework\HTTP\ZendClientFactory|\Magento\Framework\HTTP\LaminasClientFactory
      */
