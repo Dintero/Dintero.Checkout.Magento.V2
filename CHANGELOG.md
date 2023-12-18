@@ -1,6 +1,9 @@
 # Changelog
 
 v1.7.12
+- Session update logic when coupon code changes re-worked.
+
+v1.7.12
 - fixed logic to update Dintero session when coupon code is applied/cancelled.
 
 v1.7.11

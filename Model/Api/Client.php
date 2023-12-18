@@ -254,7 +254,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.7.12',
+            'Dintero-System-Plugin-Version' => '1.7.13',
         ];
 
         if ($token && $token instanceof Token) {

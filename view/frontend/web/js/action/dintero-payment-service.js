@@ -66,6 +66,13 @@ define(
                                 },
                                 onSessionLocked: function(event, checkout, callback) {
                                     console.log(`Session type ${event.type}`);
+                                    const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-update', {});
+                                    storage.post(serviceUrl, {}, true, 'application/json').done(() => {
+                                        refreshSession();
+                                    });
+                                },
+                                onSessionLockFailed: function(event, checkout) {
+                                    console.log('Session log failed');
                                 }
                             }).then(function(checkout) {
                                 checkoutInstance = checkout;
