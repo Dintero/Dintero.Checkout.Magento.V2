@@ -176,11 +176,11 @@ class SessionManagement implements SessionManagementInterface
     /**
      * Update dintero session
      *
-     * @param \Magento\Quote\Model\Quote $quote
      * @return void
      */
-    public function updateSession($quote)
+    public function updateSession()
     {
+        $quote = $this->checkoutSession->getQuote();
         $payment = $quote->getPayment();
         $dinteroSessionId = $payment->getAdditionalInformation('id');
         $session = $this->sessionFactory->create();

@@ -25,4 +25,10 @@
             <resource ref="anonymous"/>
         </resources>
     </route>
+    <route url="/V1/dintero/checkout/session-update" method="POST">
+        <service class="Dintero\Checkout\Api\SessionManagementInterface" method="updateSession"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
 </routes>

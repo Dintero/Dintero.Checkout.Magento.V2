@@ -15,8 +15,7 @@ interface SessionManagementInterface
     public function getSession();
 
     /**
-     * @param \Magento\Quote\Api\Data\CartInterface $cart
      * @return \Dintero\Checkout\Api\Data\SessionInterface
      */
-    public function updateSession(\Magento\Quote\Api\Data\CartInterface $cart);
+    public function updateSession();
 }
