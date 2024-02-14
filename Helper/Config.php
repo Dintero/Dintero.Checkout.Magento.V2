@@ -106,6 +106,11 @@ class Config extends AbstractHelper
     const XPATH_PICKUP_METHODS = 'payment/dintero/shipping_methods_map';
 
     /*
+     * Shipping methods map
+     */
+    const XPATH_UNSPECIFIED_METHODS = 'payment/dintero/unspecified_methods_map';
+
+    /*
      * Default callback delay in seconds
      */
     const DEFAULT_CALLBACK_DELAY = 30;
@@ -602,6 +607,20 @@ class Config extends AbstractHelper
         return explode(
             ',',
             $this->scopeConfig->getValue(self::XPATH_PICKUP_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
+        );
+    }
+
+    /**
+     * Retrieve pickup methods list
+     *
+     * @param string $scopeCode
+     * @return array
+     */
+    public function getUnspecifiedMethods($scopeCode = null)
+    {
+        return explode(
+            ',',
+            $this->scopeConfig->getValue(self::XPATH_UNSPECIFIED_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
         );
     }
 }
