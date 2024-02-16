@@ -1,5 +1,8 @@
 # Changelog
 
+v1.7.14
+- Added option to allow selection of 'unspecified' delivery method
+
 v1.7.13
 - Session update logic when coupon code changes re-worked.
 

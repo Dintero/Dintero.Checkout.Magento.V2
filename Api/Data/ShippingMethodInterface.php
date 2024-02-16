@@ -20,6 +20,11 @@ interface ShippingMethodInterface
     const DELIVERY_METHOD_PICKUP = 'pick_up';
 
     /*
+     * Unspecified
+     */
+    const DELIVERY_METHOD_UNSPECIFIED = 'unspecified';
+
+    /*
      * None
      */
     const DELIVERY_METHOD_NONE = 'none';

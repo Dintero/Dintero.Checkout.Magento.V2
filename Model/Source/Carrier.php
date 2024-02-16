@@ -52,8 +52,6 @@ class Carrier implements OptionSourceInterface
                 continue;
             }
 
-
-
             $options[] = [
                 'label' => $carrier->getConfigData('title'),
                 'value' => $carrier->getCarrierCode(),

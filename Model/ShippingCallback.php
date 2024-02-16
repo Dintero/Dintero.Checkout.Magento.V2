@@ -167,8 +167,15 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      */
     protected function resolveDeliveryType($shippingMethod, $scopeCode = null)
     {
-        return in_array($shippingMethod, $this->configHelper->getPickupMethods($scopeCode))
-            ? ShippingMethodInterface::DELIVERY_METHOD_PICKUP : ShippingMethodInterface::DELIVERY_METHOD_DELIVERY;
+        if(in_array($shippingMethod, $this->configHelper->getPickupMethods($scopeCode))) {
+            return ShippingMethodInterface::DELIVERY_METHOD_PICKUP;
+        }
+
+        if (in_array($shippingMethod, $this->configHelper->getUnspecifiedMethods($scopeCode))) {
+            return ShippingMethodInterface::DELIVERY_METHOD_UNSPECIFIED;
+        }
+
+        return ShippingMethodInterface::DELIVERY_METHOD_DELIVERY;
     }
 
     /**

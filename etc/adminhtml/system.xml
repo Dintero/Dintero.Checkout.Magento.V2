@@ -95,8 +95,14 @@
                 <field id="shipping_methods_map" type="multiselect" translate="label" sortOrder="150" showInDefault="1" showInWebsite="1">
                     <label>Shipping Methods Mapping</label>
                     <source_model>Dintero\Checkout\Model\Source\Carrier</source_model>
+                    <can_be_empty>1</can_be_empty>
                 </field>
-                <field id="debug" translate="label" type="select" sortOrder="150" showInDefault="1" showInWebsite="1">
+                <field id="unspecified_methods_map" type="multiselect" translate="label" sortOrder="160" showInDefault="1" showInWebsite="1">
+                    <label>Unspecified Methods</label>
+                    <source_model>Dintero\Checkout\Model\Source\Carrier</source_model>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="debug" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="1">
                     <label>Debug Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <attribute type="shared">1</attribute>
