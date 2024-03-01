@@ -1,5 +1,8 @@
 # Changelog
 
+v1.7.15
+- Fixed item calculation amount
+
 v1.7.14
 - Added option to allow selection of 'unspecified' delivery method
 
