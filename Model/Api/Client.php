@@ -254,7 +254,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.7.14',
+            'Dintero-System-Plugin-Version' => '1.7.15',
         ];
 
         if ($token && $token instanceof Token) {
@@ -592,7 +592,7 @@ class Client
         $items = [];
         $isQuote = $salesObject instanceof \Magento\Quote\Model\Quote;
         foreach ($salesObject->getAllVisibleItems() as $item) {
-            $itemAmount = $item->getBaseRowTotal() + $item->getBaseTaxAmount() - $item->getBaseDiscountAmount();
+            $itemAmount = $item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount();
             array_push($items, [
                 'id' => $item->getSku(),
                 'description' => sprintf('%s (%s)', $item->getName(), $item->getSku()),
