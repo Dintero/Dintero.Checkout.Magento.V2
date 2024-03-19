@@ -33,6 +33,7 @@
                 <payment_email>payment_dintero_payment_email</payment_email>
                 <expiration_days>1</expiration_days>
                 <shipping_methods_map>pickup</shipping_methods_map>
+                <id_field>sku</id_field>
             </dintero>
         </payment>
     </default>
