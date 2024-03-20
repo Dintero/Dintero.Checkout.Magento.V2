@@ -384,10 +384,13 @@ class Client
      */
     public function initSessionFromQuote(Quote $quote)
     {
+        $quote->setDinteroGeneratorCode($this->configHelper->getLineIdFieldName());
+
         if (!$quote->getReservedOrderId()) {
             $quote->reserveOrderId();
-            $this->quoteResource->save($quote);
         }
+
+        $this->quoteResource->save($quote);
 
         return $this->initSession($quote);
     }
@@ -584,7 +587,7 @@ class Client
             );
 
             array_push($items, [
-                'id' => $lineId,
+                'id' => $item->getSku(),
                 'line_id' => $lineId,
                 'amount' => ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
             ]);
@@ -630,7 +633,7 @@ class Client
             );
 
             array_push($items, [
-                'id' => $lineId,
+                'id' => $item->getSku(),
                 'description' => sprintf('%s (%s)', $item->getName(), $item->getSku()),
                 'quantity' => ($isQuote ? $item->getQty() : $item->getQtyOrdered()) * 1,
                 'amount' =>  $this->filterAmount($itemAmount) * 100,

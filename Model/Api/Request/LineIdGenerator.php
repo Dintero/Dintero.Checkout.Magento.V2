@@ -36,16 +36,17 @@ class LineIdGenerator
     /**
      * Retrieve generator
      *
+     * @param string $code
      * @return GeneratorInterface
      * @throws \Exception
      */
-    private function getGenerator()
+    private function getGenerator($code)
     {
         if ($this->generator) {
             return $this->generator;
         }
 
-        $generator = $this->generators[$this->configHelper->getLineIdFieldName()] ?? null;
+        $generator = $this->generators[$code ?? 'sku'] ?? null;
         if (!$generator || !($generator instanceof GeneratorInterface)) {
             throw new \Exception(__('Line id generator is not valid.'));
         }
@@ -63,6 +64,6 @@ class LineIdGenerator
      */
     public function generate(\Magento\Quote\Model\Quote\Item $item)
     {
-        return $this->getGenerator()->execute($item);
+        return $this->getGenerator($item->getQuote()->getDinteroGeneratorCode())->execute($item);
     }
 }
