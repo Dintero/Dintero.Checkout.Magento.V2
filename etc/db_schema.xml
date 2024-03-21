@@ -5,4 +5,7 @@
     <table name="sales_order_payment" resource="sales" engine="innodb" comment="Sales Flat Order Payment">
         <column xsi:type="varchar" name="dintero_payment_product" nullable="true" length="128" comment="Dintero Payment Product"/>
     </table>
+    <table name="quote">
+        <column xsi:type="varchar" name="dintero_generator_code" nullable="true" length="128" comment="Dintero Generator Code" />
+    </table>
 </schema>

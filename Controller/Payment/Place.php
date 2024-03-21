@@ -111,6 +111,11 @@ class Place extends Action
         $result = new DataObject();
         try {
             $this->onepageCheckout->getCheckoutMethod();
+            $this->_getCheckout()
+                ->getQuote()
+                ->setDinteroGeneratorCode($this->configHelper->getLineIdFieldName())
+                ->save();
+
             $orderId = $this->cartManagement->placeOrder($this->_getCheckout()->getQuote()->getId());
             $result->setData('success', true);
 

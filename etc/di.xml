@@ -87,4 +87,13 @@
     <type name="Magento\Email\Model\Template\Config">
         <plugin name="dintero_fix_email_template_id" type="Dintero\Checkout\Plugin\EmailConfig" />
     </type>
+    <type name="Dintero\Checkout\Model\Api\Request\LineIdGenerator">
+        <arguments>
+            <argument name="generators" xsi:type="array">
+                <item name="sku" xsi:type="object">Dintero\Checkout\Model\Api\Request\Generator\Sku\Proxy</item>
+                <item name="quote_item_id" xsi:type="object">Dintero\Checkout\Model\Api\Request\Generator\QuoteItemId\Proxy</item>
+                <item name="quote_item_id_sku" xsi:type="object">Dintero\Checkout\Model\Api\Request\Generator\Combined\Proxy</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

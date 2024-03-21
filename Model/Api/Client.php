@@ -3,7 +3,7 @@
 namespace Dintero\Checkout\Model\Api;
 
 use Dintero\Checkout\Helper\Config as ConfigHelper;
-use Dintero\Checkout\Model\Dintero;
+use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
@@ -11,10 +11,10 @@ use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferBuilderFactory;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\AbstractModel;
@@ -136,9 +136,19 @@ class Client
     protected $quoteResource;
 
     /**
+     * @var \Magento\Quote\Model\QuoteRepository $quoteRepository
+     */
+    protected $quoteRepository;
+
+    /**
      * @var ObjectManagerInterface $objectManager
      */
     protected $objectManager;
+
+    /**
+     * @var LineIdGenerator $lineIdGenerator
+     */
+    protected $lineIdGenerator;
 
     /**
      * Client constructor.
@@ -150,17 +160,21 @@ class Client
      * @param LoggerInterface $logger
      * @param Json $converter
      * @param \Magento\Quote\Model\ResourceModel\Quote $quoteResource
+     * @param CartRepositoryInterface $quoteRepository
      * @param ObjectManagerInterface $objectManager
+     * @param LineIdGenerator $lineIdGenerator
      */
     public function __construct(
-        DinteroHpClient $client,
-        ConfigHelper $configHelper,
-        TransferBuilderFactory $transferBuilderFactory,
-        TokenFactory $tokenFactory,
-        LoggerInterface $logger,
-        Json $converter,
-        \Magento\Quote\Model\ResourceModel\Quote $quoteResource,
-        ObjectManagerInterface $objectManager
+        DinteroHpClient                             $client,
+        ConfigHelper                                $configHelper,
+        TransferBuilderFactory                      $transferBuilderFactory,
+        TokenFactory                                $tokenFactory,
+        LoggerInterface                             $logger,
+        Json                                        $converter,
+        \Magento\Quote\Model\ResourceModel\Quote    $quoteResource,
+        CartRepositoryInterface  $quoteRepository,
+        ObjectManagerInterface                      $objectManager,
+        LineIdGenerator                             $lineIdGenerator
     ) {
         $this->client = $client;
         $this->configHelper = $configHelper;
@@ -169,8 +183,10 @@ class Client
         $this->logger = $logger;
         $this->converter = $converter;
         $this->quoteResource = $quoteResource;
+        $this->quoteRepository = $quoteRepository;
         $this->type = self::TYPE_STANDARD;
         $this->objectManager = $objectManager;
+        $this->lineIdGenerator = $lineIdGenerator;
     }
 
     /**
@@ -254,7 +270,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.7.15',
+            'Dintero-System-Plugin-Version' => '1.8.0',
         ];
 
         if ($token && $token instanceof Token) {
@@ -346,7 +362,7 @@ class Client
             'order' => [
                 'amount' => $quote->getBaseGrandTotal() * 100,
                 'currency' => $quote->getBaseCurrencyCode(),
-                'merchant_reference' =>  $quote->getReservedOrderId(),
+                'merchant_reference' => $quote->getReservedOrderId(),
                 'items' => $this->prepareItems($quote),
             ]
         ];
@@ -368,10 +384,13 @@ class Client
      */
     public function initSessionFromQuote(Quote $quote)
     {
+        $quote->setDinteroGeneratorCode($this->configHelper->getLineIdFieldName());
+
         if (!$quote->getReservedOrderId()) {
             $quote->reserveOrderId();
-            $this->quoteResource->save($quote);
         }
+
+        $this->quoteResource->save($quote);
 
         return $this->initSession($quote);
     }
@@ -395,8 +414,8 @@ class Client
     /**
      * Retrieving access token
      *
-     * @throws \Exception
      * @return array
+     * @throws \Exception
      */
     private function getAccessToken()
     {
@@ -474,7 +493,7 @@ class Client
             'order' => [
                 'amount' => $baseOrderTotal * 100,
                 'currency' => $salesObject->getBaseCurrencyCode(),
-                'merchant_reference' =>  $salesObject->getReservedOrderId() ?? $salesObject->getIncrementId(),
+                'merchant_reference' => $salesObject->getReservedOrderId() ?? $salesObject->getIncrementId(),
                 'items' => $this->prepareItems($salesObject),
             ],
         ];
@@ -545,6 +564,7 @@ class Client
         return sprintf("%f", $amount);
     }
 
+
     /**
      * Preparing invoice items
      *
@@ -553,6 +573,8 @@ class Client
      */
     private function prepareSalesItems(AbstractModel $invoice)
     {
+        $quote = $this->quoteRepository->get($invoice->getOrder()->getQuoteId());
+
         $items = [];
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
@@ -560,9 +582,13 @@ class Client
                 continue;
             }
 
+            $lineId = $this->lineIdGenerator->generate(
+                $quote->getItemById($item->getOrderItem()->getQuoteItemId())
+            );
+
             array_push($items, [
                 'id' => $item->getSku(),
-                'line_id' => $item->getSku(),
+                'line_id' => $lineId,
                 'amount' => ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
             ]);
         }
@@ -591,14 +617,27 @@ class Client
     {
         $items = [];
         $isQuote = $salesObject instanceof \Magento\Quote\Model\Quote;
+
+        /** @var \Magento\Quote\Model\Quote $quote */
+        $quote = $salesObject;
+
+        if (!$isQuote) {
+            $quote = $this->quoteRepository->get($salesObject->getQuoteId());
+        }
+
         foreach ($salesObject->getAllVisibleItems() as $item) {
             $itemAmount = $item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount();
+
+            $lineId = $this->lineIdGenerator->generate(
+                $isQuote ? $item : $quote->getItemById($item->getQuoteItemId())
+            );
+
             array_push($items, [
                 'id' => $item->getSku(),
                 'description' => sprintf('%s (%s)', $item->getName(), $item->getSku()),
                 'quantity' => ($isQuote ? $item->getQty() : $item->getQtyOrdered()) * 1,
                 'amount' =>  $this->filterAmount($itemAmount) * 100,
-                'line_id' => $item->getSku(),
+                'line_id' => $lineId,
                 'vat_amount' => $item->getBaseTaxAmount() * 100, // NOK cannot be floating
                 'vat' => $item->getTaxPercent() * 1,
             ]);

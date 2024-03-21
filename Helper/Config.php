@@ -140,6 +140,11 @@ class Config extends AbstractHelper
      */
     const XPATH_PAYMENT_EMAIL_TPL = 'payment/dintero/payment_email';
 
+    /*
+     * Line Id Field
+     */
+    const XPATH_ID_FIELD = 'payment/dintero/id_field';
+
     /**
      * Encryptor object used to encrypt/decrypt sensitive data
      *
@@ -622,5 +627,15 @@ class Config extends AbstractHelper
             ',',
             $this->scopeConfig->getValue(self::XPATH_UNSPECIFIED_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
         );
+    }
+
+    /**
+     * Retrieve line id generation logic key
+     *
+     * @return string
+     */
+    public function getLineIdFieldName()
+    {
+        return $this->scopeConfig->getValue(self::XPATH_ID_FIELD);
     }
 }

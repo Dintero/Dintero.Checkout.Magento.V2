@@ -102,7 +102,12 @@
                     <source_model>Dintero\Checkout\Model\Source\Carrier</source_model>
                     <can_be_empty>1</can_be_empty>
                 </field>
-                <field id="debug" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="1">
+                <field id="id_field" type="select" translate="label" sortOrder="170" showInDefault="1">
+                    <label>Line Id Field</label>
+                    <source_model>Dintero\Checkout\Model\Source\LineIdOptions</source_model>
+                    <comment><![CDATA[Select what item field should be used for line_id and id params in Dintero API request]]></comment>
+                </field>
+                <field id="debug" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1">
                     <label>Debug Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <attribute type="shared">1</attribute>

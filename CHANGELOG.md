@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.0
+- added line_id generation logic options
+
 v1.7.15
 - Fixed item calculation amount
 
