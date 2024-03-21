@@ -35,7 +35,7 @@ define(
 
         return {
             currentRequest: false,
-            init: function() {
+            init: function(containerSelector = '#dintero-embedded-checkout-container') {
                 var _this = this;
                 if (!window.checkoutConfig.payment.dintero.isEmbedded) {
                     return this;
@@ -44,7 +44,7 @@ define(
                 const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-init', {}),
                     payload = {cartId: quote.getQuoteId()};
                 try {
-                    $('#dintero-embedded-checkout-container').html('');
+                    $(containerSelector).html('');
                     if (_this.currentRequest) {
                         _this.currentRequest.abort();
                         _this.currentRequest = false;
@@ -52,9 +52,10 @@ define(
                     storage.post(serviceUrl, JSON.stringify(payload), true, 'application/json')
                         .then(function(session, status, request) {
                             _this.currentRequest = request;
-                            $('#dintero-embedded-checkout-container').html('');
+                            $(containerSelector).html('');
                             dintero.embed({
-                                container: $('#dintero-embedded-checkout-container').get(0),
+                                container: $(containerSelector).get(0),
+                                popOut: window.checkoutConfig.payment.dintero.isPopout,
                                 sid: session.id,
                                 language: window.checkoutConfig.payment.dintero.language,
                                 onPaymentError: function(event, checkout) {

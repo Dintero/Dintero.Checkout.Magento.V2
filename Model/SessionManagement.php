@@ -40,6 +40,11 @@ class SessionManagement implements SessionManagementInterface
     protected $encryptor;
 
     /**
+     * @var \Dintero\Checkout\Helper\Config $configHelper
+     */
+    protected $configHelper;
+
+    /**
      * Define class dependencies
      *
      * @param ClientFactory $clientFactory
@@ -47,19 +52,22 @@ class SessionManagement implements SessionManagementInterface
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param \Magento\Framework\Encryption\Encryptor $encryptor
+     * @param \Dintero\Checkout\Helper\Config $configHelper
      */
     public function __construct(
         ClientFactory                                      $clientFactory,
         \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory,
         \Magento\Checkout\Model\Session                    $checkoutSession,
         \Magento\Framework\DataObjectFactory               $dataObjectFactory,
-        \Magento\Framework\Encryption\Encryptor             $encryptor
+        \Magento\Framework\Encryption\Encryptor            $encryptor,
+        \Dintero\Checkout\Helper\Config                    $configHelper
     ) {
         $this->client = $clientFactory->create()->setType(Client::TYPE_EMBEDDED);
         $this->sessionFactory = $sessionFactory;
         $this->checkoutSession = $checkoutSession;
         $this->objectFactory = $dataObjectFactory;
         $this->encryptor = $encryptor;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -164,7 +172,7 @@ class SessionManagement implements SessionManagementInterface
         }
 
         $response = $this->client
-            ->setType(Client::TYPE_EMBEDDED)
+            ->setType($this->configHelper->getEmbedType())
             ->initSessionFromQuote($quote);
         $quote->getPayment()
             ->setAdditionalInformation($response)

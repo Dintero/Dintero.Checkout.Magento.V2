@@ -8,4 +8,11 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Block\Onepage">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="dintero_embedded_express" xsi:type="object">Dintero\Checkout\Block\Checkout\LayoutProcessor\EmbeddedExpress</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

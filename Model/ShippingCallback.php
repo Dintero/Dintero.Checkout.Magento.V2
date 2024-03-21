@@ -204,6 +204,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             throw new \Exception(__('Quote is not valid'));
         }
 
+        $quote->setCouponCode(current($request->getDiscountCodes()) ?? null);
         $quote->getShippingAddress()
             ->setPostcode($request->getShippingAddress()->getPostalCode())
             ->setStreetFull($request->getShippingAddress()->getAddressLine())
@@ -216,6 +217,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             ->setCollectShippingRates(true)
             ->setTotalsCollected(false);
         $quote->collectTotals();
+
         $this->quoteResource->save($quote);
         $shippingMethods = $this->shippingMethodManagement->getList($quote->getId());
 
@@ -281,6 +283,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $order = $this->orderFactory->create();
         $order->setAmount($quote->getBaseGrandTotal() * 100)
             ->setCurrency($quote->getBaseCurrencyCode());
+        $order->setDiscountCodes($quote->getCouponCode() ? [$quote->getCouponCode()] : []);
 
         $items = [];
 
