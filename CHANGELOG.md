@@ -6,6 +6,9 @@ v1.8.1
 - added embedded express with popout functionality
 - implemented coupon codes support for express checkout
 
+v1.8.0
+- added line_id generation logic options
+
 v1.7.15
 - Fixed item calculation amount
 

@@ -3,5 +3,10 @@
         "column": {
             "dintero_payment_product": true
         }
+    },
+    "quote": {
+        "column": {
+            "dintero_generator_code": true
+        }
     }
 }
