@@ -53,6 +53,11 @@ class Request implements RequestInterface
     protected $items = [];
 
     /**
+     * @var string[] $discountCodes
+     */
+    protected $discountCodes = [];
+
+    /**
      * @var \Dintero\Checkout\Api\Data\ItemInterfaceFactory $itemFactory
      */
     protected $itemFactory;
@@ -125,6 +130,16 @@ class Request implements RequestInterface
     }
 
     /**
+     * @param array $discountCodes
+     * @return $this|RequestInterface
+     */
+    public function setDiscountCodes(array $discountCodes)
+    {
+        $this->discountCodes = $discountCodes;
+        return $this;
+    }
+
+    /**
      * @param \Dintero\Checkout\Api\Data\AddressInterface
      * @return $this|RequestInterface
      */
@@ -190,5 +205,13 @@ class Request implements RequestInterface
     public function isValid($sessionId): bool
     {
         return $this->getId() == $sessionId;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDiscountCodes()
+    {
+        return $this->discountCodes;
     }
 }

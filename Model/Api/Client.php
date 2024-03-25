@@ -270,7 +270,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.0',
+            'Dintero-System-Plugin-Version' => '1.8.1',
         ];
 
         if ($token && $token instanceof Token) {
@@ -475,7 +475,6 @@ class Client
      */
     private function prepareData($salesObject, $salesDocument = null)
     {
-        ;
         $customerEmail = $salesObject->getCustomerIsGuest() ?
             $salesObject->getBillingAddress()->getEmail() :
             $salesObject->getCustomerEmail();
@@ -511,6 +510,20 @@ class Client
                 $salesObject->getStore()->getCode()
             );
             $orderData['express']['shipping_options'] = [];
+            $orderData['express']['discount_codes'] = [
+                'max_count' => 1,
+                'callback_url' => $this->configHelper->getShippingCallbackUrl(
+                    $salesObject->getStore()->getCode()
+                )
+            ];
+            $orderData['configuration']['discounts'] = [
+                'express_discount_codes' => [
+                    'enabled' => true,
+                ],
+                'order' => [
+                    'enabled' => true,
+                ]
+            ];
         }
 
         if (!empty($customerEmail)) {
@@ -563,7 +576,6 @@ class Client
     {
         return sprintf("%f", $amount);
     }
-
 
     /**
      * Preparing invoice items

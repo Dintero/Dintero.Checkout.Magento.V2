@@ -39,6 +39,12 @@ interface RequestInterface
     public function setItems(array $items);
 
     /**
+     * @param array $discountCodes
+     * @return RequestInterface
+     */
+    public function setDiscountCodes(array $discountCodes);
+
+    /**
      * @return string
      */
     public function getAccountId();
@@ -68,4 +74,9 @@ interface RequestInterface
      * @return bool
      */
     public function isValid($sessionId): bool;
+
+    /**
+     * @return string[]
+     */
+    public function getDiscountCodes();
 }

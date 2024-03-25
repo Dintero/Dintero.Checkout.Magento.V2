@@ -19,10 +19,29 @@
                     <label>Language</label>
                     <source_model>Magento\Config\Model\Config\Source\Locale</source_model>
                 </field>
+
+                <!--- embedded checkout settings start -->
                 <field id="is_embedded" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Enable Embedded Checkout</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="embed_type" translate="label" type="select" sortOrder="43" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Embed Type</label>
+                    <source_model>Dintero\Checkout\Model\Source\EmbedType</source_model>
+                    <comment><![CDATA[If set to <b>express</b>, will replace checkout container with dintero checkout]]></comment>
+                    <depends>
+                        <field id="is_embedded">1</field>
+                    </depends>
+                </field>
+                <field id="is_popout" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Enable Popout Checkout</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="is_embedded">1</field>
+                    </depends>
+                </field>
+                <!-- embedded checkout settings end -->
+
                 <field id="is_express" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Enable Express Checkout</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

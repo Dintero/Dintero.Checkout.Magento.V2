@@ -28,6 +28,11 @@ interface OrderInterface
      */
     const ITEMS = 'items';
 
+    /*
+     * Discount codes
+     */
+    const DISCOUNT_CODES = 'discount_codes';
+
     /**
      * @param float $amount
      * @return \Dintero\Checkout\Api\Data\OrderInterface
@@ -71,4 +76,15 @@ interface OrderInterface
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface[]
      */
     public function getItems();
+
+    /**
+     * @param string[] $discountCodes
+     * @return \Dintero\Checkout\Api\Data\OrderInterface
+     */
+    public function setDiscountCodes(array $discountCodes);
+
+    /**
+     * @return string[]
+     */
+    public function getDiscountCodes();
 }

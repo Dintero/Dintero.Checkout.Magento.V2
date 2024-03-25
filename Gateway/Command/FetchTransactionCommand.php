@@ -83,7 +83,7 @@ class FetchTransactionCommand implements CommandInterface
         $transactionId = $commandSubject['transactionId'] ?? null;
 
         if ($payment->getTransactionId()) {
-            if (is_int($transactionId)) {
+            if (is_numeric($transactionId)) {
                 $transactionId = $this->repository
                     ->get($transactionId)
                     ->getTxnId();

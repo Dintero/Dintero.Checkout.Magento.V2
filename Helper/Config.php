@@ -4,7 +4,6 @@ namespace Dintero\Checkout\Helper;
 
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Dintero;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -86,6 +85,16 @@ class Config extends AbstractHelper
     const XPATH_IS_EMBEDDED = 'payment/dintero/is_embedded';
 
     /*
+     * Embed Type
+     */
+    const XPATH_EMBED_TYPE = 'payment/dintero/embed_type';
+
+    /*
+     * Embed Type
+     */
+    const XPATH_IS_POPOUT = 'payment/dintero/is_popout';
+
+    /*
      * XPATH Express checkout enabled
      */
     const XPATH_IS_EXPRESS = 'payment/dintero/is_express';
@@ -162,8 +171,8 @@ class Config extends AbstractHelper
      * @param EncryptorInterface $encryptor
      */
     public function __construct(
-        Context $context,
-        EncryptorInterface $encryptor,
+        Context               $context,
+        EncryptorInterface    $encryptor,
         StoreManagerInterface $storeManager
     ) {
         parent::__construct($context);
@@ -579,7 +588,7 @@ class Config extends AbstractHelper
      */
     public function getSessionExpirationDays()
     {
-        return  $this->scopeConfig->getValue(self::XPATH_SESSION_EXP_DAY);
+        return $this->scopeConfig->getValue(self::XPATH_SESSION_EXP_DAY);
     }
 
     /**
@@ -611,7 +620,7 @@ class Config extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(self::XPATH_PICKUP_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
+            $this->scopeConfig->getValue(self::XPATH_PICKUP_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode) ?? ''
         );
     }
 
@@ -625,7 +634,7 @@ class Config extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(self::XPATH_UNSPECIFIED_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
+            $this->scopeConfig->getValue(self::XPATH_UNSPECIFIED_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode) ?? ''
         );
     }
 
@@ -637,5 +646,39 @@ class Config extends AbstractHelper
     public function getLineIdFieldName()
     {
         return $this->scopeConfig->getValue(self::XPATH_ID_FIELD);
+    }
+
+    /**
+     * Retrieve embed type
+     *
+     * @param string $scopeCode
+     * @return string
+     */
+    public function getEmbedType($scopeCode = null)
+    {
+        $embedType = $this->scopeConfig->getValue(self::XPATH_EMBED_TYPE, ScopeInterface::SCOPE_STORE, $scopeCode);
+        return $embedType === Client::TYPE_EXPRESS ? Client::TYPE_EXPRESS : Client::TYPE_EMBEDDED;
+    }
+
+    /**
+     * Check if embedded express is enabled
+     *
+     * @param string $scopeCode
+     * @return bool
+     */
+    public function isEmbeddedExpress($scopeCode = null)
+    {
+        return $this->getEmbedType($scopeCode) === Client::TYPE_EXPRESS;
+    }
+
+    /**
+     * Check if embedded checkout popout mode is enabled
+     *
+     * @param $scopeCode
+     * @return bool
+     */
+    public function isPopOut($scopeCode = null)
+    {
+        return $this->scopeConfig->isSetFlag(self::XPATH_IS_POPOUT, ScopeInterface::SCOPE_STORE, $scopeCode);
     }
 }
