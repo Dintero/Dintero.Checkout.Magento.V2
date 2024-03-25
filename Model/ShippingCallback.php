@@ -103,6 +103,11 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     protected $orderItemFactory;
 
     /**
+     * @var Config|ConfigHelper
+     */
+    protected $configHelper;
+
+    /**
      * ShippingCallback constructor.
      *
      * @param \Magento\Framework\App\RequestInterface $request
