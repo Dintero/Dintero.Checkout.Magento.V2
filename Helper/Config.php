@@ -620,7 +620,7 @@ class Config extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(self::XPATH_PICKUP_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
+            $this->scopeConfig->getValue(self::XPATH_PICKUP_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode) ?? ''
         );
     }
 
@@ -634,7 +634,7 @@ class Config extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(self::XPATH_UNSPECIFIED_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode)
+            $this->scopeConfig->getValue(self::XPATH_UNSPECIFIED_METHODS, ScopeInterface::SCOPE_STORE, $scopeCode) ?? ''
         );
     }
 
