@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.1
+- callback error handling implemented
+
 v1.8.0
 - added line_id generation logic options
 

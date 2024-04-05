@@ -99,6 +99,11 @@ class CreateOrder
     protected $paymentMethodFactory;
 
     /**
+     * @var TransactionFactory $dinteroTransactionFactory
+     */
+    protected $dinteroTransactionFactory;
+
+    /**
      * Define class dependencies
      *
      * @param Client $apiClient
@@ -116,6 +121,7 @@ class CreateOrder
      * @param ObjectManagerInterface $objectManager
      * @param OrderRepositoryInterface $orderRepository
      * @param DinteroFactory $paymentMethodFactory
+     * @param TransactionFactory $dinteroTransactionFactory
      */
     public function __construct(
         Client $apiClient,
@@ -132,7 +138,8 @@ class CreateOrder
         InvoiceManagementInterface $invoiceManagement,
         ObjectManagerInterface $objectManager,
         OrderRepositoryInterface $orderRepository,
-        DinteroFactory $paymentMethodFactory
+        DinteroFactory $paymentMethodFactory,
+        TransactionFactory $dinteroTransactionFactory
     ) {
         $this->apiClient = $apiClient;
         $this->cartManagement = $cartManagement;
@@ -149,6 +156,7 @@ class CreateOrder
         $this->invoiceManagement = $invoiceManagement;
         $this->orderRepository = $orderRepository;
         $this->paymentMethodFactory = $paymentMethodFactory;
+        $this->dinteroTransactionFactory = $dinteroTransactionFactory;
     }
 
     /**
@@ -204,7 +212,17 @@ class CreateOrder
             throw new \Exception(__('Quote not found'));
         }
 
-        $dinteroTransaction = new \Magento\Framework\DataObject($transactionData);
+        /** @var \Dintero\Checkout\Model\Transaction $dinteroTransaction */
+        $dinteroTransaction = $this->dinteroTransactionFactory->create()->setData($transactionData);
+
+        if ($dinteroTransaction->isFailed()) {
+            throw new \Exception(__(
+                'Cannot create order from transactions %1. Transaction status: %2',
+                $dinteroTransaction->getId(),
+                $dinteroTransaction->getStatus()
+            ));
+        }
+
 
         // populating billing address with data from dintero
         $this->addressMapperFactory

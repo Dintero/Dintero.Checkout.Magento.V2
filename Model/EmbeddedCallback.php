@@ -113,6 +113,7 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
         ]);
 
         try {
+            /** @var \Magento\Sales\Model\Order $order */
             $order = $this->orderFactory->create()->loadByIncrementId($request->getMerchantReference());
             if ($order->getId()) {
                 $this->paymentMethodFactory->create()->process($order->getIncrementId(), $request->getId());
