@@ -206,6 +206,15 @@ class Dintero extends AbstractMethod
     protected $transactionRepository;
 
     /**
+     * @var array $failedTransactionStatuses
+     */
+    protected $failedTransactionStatuses = [
+        Client::STATUS_FAILED,
+        Client::STATUS_DECLINED,
+        Client::STATUS_UNKNOWN
+    ];
+
+    /**
      * Define class dependencies
      *
      * @param Context $context
@@ -436,6 +445,23 @@ class Dintero extends AbstractMethod
      */
     private function processTransaction($payment)
     {
+        // Decline order for failed transaction
+
+        if (
+            in_array($this->response->getData('status'), $this->failedTransactionStatuses)
+            && $payment->getOrder()->canCancel()
+        ) {
+            $this->declineOrder(
+                $payment->getOrder(),
+                __(
+                    'Transaction %1 failed with status: %2',
+                    $this->response->getData('status'),
+                    $this->response->getData('id')
+                ),
+                false
+            );
+        }
+
         $transaction = $payment->getAuthorizationTransaction();
         if ($transaction && $transaction->getTxnId() !== $payment->getLastTransId()) {
             return;
@@ -495,8 +521,12 @@ class Dintero extends AbstractMethod
             throw new \Exception(__('Invalid transaction or merchant reference'));
         }
 
-        if ($this->getResponse()->getStatus() === Client::STATUS_FAILED) {
-            throw new \Exception(__('Transaction status: '. $this->getResponse()->getStatus()));
+        if (in_array($this->getResponse()->getStatus(), $this->failedTransactionStatuses)) {
+            throw new \Exception(__(
+                'Transaction %1 failed with status %2 ',
+                $this->getResponse()->getId(),
+                $this->getResponse()->getStatus()
+            ));
         }
     }
 

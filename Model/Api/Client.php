@@ -64,6 +64,16 @@ class Client
     const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
 
     /*
+     * Status declined
+     */
+    const STATUS_DECLINED = 'DECLINED';
+
+    /*
+     * Status unknown
+     */
+    const STATUS_UNKNOWN = 'UNKNOWN';
+
+    /*
      * Standard
      */
     const TYPE_STANDARD = 'standard';
@@ -270,7 +280,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.0',
+            'Dintero-System-Plugin-Version' => '1.8.1',
         ];
 
         if ($token && $token instanceof Token) {

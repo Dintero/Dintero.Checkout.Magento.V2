@@ -262,7 +262,8 @@ class Config extends AbstractHelper
         return $this->_getUrl('dintero/payment/response', [
             '_query' => [
                 'method' => 'POST',
-                'delay_callback' => self::DEFAULT_CALLBACK_DELAY
+                'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
+                'report_error' => 'true',
             ]
         ]);
     }
@@ -321,7 +322,8 @@ class Config extends AbstractHelper
                 'dintero' => 'express',
                 '_query' => [
                     'method' => 'POST',
-                    'delay_callback' => self::DEFAULT_CALLBACK_DELAY
+                    'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
+                    'report_error' => 'true',
                 ]
             ]
         );
@@ -339,6 +341,7 @@ class Config extends AbstractHelper
                 '_query' => [
                     'method' => 'POST',
                     'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
+                    'report_error' => 'true',
                 ]
             ]
         );
