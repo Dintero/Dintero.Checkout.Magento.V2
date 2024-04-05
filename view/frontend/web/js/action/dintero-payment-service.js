@@ -77,6 +77,7 @@ define(
                                 }
                             }).then(function(checkout) {
                                 checkoutInstance = checkout;
+                                lockSession();
                             });
                     });
                 } catch (error) {

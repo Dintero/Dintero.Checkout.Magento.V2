@@ -35,11 +35,6 @@ class SessionManagement implements SessionManagementInterface
     protected $objectFactory;
 
     /**
-     * @var \Magento\Framework\Encryption\Encryptor $encryptor
-     */
-    protected $encryptor;
-
-    /**
      * @var \Dintero\Checkout\Helper\Config $configHelper
      */
     protected $configHelper;
@@ -51,7 +46,6 @@ class SessionManagement implements SessionManagementInterface
      * @param \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
-     * @param \Magento\Framework\Encryption\Encryptor $encryptor
      * @param \Dintero\Checkout\Helper\Config $configHelper
      */
     public function __construct(
@@ -59,14 +53,12 @@ class SessionManagement implements SessionManagementInterface
         \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory,
         \Magento\Checkout\Model\Session                    $checkoutSession,
         \Magento\Framework\DataObjectFactory               $dataObjectFactory,
-        \Magento\Framework\Encryption\Encryptor            $encryptor,
         \Dintero\Checkout\Helper\Config                    $configHelper
     ) {
         $this->client = $clientFactory->create()->setType(Client::TYPE_EMBEDDED);
         $this->sessionFactory = $sessionFactory;
         $this->checkoutSession = $checkoutSession;
         $this->objectFactory = $dataObjectFactory;
-        $this->encryptor = $encryptor;
         $this->configHelper = $configHelper;
     }
 
@@ -94,36 +86,7 @@ class SessionManagement implements SessionManagementInterface
             return null;
         }
 
-        // validate total amount
-        if ($quote->getGrandTotal() != ($responseObject->getData('order/amount')/100)) {
-            return null;
-        }
-
-        // validate hash generated from quote
-        if ($this->generateHash($payment->getQuote()) !== $payment->getAdditionalInformation('quote_hash')) {
-            return null;
-        }
-
         return $responseObject->getId();
-    }
-
-    /**
-     * Generate hash for quote
-     *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @return string
-     */
-    private function generateHash(\Magento\Quote\Model\Quote $quote)
-    {
-        $data = [];
-        /** @var \Magento\Quote\Model\Quote\Item $item */
-        foreach ($quote->getAllItems() as $item) {
-            $data[] = implode(':', [$item->getSku(), $item->getQty()]);
-        }
-        if (!$quote->getIsVirtual()) {
-            $data[] = $quote->getShippingAddress()->getShippingMethod();
-        }
-        return $this->encryptor->encryptWithFastestAvailableAlgorithm(implode('|', $data));
     }
 
     /**
@@ -176,7 +139,6 @@ class SessionManagement implements SessionManagementInterface
             ->initSessionFromQuote($quote);
         $quote->getPayment()
             ->setAdditionalInformation($response)
-            ->setAdditionalInformation('quote_hash', $this->generateHash($quote))
             ->save();
         return $this->sessionFactory->create()->setId($response['id'] ?? null);
     }

@@ -1,6 +1,6 @@
 # Changelog
 
-v1.8.1
+v1.8.2
 - added embedded popout functionality
 - added embedded express functionality
 - added embedded express with popout functionality
