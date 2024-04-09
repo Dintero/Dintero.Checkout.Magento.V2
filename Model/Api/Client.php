@@ -59,6 +59,15 @@ class Client
     const STATUS_FAILED = 'FAILED';
 
     /*
+     * Status failed
+     */
+    const STATUS_DECLINED = 'DECLINED';
+    /*
+     * Status failed
+     */
+    const STATUS_UNKNOWN = 'UNKNOWN';
+
+    /*
      * Status partially captured
      */
     const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
