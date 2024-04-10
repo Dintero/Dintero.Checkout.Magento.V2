@@ -73,6 +73,11 @@ class Client
     const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
 
     /*
+     * Status cancelled
+     */
+    const STATUS_CANCELLED = 'CANCELLED';
+
+    /*
      * Standard
      */
     const TYPE_STANDARD = 'standard';

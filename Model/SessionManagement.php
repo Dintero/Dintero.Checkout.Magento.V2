@@ -88,7 +88,8 @@ class SessionManagement implements SessionManagementInterface
 
         $events = $responseObject->getEvents();
 
-        if (is_array($events) && in_array(end($events)['name'], [Client::STATUS_FAILED, Client::STATUS_DECLINED, Client::STATUS_UNKNOWN])) {
+        $statusList = [Client::STATUS_FAILED, Client::STATUS_DECLINED, Client::STATUS_UNKNOWN, Client::STATUS_CANCELLED];
+        if (is_array($events) && in_array(end($events)['name'], $statusList)) {
             return null;
         }
 
