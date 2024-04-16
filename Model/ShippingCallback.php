@@ -10,6 +10,7 @@ use Dintero\Checkout\Api\Data\Shipping\ResponseInterfaceFactory;
 use Dintero\Checkout\Api\Data\ShippingMethodInterface;
 use Dintero\Checkout\Api\Data\ShippingMethodInterfaceFactory;
 use Dintero\Checkout\Helper\Config;
+use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
@@ -108,6 +109,11 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     protected $configHelper;
 
     /**
+     * @var LineIdGenerator $lineIdGenerator
+     */
+    protected $lineIdGenerator;
+
+    /**
      * ShippingCallback constructor.
      *
      * @param \Magento\Framework\App\RequestInterface $request
@@ -126,6 +132,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param OrderInterfaceFactory $orderFactory
      * @param ItemInterfaceFactory $orderItemFactory
      * @param ConfigHelper $configHelper
+     * @param LineIdGenerator $lineIdGenerator
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -143,7 +150,8 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         CollectionFactory $countryCollectionFactory,
         OrderInterfaceFactory $orderFactory,
         ItemInterfaceFactory $orderItemFactory,
-        Config $configHelper
+        Config $configHelper,
+        LineIdGenerator $lineIdGenerator
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -161,6 +169,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $this->orderFactory = $orderFactory;
         $this->orderItemFactory = $orderItemFactory;
         $this->configHelper = $configHelper;
+        $this->lineIdGenerator = $lineIdGenerator;
     }
 
     /**
@@ -297,7 +306,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             $orderItem = $this->orderItemFactory->create();
             $orderItem->setAmount(($quoteItem->getBaseRowTotalInclTax() - $quoteItem->getBaseDiscountAmount()) * 100)
                 ->setId($quoteItem->getSku())
-                ->setLineId($quoteItem->getSku())
+                ->setLineId($this->lineIdGenerator->generate($quoteItem))
                 ->setDescription(sprintf('%s (%s)', $quoteItem->getName(), $quoteItem->getSku()))
                 ->setQuantity($quoteItem->getQty() * 1)
                 ->setVat($quoteItem->getTaxPercent())

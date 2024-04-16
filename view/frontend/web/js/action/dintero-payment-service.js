@@ -13,25 +13,31 @@ define(
         'use strict';
 
         var checkoutInstance;
-
+        var processingUpdateFlag = false;
         const refreshSession = function() {
-            if (checkoutInstance) {
-                checkoutInstance.refreshSession();
-            }
+            const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-update', {});
+            storage.post(serviceUrl, {}, true, 'application/json').done(() => {
+                if (checkoutInstance) {
+                    checkoutInstance.refreshSession();
+                }
+            });
         }
 
-        const lockSession = function() {
-            if (checkoutInstance) {
-                checkoutInstance.lockSession();
+        const updateSession = function() {
+            if (checkoutInstance && !processingUpdateFlag) {
+                checkoutInstance.lockSession().then(() => {
+                    refreshSession();
+                    processingUpdateFlag = false;
+                });
             }
         }
 
         setCoupon.registerSuccessCallback(refreshSession);
         setCoupon.registerFailCallback(refreshSession);
-        setCoupon.registerDataModifier(lockSession);
+        setCoupon.registerDataModifier(updateSession);
 
         cancelCoupon.registerSuccessCallback(refreshSession);
-        $(document).on('coupon_cancel_before', lockSession)
+        $(document).on('coupon_cancel_before', updateSession)
 
         return {
             currentRequest: false,
@@ -65,19 +71,29 @@ define(
                                     );
                                     checkout.destroy();
                                 },
-                                onSessionLocked: function(event, checkout, callback) {
-                                    console.log(`Session type ${event.type}`);
-                                    const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-update', {});
-                                    storage.post(serviceUrl, {}, true, 'application/json').done(() => {
-                                        refreshSession();
-                                    });
-                                },
                                 onSessionLockFailed: function(event, checkout) {
-                                    console.log('Session log failed');
+                                    console.log('Session lock failed');
+                                    processingUpdateFlag = false;
+                                },
+                                onValidateSession: function(event, checkout, callback) {
+                                    const serviceUrl = urlBuilder.createUrl('/dintero/checkout/session-validate', {});
+                                    storage.post(
+                                        serviceUrl,
+                                        JSON.stringify({sessionId: checkout?.session?.id}),
+                                        true,
+                                        'application/json'
+                                    ).done((isValid) => {
+                                        const result = {success: isValid};
+                                        if (!isValid) {
+                                            updateSession();
+                                            result.clientValidationError = $.mage.__('The payment was out of date. Refresh the page to try again')
+                                        }
+                                        callback(result);
+                                    });
                                 }
                             }).then(function(checkout) {
                                 checkoutInstance = checkout;
-                                lockSession();
+                                updateSession();
                             });
                     });
                 } catch (error) {

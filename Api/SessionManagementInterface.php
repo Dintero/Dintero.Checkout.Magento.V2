@@ -18,4 +18,10 @@ interface SessionManagementInterface
      * @return \Dintero\Checkout\Api\Data\SessionInterface
      */
     public function updateSession();
+
+    /**
+     * @param string $sessionId
+     * @return boolean
+     */
+    public function validateSession($sessionId);
 }

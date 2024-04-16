@@ -40,6 +40,11 @@ class SessionManagement implements SessionManagementInterface
     protected $configHelper;
 
     /**
+     * @var Session\Validator $sessionValidator
+     */
+    protected $sessionValidator;
+
+    /**
      * Define class dependencies
      *
      * @param ClientFactory $clientFactory
@@ -53,27 +58,28 @@ class SessionManagement implements SessionManagementInterface
         \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory,
         \Magento\Checkout\Model\Session                    $checkoutSession,
         \Magento\Framework\DataObjectFactory               $dataObjectFactory,
-        \Dintero\Checkout\Helper\Config                    $configHelper
+        \Dintero\Checkout\Helper\Config                    $configHelper,
+        \Dintero\Checkout\Model\Session\Validator          $sessionValidator
     ) {
         $this->client = $clientFactory->create()->setType(Client::TYPE_EMBEDDED);
         $this->sessionFactory = $sessionFactory;
         $this->checkoutSession = $checkoutSession;
         $this->objectFactory = $dataObjectFactory;
         $this->configHelper = $configHelper;
+        $this->sessionValidator = $sessionValidator;
     }
 
     /**
      * Cancel current active session in Dintero
      *
      * @param string $sessionId
-     * @param \Magento\Quote\Model\Quote\Payment $payment
      * @return string|null
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Payment\Gateway\Http\ClientException
      * @throws \Magento\Payment\Gateway\Http\ConverterException
      */
-    private function checkSession($sessionId, $payment)
+    private function checkSession($sessionId)
     {
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->checkoutSession->getQuote();
@@ -81,15 +87,7 @@ class SessionManagement implements SessionManagementInterface
         $responseObject = $this->objectFactory->create()->setData($sessionInfo);
 
         // validate order number
-        if (!$responseObject->getId()
-            || $responseObject->getData('order/merchant_reference') != $quote->getReservedOrderId()) {
-            return null;
-        }
-
-        $events = $responseObject->getEvents();
-
-        $statusList = [Client::STATUS_FAILED, Client::STATUS_DECLINED, Client::STATUS_UNKNOWN, Client::STATUS_CANCELLED];
-        if (is_array($events) && in_array(end($events)['name'], $statusList)) {
+        if (!$this->sessionValidator->validate($responseObject, $quote)) {
             return null;
         }
 
@@ -133,7 +131,7 @@ class SessionManagement implements SessionManagementInterface
         $quote = $this->checkoutSession->getQuote();
         $payment = $quote->getPayment();
         $dinteroSessionId = $payment->getAdditionalInformation('id');
-        if ($sessionId = $this->checkSession($dinteroSessionId, $payment)) {
+        if ($sessionId = $this->checkSession($dinteroSessionId)) {
             return $this->sessionFactory->create()->setId($sessionId);
         }
 
@@ -177,5 +175,23 @@ class SessionManagement implements SessionManagementInterface
         $session->setId($response['id'] ?? null);
 
         return $session;
+    }
+
+    /**
+     * Validate session
+     *
+     * @param string $sessionId
+     * @return boolean
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Payment\Gateway\Http\ConverterException
+     */
+    public function validateSession($sessionId)
+    {
+        $quote = $this->checkoutSession->getQuote();
+        $sessionInfo = $this->client->getSessionInfo($sessionId);
+        $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
+        return $this->sessionValidator->validate($sessionInfoObj, $quote);
     }
 }
