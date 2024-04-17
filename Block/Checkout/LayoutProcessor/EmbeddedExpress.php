@@ -44,7 +44,6 @@ class EmbeddedExpress implements LayoutProcessorInterface
                 'component' => 'Dintero_Checkout/js/view/popout',
                 'displayArea' => 'steps',
             ];
-            $checkoutElementsConfig['sidebar'] = [];
 
             $jsLayout['components']['checkout']['children'] = $checkoutElementsConfig;
         }

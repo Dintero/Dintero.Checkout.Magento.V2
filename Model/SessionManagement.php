@@ -6,6 +6,7 @@ use Dintero\Checkout\Api\SessionManagementInterface;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Api\ClientFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Session
@@ -45,6 +46,16 @@ class SessionManagement implements SessionManagementInterface
     protected $sessionValidator;
 
     /**
+     * @var AddressMapperFactory $addressMapperFactory
+     */
+    protected $addressMapperFactory;
+
+    /**
+     * @var LoggerInterface $logger
+     */
+    protected $logger;
+
+    /**
      * Define class dependencies
      *
      * @param ClientFactory $clientFactory
@@ -52,6 +63,7 @@ class SessionManagement implements SessionManagementInterface
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param \Dintero\Checkout\Helper\Config $configHelper
+     * @param
      */
     public function __construct(
         ClientFactory                                      $clientFactory,
@@ -59,7 +71,9 @@ class SessionManagement implements SessionManagementInterface
         \Magento\Checkout\Model\Session                    $checkoutSession,
         \Magento\Framework\DataObjectFactory               $dataObjectFactory,
         \Dintero\Checkout\Helper\Config                    $configHelper,
-        \Dintero\Checkout\Model\Session\Validator          $sessionValidator
+        \Dintero\Checkout\Model\Session\Validator          $sessionValidator,
+        \Dintero\Checkout\Model\AddressMapperFactory       $addressMapperFactory,
+        LoggerInterface                                    $logger
     ) {
         $this->client = $clientFactory->create()->setType(Client::TYPE_EMBEDDED);
         $this->sessionFactory = $sessionFactory;
@@ -67,6 +81,8 @@ class SessionManagement implements SessionManagementInterface
         $this->objectFactory = $dataObjectFactory;
         $this->configHelper = $configHelper;
         $this->sessionValidator = $sessionValidator;
+        $this->addressMapperFactory = $addressMapperFactory;
+        $this->logger = $logger;
     }
 
     /**
@@ -193,5 +209,58 @@ class SessionManagement implements SessionManagementInterface
         $sessionInfo = $this->client->getSessionInfo($sessionId);
         $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
         return $this->sessionValidator->validate($sessionInfoObj, $quote);
+    }
+
+    /**
+     * Update cart totals from session
+     *
+     * @param string $sessionId
+     * @return bool
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Payment\Gateway\Http\ConverterException
+     */
+    public function updateTotals($sessionId)
+    {
+        $quote = $this->checkoutSession->getQuote();
+        $sessionInfo = $this->client->getSessionInfo($sessionId);
+        $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
+
+        /*if (!$this->sessionValidator->validate($sessionInfoObj, $quote)) {
+            return false;
+        }*/
+
+        $orderDataObj = $this->objectFactory->create()->setData($sessionInfoObj->getData('order'));
+
+        $this->addressMapperFactory
+            ->create(['address' => $quote->getBillingAddress(), 'dataObject' => $orderDataObj])
+            ->map();
+
+        if (!$quote->getIsVirtual() && $shippingMethodCode = $sessionInfoObj->getData('order/shipping_option/id')) {
+            $this->addressMapperFactory
+                ->create(['address' => $quote->getShippingAddress(), 'dataObject' => $orderDataObj])
+                ->map();
+
+            $quote->getShippingAddress()
+                ->setShippingMethod($shippingMethodCode)
+                ->setShippingDescription(
+                    $sessionInfoObj->getData('order/shipping_option/operator')
+                );
+        }
+
+        $discountCodes = $sessionInfoObj->getData('order/discount_codes');
+        if (!empty($discountCodes)) {
+            $quote->setCouponCode(current($discountCodes));
+        }
+
+        try {
+            $quote->getShippingAddress()->setCollectShippingRates(true)->collectShippingRates();
+            $quote->collectTotals()->save();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return false;
+        }
+        return true;
     }
 }

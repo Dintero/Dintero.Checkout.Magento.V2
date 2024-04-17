@@ -24,4 +24,10 @@ interface SessionManagementInterface
      * @return boolean
      */
     public function validateSession($sessionId);
+
+    /**
+     * @param string $sessionId
+     * @return bool
+     */
+    public function updateTotals($sessionId);
 }
