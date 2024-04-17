@@ -75,7 +75,7 @@ class SessionManagement implements SessionManagementInterface
         \Dintero\Checkout\Model\AddressMapperFactory       $addressMapperFactory,
         LoggerInterface                                    $logger
     ) {
-        $this->client = $clientFactory->create()->setType(Client::TYPE_EMBEDDED);
+        $this->client = $clientFactory->create()->setType($configHelper->getEmbedType());
         $this->sessionFactory = $sessionFactory;
         $this->checkoutSession = $checkoutSession;
         $this->objectFactory = $dataObjectFactory;
@@ -227,9 +227,11 @@ class SessionManagement implements SessionManagementInterface
         $sessionInfo = $this->client->getSessionInfo($sessionId);
         $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
 
-        /*if (!$this->sessionValidator->validate($sessionInfoObj, $quote)) {
-            return false;
-        }*/
+        // validate order number
+        if (!$sessionInfoObj->getId()
+            || $sessionInfoObj->getData('order/merchant_reference') != $quote->getReservedOrderId()) {
+            throw new LocalizedException(__('Could not validate dintero session.'));
+        }
 
         $orderDataObj = $this->objectFactory->create()->setData($sessionInfoObj->getData('order'));
 
@@ -247,6 +249,7 @@ class SessionManagement implements SessionManagementInterface
                 ->setShippingDescription(
                     $sessionInfoObj->getData('order/shipping_option/operator')
                 );
+            $quote->getShippingAddress()->setCollectShippingRates(true);
         }
 
         $discountCodes = $sessionInfoObj->getData('order/discount_codes');
@@ -255,7 +258,6 @@ class SessionManagement implements SessionManagementInterface
         }
 
         try {
-            $quote->getShippingAddress()->setCollectShippingRates(true)->collectShippingRates();
             $quote->collectTotals()->save();
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());

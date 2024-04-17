@@ -371,10 +371,17 @@ class Client
      */
     public function updateSession($sessionId, $quote)
     {
+        $baseGrandTotal = $quote->getBaseGrandTotal() * 100;
+
+        if ($this->isExpress() && !$quote->getIsVirtual()) {
+            $baseShippingAmount = $quote->getShippingAddress()->getBaseShippingAmount() * 100;
+            $baseGrandTotal -= $baseShippingAmount;
+        }
+
         $requestData = [
             'remove_lock' => true,
             'order' => [
-                'amount' => $quote->getBaseGrandTotal() * 100,
+                'amount' => $baseGrandTotal,
                 'currency' => $quote->getBaseCurrencyCode(),
                 'merchant_reference' => $quote->getReservedOrderId(),
                 'items' => $this->prepareItems($quote),
@@ -493,6 +500,12 @@ class Client
             $salesObject->getBillingAddress()->getEmail() :
             $salesObject->getCustomerEmail();
         $baseOrderTotal = $salesDocument ? $salesDocument->getBaseGrandTotal() : $salesObject->getBaseGrandTotal();
+
+        if ($this->isExpress() && !$salesObject->getIsVirtual()) {
+            $baseShippingAmount = $salesObject->getShippingAddress()->getBaseShippingAmount();
+            $baseOrderTotal -= $baseShippingAmount;
+        }
+
         $orderData = [
             'profile_id' => $this->configHelper->getProfileId(),
             'expires_at' => date(

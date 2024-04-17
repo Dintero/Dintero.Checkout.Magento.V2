@@ -88,19 +88,17 @@ define(
                                  * @param checkout
                                  */
                                 onSession: function(event, checkout) {
-                                    if(event.type === 'SessionUpdated') {
-                                        sessionManager.updateTotals(checkout?.session?.id).done(() => {
-                                            const shippingMethod = checkout?.session?.order?.shipping_option;
-                                            if (shippingMethod && shippingMethod.id) {
-                                                quote.shippingMethod({
-                                                    method_title: shippingMethod.title,
-                                                    carrier_title: shippingMethod.operator,
-                                                    method_code: shippingMethod.id
-                                                });
-                                            }
-                                            getTotalsAction([]);
-                                        });
-                                    }
+                                    sessionManager.updateTotals(checkout?.session?.id).done(() => {
+                                        const shippingMethod = checkout?.session?.order?.shipping_option;
+                                        if (shippingMethod && shippingMethod.id) {
+                                            quote.shippingMethod({
+                                                method_title: shippingMethod.title,
+                                                carrier_title: shippingMethod.operator,
+                                                method_code: shippingMethod.id
+                                            });
+                                        }
+                                        getTotalsAction([]);
+                                    });
                                 },
 
                                 /**
