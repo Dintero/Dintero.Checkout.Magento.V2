@@ -537,7 +537,7 @@ class Client
                 $salesObject->getStore()->getCode()
             );
             $orderData['express']['shipping_options'] = [];
-            $orderData['express']['discount_codes'] = [
+            /*$orderData['express']['discount_codes'] = [
                 'max_count' => 1,
                 'callback_url' => $this->configHelper->getShippingCallbackUrl(
                     $salesObject->getStore()->getCode()
@@ -550,7 +550,7 @@ class Client
                 'order' => [
                     'enabled' => true,
                 ]
-            ];
+            ];*/
         }
 
         if (!empty($customerEmail)) {
