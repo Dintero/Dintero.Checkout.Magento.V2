@@ -295,11 +295,14 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     {
         /** @var \Dintero\Checkout\Api\Data\OrderInterface $order */
         $order = $this->orderFactory->create();
+        $baseShippingAmount = $quote->getShippingAddress()->getBaseShippingAmount() * 100;
+        $baseShippingTaxAmount = $quote->getShippingAddress()->getBaseShippingTaxAmount() * 100;
+        $baseShippingTotalAmount = $baseShippingAmount + $baseShippingTaxAmount;
 
         // shipping amount should be subtracted, otherwise correction item on checkout
         // will be added as shipping amount will be added on top
         $orderTotal = $quote->getBaseGrandTotal() * 100;
-        $orderTotal -= $quote->getShippingAddress()->getBaseShippingAmount() * 100;
+        $orderTotal -= $baseShippingTotalAmount;
 
         $order->setAmount($orderTotal)
             ->setCurrency($quote->getBaseCurrencyCode());

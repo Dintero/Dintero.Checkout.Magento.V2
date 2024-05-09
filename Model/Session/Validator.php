@@ -72,6 +72,11 @@ class Validator
             return false;
         }
 
+        $expirationDate = $sessionInfo->getData('expires_at');
+        if ($expirationDate && time() > strtotime($expirationDate)) {
+            return false;
+        }
+
         $events = $sessionInfo->getEvents();
 
         $statusList = [Client::STATUS_FAILED, Client::STATUS_DECLINED, Client::STATUS_UNKNOWN, Client::STATUS_CANCELLED];
