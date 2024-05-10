@@ -34,10 +34,7 @@ class ExpressButton implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if (!$this->configHelper->isActive()
-            || !$this->configHelper->isExpress()
-            || $observer->getIsCatalogProduct()
-        ) {
+        if (!$this->configHelper->showExpressCartButton() || $observer->getIsCatalogProduct()) {
             return;
         }
 

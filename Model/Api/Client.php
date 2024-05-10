@@ -317,7 +317,7 @@ class Client
      */
     private function isExpress()
     {
-        return $this->getType() === self::TYPE_EXPRESS && $this->configHelper->isExpress();
+        return $this->getType() === self::TYPE_EXPRESS;
     }
 
     /**

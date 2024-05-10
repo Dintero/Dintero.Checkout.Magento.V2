@@ -46,15 +46,22 @@
                     <label>Enable Express Checkout</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="product_page_button_enabled" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="cart_button_enabled" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Pay button on cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="is_express">1</field>
+                    </depends>
+                </field>
+                <field id="product_page_button_enabled" translate="label" type="select" sortOrder="71" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show Pay button on product page</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
                         <field id="is_express">1</field>
                     </depends>
                 </field>
-                <field id="express_button_type" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Show Pay button on product page</label>
+                <field id="express_button_type" translate="label" type="select" sortOrder="72" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Express Button Type</label>
                     <source_model>Dintero\Checkout\Model\Source\ExpressButtonType</source_model>
                     <depends>
                         <field id="is_express">1</field>

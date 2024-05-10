@@ -140,6 +140,11 @@ class Config extends AbstractHelper
     const XPATH_PRODUCT_PAGE_BUTTON_ENABLED = 'payment/dintero/product_page_button_enabled';
 
     /*
+     * Enable pay button on minicart and cart
+     */
+    const XPATH_CART_BUTTON_ENABLED = 'payment/dintero/cart_button_enabled';
+
+    /*
      * Number of days for session expiration
      */
     const XPATH_SESSION_EXP_DAY = 'payment/dintero/expiration_days';
@@ -508,6 +513,18 @@ class Config extends AbstractHelper
         return $this->isActive()
             && $this->isExpress()
             && $this->scopeConfig->isSetFlag(self::XPATH_PRODUCT_PAGE_BUTTON_ENABLED, ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * Check if cart and minicart buttons should be enabled
+     *
+     * @return bool
+     */
+    public function showExpressCartButton()
+    {
+        return $this->isActive()
+            && $this->isExpress()
+            && $this->scopeConfig->isSetFlag(self::XPATH_CART_BUTTON_ENABLED, ScopeInterface::SCOPE_STORE);
     }
 
     /**
