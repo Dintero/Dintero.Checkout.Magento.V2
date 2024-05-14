@@ -488,6 +488,26 @@ class Client
     }
 
     /**
+     * Extract default address
+     *
+     * @param \Magento\Customer\Api\Data\AddressInterface[] $customerAddresses
+     * @param string $addressType
+     * @return \Magento\Customer\Api\Data\AddressInterface|null
+     */
+    protected function _extractDefaultAddress($customerAddresses, $addressType = 'default_billing')
+    {
+        /** @var \Magento\Customer\Api\Data\AddressInterface $address */
+        foreach ($customerAddresses as $address) {
+            if ($addressType === 'default_billing' && $address->isDefaultBilling()
+                || $addressType === 'default_shipping' && $address->isDefaultShipping()
+            ) {
+                return $address;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Preparing data for submission
      *
      * @param Order|\Magento\Quote\Model\Quote $salesObject
@@ -496,6 +516,10 @@ class Client
      */
     private function prepareData($salesObject, $salesDocument = null)
     {
+
+        $customer = !$salesObject->getCustomerIsGuest() && $salesObject->getCustomerId()
+            ? $salesObject->getCustomer() : null;
+
         $customerEmail = $salesObject->getCustomerIsGuest() ?
             $salesObject->getBillingAddress()->getEmail() :
             $salesObject->getCustomerEmail();
@@ -537,6 +561,13 @@ class Client
                 $salesObject->getStore()->getCode()
             );
             $orderData['express']['shipping_options'] = [];
+
+            $allowDiffShipCustomerTypes = $this->configHelper->getDifferentShippingAddressCustomerTypes();
+
+            if (!empty($allowDiffShipCustomerTypes)) {
+                $orderData['configuration']['allow_different_billing_shipping_address'] = $allowDiffShipCustomerTypes;
+            }
+
             /*$orderData['express']['discount_codes'] = [
                 'max_count' => 1,
                 'callback_url' => $this->configHelper->getShippingCallbackUrl(
@@ -557,8 +588,32 @@ class Client
             $orderData['customer']['email'] = $customerEmail;
         }
 
-        if ($salesObject->getShippingAddress() && $salesObject->getShippingAddress()->getPostcode()) {
-            $orderData['order']['shipping_address'] = $this->prepareAddress($salesObject->getShippingAddress());
+        $shippingAddress = $salesObject->getShippingAddress()->getPostcode() ? $salesObject->getShippingAddress() : null;
+        if (!$shippingAddress && $customer) {
+            /** @var \Magento\Customer\Model\Data\Customer $customer */
+            $shippingAddress = $this->_extractDefaultAddress(
+                $customer->getAddresses(),
+                \Magento\Customer\Api\Data\AddressInterface::DEFAULT_SHIPPING
+            );
+        }
+
+        if ($shippingAddress && $shippingAddress->getPostcode()) {
+            $orderData['order']['shipping_address'] = $this->prepareAddress($shippingAddress);
+        }
+
+        $billingAddress = $salesObject->getBillingAddress()->getPostcode() ? $salesObject->getBillingAddress() : null;
+        $billingCustomerEmail = $billingAddress ? $billingAddress->getEmail() : null;
+        if ($customer && !$billingAddress) {
+            $billingAddress = $this->_extractDefaultAddress(
+                $customer->getAddresses(),
+                \Magento\Customer\Api\Data\AddressInterface::DEFAULT_BILLING
+            );
+            $billingCustomerEmail = $customer->getEmail();
+        }
+
+        if ($billingAddress && $billingAddress->getPostcode()) {
+            $orderData['order']['billing_address'] = $this->prepareAddress($billingAddress);
+            $orderData['order']['billing_address']['email'] = $billingCustomerEmail;
         }
 
         if (!empty($this->getMetaData()) && is_array($this->getMetaData())) {
