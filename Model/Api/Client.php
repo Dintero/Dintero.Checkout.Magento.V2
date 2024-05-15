@@ -602,7 +602,9 @@ class Client
         }
 
         $billingAddress = $salesObject->getBillingAddress()->getPostcode() ? $salesObject->getBillingAddress() : null;
-        $billingCustomerEmail = $billingAddress ? $billingAddress->getEmail() : null;
+        $billingCustomerEmail = $billingAddress && $billingAddress->getEmail()
+            ? $billingAddress->getEmail() : $salesObject->getCustomerEmail();
+
         if ($customer && !$billingAddress) {
             $billingAddress = $this->_extractDefaultAddress(
                 $customer->getAddresses(),
@@ -613,7 +615,7 @@ class Client
 
         if ($billingAddress && $billingAddress->getPostcode()) {
             $orderData['order']['billing_address'] = $this->prepareAddress($billingAddress);
-            $orderData['order']['billing_address']['email'] = $billingCustomerEmail;
+            $orderData['order']['billing_address']['email'] = $billingCustomerEmail ?? '';
         }
 
         if (!empty($this->getMetaData()) && is_array($this->getMetaData())) {
