@@ -34,6 +34,7 @@
                 <expiration_days>1</expiration_days>
                 <shipping_methods_map>pickup</shipping_methods_map>
                 <id_field>sku</id_field>
+                <allow_different_shipping>b2c,b2b</allow_different_shipping>
             </dintero>
         </payment>
     </default>
