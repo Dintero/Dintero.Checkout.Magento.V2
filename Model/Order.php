@@ -78,4 +78,21 @@ class Order
     {
         return $this->getData(self::ITEMS);
     }
+
+    /**
+     * @param string[] $discountCodes
+     * @return \Dintero\Checkout\Api\Data\OrderInterface|Order
+     */
+    public function setDiscountCodes($discountCodes)
+    {
+        return $this->setData(self::DISCOUNT_CODES, $discountCodes);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDiscountCodes()
+    {
+        return $this->getData(self::DISCOUNT_CODES);
+    }
 }

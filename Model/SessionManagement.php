@@ -6,6 +6,7 @@ use Dintero\Checkout\Api\SessionManagementInterface;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Api\ClientFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Session
@@ -35,9 +36,24 @@ class SessionManagement implements SessionManagementInterface
     protected $objectFactory;
 
     /**
-     * @var \Magento\Framework\Encryption\Encryptor $encryptor
+     * @var \Dintero\Checkout\Helper\Config $configHelper
      */
-    protected $encryptor;
+    protected $configHelper;
+
+    /**
+     * @var Session\Validator $sessionValidator
+     */
+    protected $sessionValidator;
+
+    /**
+     * @var AddressMapperFactory $addressMapperFactory
+     */
+    protected $addressMapperFactory;
+
+    /**
+     * @var LoggerInterface $logger
+     */
+    protected $logger;
 
     /**
      * Define class dependencies
@@ -46,34 +62,40 @@ class SessionManagement implements SessionManagementInterface
      * @param \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
-     * @param \Magento\Framework\Encryption\Encryptor $encryptor
+     * @param \Dintero\Checkout\Helper\Config $configHelper
+     * @param
      */
     public function __construct(
         ClientFactory                                      $clientFactory,
         \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory,
         \Magento\Checkout\Model\Session                    $checkoutSession,
         \Magento\Framework\DataObjectFactory               $dataObjectFactory,
-        \Magento\Framework\Encryption\Encryptor             $encryptor
+        \Dintero\Checkout\Helper\Config                    $configHelper,
+        \Dintero\Checkout\Model\Session\Validator          $sessionValidator,
+        \Dintero\Checkout\Model\AddressMapperFactory       $addressMapperFactory,
+        LoggerInterface                                    $logger
     ) {
-        $this->client = $clientFactory->create()->setType(Client::TYPE_EMBEDDED);
+        $this->client = $clientFactory->create()->setType($configHelper->getEmbedType());
         $this->sessionFactory = $sessionFactory;
         $this->checkoutSession = $checkoutSession;
         $this->objectFactory = $dataObjectFactory;
-        $this->encryptor = $encryptor;
+        $this->configHelper = $configHelper;
+        $this->sessionValidator = $sessionValidator;
+        $this->addressMapperFactory = $addressMapperFactory;
+        $this->logger = $logger;
     }
 
     /**
      * Cancel current active session in Dintero
      *
      * @param string $sessionId
-     * @param \Magento\Quote\Model\Quote\Payment $payment
      * @return string|null
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Payment\Gateway\Http\ClientException
      * @throws \Magento\Payment\Gateway\Http\ConverterException
      */
-    private function checkSession($sessionId, $payment)
+    private function checkSession($sessionId)
     {
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->checkoutSession->getQuote();
@@ -81,41 +103,11 @@ class SessionManagement implements SessionManagementInterface
         $responseObject = $this->objectFactory->create()->setData($sessionInfo);
 
         // validate order number
-        if (!$responseObject->getId()
-            || $responseObject->getData('order/merchant_reference') != $quote->getReservedOrderId()) {
-            return null;
-        }
-
-        // validate total amount
-        if ($quote->getGrandTotal() != ($responseObject->getData('order/amount')/100)) {
-            return null;
-        }
-
-        // validate hash generated from quote
-        if ($this->generateHash($payment->getQuote()) !== $payment->getAdditionalInformation('quote_hash')) {
+        if (!$this->sessionValidator->validate($responseObject, $quote)) {
             return null;
         }
 
         return $responseObject->getId();
-    }
-
-    /**
-     * Generate hash for quote
-     *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @return string
-     */
-    private function generateHash(\Magento\Quote\Model\Quote $quote)
-    {
-        $data = [];
-        /** @var \Magento\Quote\Model\Quote\Item $item */
-        foreach ($quote->getAllItems() as $item) {
-            $data[] = implode(':', [$item->getSku(), $item->getQty()]);
-        }
-        if (!$quote->getIsVirtual()) {
-            $data[] = $quote->getShippingAddress()->getShippingMethod();
-        }
-        return $this->encryptor->encryptWithFastestAvailableAlgorithm(implode('|', $data));
     }
 
     /**
@@ -155,7 +147,7 @@ class SessionManagement implements SessionManagementInterface
         $quote = $this->checkoutSession->getQuote();
         $payment = $quote->getPayment();
         $dinteroSessionId = $payment->getAdditionalInformation('id');
-        if ($sessionId = $this->checkSession($dinteroSessionId, $payment)) {
+        if ($sessionId = $this->checkSession($dinteroSessionId)) {
             return $this->sessionFactory->create()->setId($sessionId);
         }
 
@@ -164,11 +156,10 @@ class SessionManagement implements SessionManagementInterface
         }
 
         $response = $this->client
-            ->setType(Client::TYPE_EMBEDDED)
+            ->setType($this->configHelper->getEmbedType())
             ->initSessionFromQuote($quote);
         $quote->getPayment()
             ->setAdditionalInformation($response)
-            ->setAdditionalInformation('quote_hash', $this->generateHash($quote))
             ->save();
         return $this->sessionFactory->create()->setId($response['id'] ?? null);
     }
@@ -200,5 +191,78 @@ class SessionManagement implements SessionManagementInterface
         $session->setId($response['id'] ?? null);
 
         return $session;
+    }
+
+    /**
+     * Validate session
+     *
+     * @param string $sessionId
+     * @return boolean
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Payment\Gateway\Http\ConverterException
+     */
+    public function validateSession($sessionId)
+    {
+        $quote = $this->checkoutSession->getQuote();
+        $sessionInfo = $this->client->getSessionInfo($sessionId);
+        $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
+        return $this->sessionValidator->validate($sessionInfoObj, $quote);
+    }
+
+    /**
+     * Update cart totals from session
+     *
+     * @param string $sessionId
+     * @return bool
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Payment\Gateway\Http\ConverterException
+     */
+    public function updateTotals($sessionId)
+    {
+        $quote = $this->checkoutSession->getQuote();
+        $sessionInfo = $this->client->getSessionInfo($sessionId);
+        $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
+
+        // validate order number
+        if (!$sessionInfoObj->getId()
+            || $sessionInfoObj->getData('order/merchant_reference') != $quote->getReservedOrderId()) {
+            throw new LocalizedException(__('Could not validate dintero session.'));
+        }
+
+        $orderDataObj = $this->objectFactory->create()->setData($sessionInfoObj->getData('order'));
+
+        $this->addressMapperFactory
+            ->create(['address' => $quote->getBillingAddress(), 'dataObject' => $orderDataObj])
+            ->map();
+
+        if (!$quote->getIsVirtual() && $shippingMethodCode = $sessionInfoObj->getData('order/shipping_option/id')) {
+            $this->addressMapperFactory
+                ->create(['address' => $quote->getShippingAddress(), 'dataObject' => $orderDataObj])
+                ->map();
+
+            $quote->getShippingAddress()
+                ->setShippingMethod($shippingMethodCode)
+                ->setShippingDescription(
+                    $sessionInfoObj->getData('order/shipping_option/operator')
+                );
+            $quote->getShippingAddress()->setCollectShippingRates(true);
+        }
+
+        $discountCodes = $sessionInfoObj->getData('order/discount_codes');
+        if (!empty($discountCodes)) {
+            $quote->setCouponCode(current($discountCodes));
+        }
+
+        try {
+            $quote->collectTotals()->save();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return false;
+        }
+        return true;
     }
 }

@@ -10,6 +10,7 @@ use Dintero\Checkout\Api\Data\Shipping\ResponseInterfaceFactory;
 use Dintero\Checkout\Api\Data\ShippingMethodInterface;
 use Dintero\Checkout\Api\Data\ShippingMethodInterfaceFactory;
 use Dintero\Checkout\Helper\Config;
+use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
@@ -103,6 +104,16 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     protected $orderItemFactory;
 
     /**
+     * @var Config|ConfigHelper
+     */
+    protected $configHelper;
+
+    /**
+     * @var LineIdGenerator $lineIdGenerator
+     */
+    protected $lineIdGenerator;
+
+    /**
      * ShippingCallback constructor.
      *
      * @param \Magento\Framework\App\RequestInterface $request
@@ -121,6 +132,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param OrderInterfaceFactory $orderFactory
      * @param ItemInterfaceFactory $orderItemFactory
      * @param ConfigHelper $configHelper
+     * @param LineIdGenerator $lineIdGenerator
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -138,7 +150,8 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         CollectionFactory $countryCollectionFactory,
         OrderInterfaceFactory $orderFactory,
         ItemInterfaceFactory $orderItemFactory,
-        Config $configHelper
+        Config $configHelper,
+        LineIdGenerator $lineIdGenerator
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -156,6 +169,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $this->orderFactory = $orderFactory;
         $this->orderItemFactory = $orderItemFactory;
         $this->configHelper = $configHelper;
+        $this->lineIdGenerator = $lineIdGenerator;
     }
 
     /**
@@ -204,6 +218,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             throw new \Exception(__('Quote is not valid'));
         }
 
+        $quote->setCouponCode(current($request->getDiscountCodes()) ?? null);
         $quote->getShippingAddress()
             ->setPostcode($request->getShippingAddress()->getPostalCode())
             ->setStreetFull($request->getShippingAddress()->getAddressLine())
@@ -216,6 +231,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             ->setCollectShippingRates(true)
             ->setTotalsCollected(false);
         $quote->collectTotals();
+
         $this->quoteResource->save($quote);
         $shippingMethods = $this->shippingMethodManagement->getList($quote->getId());
 
@@ -279,8 +295,18 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     {
         /** @var \Dintero\Checkout\Api\Data\OrderInterface $order */
         $order = $this->orderFactory->create();
-        $order->setAmount($quote->getBaseGrandTotal() * 100)
+        $baseShippingAmount = $quote->getShippingAddress()->getBaseShippingAmount() * 100;
+        $baseShippingTaxAmount = $quote->getShippingAddress()->getBaseShippingTaxAmount() * 100;
+        $baseShippingTotalAmount = $baseShippingAmount + $baseShippingTaxAmount;
+
+        // shipping amount should be subtracted, otherwise correction item on checkout
+        // will be added as shipping amount will be added on top
+        $orderTotal = $quote->getBaseGrandTotal() * 100;
+        $orderTotal -= $baseShippingTotalAmount;
+
+        $order->setAmount($orderTotal)
             ->setCurrency($quote->getBaseCurrencyCode());
+        $order->setDiscountCodes($quote->getCouponCode() ? [$quote->getCouponCode()] : []);
 
         $items = [];
 
@@ -289,7 +315,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             $orderItem = $this->orderItemFactory->create();
             $orderItem->setAmount(($quoteItem->getBaseRowTotalInclTax() - $quoteItem->getBaseDiscountAmount()) * 100)
                 ->setId($quoteItem->getSku())
-                ->setLineId($quoteItem->getSku())
+                ->setLineId($this->lineIdGenerator->generate($quoteItem))
                 ->setDescription(sprintf('%s (%s)', $quoteItem->getName(), $quoteItem->getSku()))
                 ->setQuantity($quoteItem->getQty() * 1)
                 ->setVat($quoteItem->getTaxPercent())

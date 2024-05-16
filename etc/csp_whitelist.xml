@@ -5,6 +5,8 @@
             <values>
                 <value id="dintero-logo" type="host">https://checkout.dintero.com</value>
                 <value id="dintero-sdk" type="host">https://unpkg.com</value>
+                <value id="vipps" type="host">https://api.vipps.no</value>
+                <value id="vipps-test" type="host">https://apitest.vipps.no</value>
             </values>
         </policy>
         <policy id="img-src">
@@ -15,11 +17,15 @@
         <policy id="connect-src">
             <values>
                 <value id="dintero-logo" type="host">https://checkout.dintero.com</value>
+                <value id="vipps" type="host">https://api.vipps.no</value>
+                <value id="vipps-test" type="host">https://apitest.vipps.no</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="dintero-logo" type="host">https://checkout.dintero.com</value>
+                <value id="vipps" type="host">https://api.vipps.no</value>
+                <value id="vipps-test" type="host">https://apitest.vipps.no</value>
             </values>
         </policy>
     </policies>

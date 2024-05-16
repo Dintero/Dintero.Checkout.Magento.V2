@@ -1,5 +1,13 @@
 # Changelog
 
+v1.8.2
+- added embedded popout functionality
+- added embedded express functionality
+- added embedded express with popout functionality
+- implemented coupon codes support for express checkout
+- logged in customer address pre-fill
+- ship-to-different address support added
+
 v1.8.1
 - callback error handling implemented
 

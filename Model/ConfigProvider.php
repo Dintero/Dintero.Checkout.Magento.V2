@@ -62,6 +62,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'logoUrl'           => $this->configHelper->getCheckoutLogoUrl(),
                     'isEmbedded'        => $this->configHelper->isEmbedded(),
                     'isExpress'         => $this->configHelper->isExpress(),
+                    'isPopout'          => $this->configHelper->isPopOut(),
                     'profile'           => $this->configHelper->getProfileId(),
                     'language'          => $this->configHelper->getLanguage(),
                     'available_methods' => [
