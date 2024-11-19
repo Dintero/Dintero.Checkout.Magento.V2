@@ -326,7 +326,7 @@ class CreateOrder
         }
 
         if ($dinteroTransaction->getStatus() == Client::STATUS_AUTHORIZED
-            && !$this->configHelper->canCreateInvoice()
+            && (!$this->configHelper->canCreateInvoice() && !$this->configHelper->isAutocaptureEnabled())
         ) {
             return false;
         }

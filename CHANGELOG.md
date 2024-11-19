@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.3
+- fixed Payment Action in admin config not applied when Authorize and Capture selected.
+
 v1.8.2
 - added embedded popout functionality
 - added embedded express functionality
