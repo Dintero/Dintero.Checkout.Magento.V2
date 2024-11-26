@@ -2,6 +2,9 @@
 
 v1.8.3
 - fixed Payment Action in admin config not applied when Authorize and Capture selected.
+- Magento 2.4.7 compatibility added
+- added Dintero transaction status to admin order view
+- added link to Dintero transaction on admin order view 
 
 v1.8.2
 - added embedded popout functionality
