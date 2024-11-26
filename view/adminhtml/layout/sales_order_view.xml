@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd">
+    <referenceBlock name="payment_additional_info">
+        <block class="Dintero\Checkout\Block\Adminhtml\Order\PaymentInfo" name="dintero.payment.info.link" template="Dintero_Checkout::order/payment_info.phtml" />
+    </referenceBlock>
+</layout>
