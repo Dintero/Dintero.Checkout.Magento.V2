@@ -1,0 +1,28 @@
+<?php
+
+use Dintero\Checkout\Model\Dintero;
+
+/**
+ * @var \Dintero\Checkout\Block\Adminhtml\Order\PaymentInfo $block
+ */
+?>
+<?php if ($block->getPaymentInfo() && $block->getPaymentInfo()->getMethod() === Dintero::METHOD_CODE): ?>
+<table class="admin__table-secondary order-information-table stripe payment-info">
+    <tbody>
+        <tr>
+            <th><?= __('Payment'); //phpcs:ignore ?></th>
+            <td class="dintero-link">
+                <a href="<?= $block->getTransactionUrl() ?>" target="_blank">
+                    <?= __('View Payment Details') ?>
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <th><?= __('Payment status'); //phpcs:ignore ?></th>
+            <td class="dintero-payment-status">
+                <?= $block->getPaymentStatus(); ?>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<?php endif; ?>
