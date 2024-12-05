@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.4
+- checkout agreements support added.
+
 v1.8.3
 - fixed Payment Action in admin config not applied when Authorize and Capture selected.
 - Magento 2.4.7 compatibility added

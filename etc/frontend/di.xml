@@ -15,4 +15,7 @@
             </argument>
         </arguments>
     </type>
+    <type name="Dintero\Checkout\Controller\Payment\Place">
+        <plugin name="dintero_place_order" type="Dintero\Checkout\Plugin\BeforePlaceOrderPlugin" />
+    </type>
 </config>

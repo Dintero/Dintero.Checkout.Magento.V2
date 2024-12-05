@@ -50,6 +50,7 @@ define(
                     type: 'post',
                     context: this,
                     dataType: 'json',
+                    data: quote.paymentMethod(),
                     beforeSend: function () {
                         fullScreenLoader.startLoader();
                     },

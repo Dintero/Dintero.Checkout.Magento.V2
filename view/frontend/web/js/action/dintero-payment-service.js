@@ -7,9 +7,20 @@ define(
         'Magento_SalesRule/js/action/set-coupon-code',
         'Magento_SalesRule/js/action/cancel-coupon',
         'Magento_Checkout/js/action/get-totals',
-        'Dintero_Checkout/js/action/session-management-service'
+        'Dintero_Checkout/js/action/session-management-service',
+        'Magento_CheckoutAgreements/js/model/agreement-validator'
     ],
-    function ($, quote, dintero, layout, setCoupon, cancelCoupon, getTotalsAction, sessionManagementService) {
+    function (
+        $,
+        quote,
+        dintero,
+        layout,
+        setCoupon,
+        cancelCoupon,
+        getTotalsAction,
+        sessionManagementService,
+        agreementValidator
+    ) {
         'use strict';
 
         const sessionManager = new sessionManagementService();
@@ -120,6 +131,14 @@ define(
                                  * @param callback
                                  */
                                 onValidateSession: function(event, checkout, callback) {
+                                    if (!agreementValidator.validate()) {
+                                        callback({
+                                            success: false,
+                                            clientValidationError: $.mage.__('Please, accept the terms and conditions')
+                                        });
+                                        return;
+                                    }
+
                                     sessionManager.validateSession(checkout?.session?.id).done((isValid) => {
                                         const result = {success: isValid};
                                         if (!isValid) {

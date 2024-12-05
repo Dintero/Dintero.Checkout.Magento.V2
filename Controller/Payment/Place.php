@@ -3,6 +3,7 @@
 namespace Dintero\Checkout\Controller\Payment;
 
 use Dintero\Checkout\Helper\Config;
+use Dintero\Checkout\Model\Agreements\Validator;
 use Dintero\Checkout\Model\Api\Client;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\Type\Onepage;
@@ -70,6 +71,11 @@ class Place extends Action
     protected $configHelper;
 
     /**
+     * @var Validator $agreementsValidator
+     */
+    protected $agreementsValidator;
+
+    /**
      * SessionController constructor.
      *
      * @param Context $context
@@ -89,7 +95,8 @@ class Place extends Action
         OrderRepositoryInterface $orderRepository,
         JsonFactory $resultJsonFactory,
         LoggerInterface $logger,
-        Config $configHelper
+        Config $configHelper,
+        Validator $agreementsValidator
     ) {
         parent::__construct($context);
         $this->client = $client;
@@ -99,6 +106,7 @@ class Place extends Action
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
         $this->configHelper = $configHelper;
+        $this->agreementsValidator = $agreementsValidator;
     }
 
     /**
@@ -111,6 +119,13 @@ class Place extends Action
         $result = new DataObject();
         try {
             $this->onepageCheckout->getCheckoutMethod();
+            if (!$this->agreementsValidator->validate($this->_getCheckout()->getQuote()->getPayment())) {
+                throw new LocalizedException( __(
+                    "The order wasn't placed. "
+                    . "First, agree to the terms and conditions, then try placing your order again."
+                ));
+            }
+
             $this->_getCheckout()
                 ->getQuote()
                 ->setDinteroGeneratorCode($this->configHelper->getLineIdFieldName())
