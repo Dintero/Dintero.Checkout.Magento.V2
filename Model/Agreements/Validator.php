@@ -47,7 +47,9 @@ class Validator
         $agreements = $paymentMethod->getExtensionAttributes() === null
             ? []
             : $paymentMethod->getExtensionAttributes()->getAgreementIds();
-
+        if (empty($agreements)) {
+            $agreements = $paymentMethod->getAdditionalInformation('agreement_ids');
+        }
         return $this->agreementsValidator->isValid($agreements);
     }
 

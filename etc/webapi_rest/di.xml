@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Checkout\Api\PaymentInformationManagementInterface">
+        <plugin name="dintero_customer_payment_information" type="Dintero\Checkout\Plugin\SetPaymentInformationPlugin" />
+    </type>
+    <type name="Magento\Checkout\Api\GuestPaymentInformationManagementInterface">
+        <plugin name="dintero_guest_payment_information" type="Dintero\Checkout\Plugin\SetGuestPaymentInformationPlugin" />
+    </type>
+</config>
