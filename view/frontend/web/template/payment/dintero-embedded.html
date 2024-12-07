@@ -15,5 +15,10 @@
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
         <div id="dintero-embedded-checkout-container"></div>
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
     </div>
 </div>

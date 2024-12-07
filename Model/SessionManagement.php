@@ -3,6 +3,7 @@
 namespace Dintero\Checkout\Model;
 
 use Dintero\Checkout\Api\SessionManagementInterface;
+use Dintero\Checkout\Model\Agreements\Validator;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Api\ClientFactory;
 use Magento\Framework\Exception\LocalizedException;
@@ -56,6 +57,11 @@ class SessionManagement implements SessionManagementInterface
     protected $logger;
 
     /**
+     * @var Validator $agreementsValidator
+     */
+    protected $agreementsValidator;
+
+    /**
      * Define class dependencies
      *
      * @param ClientFactory $clientFactory
@@ -63,7 +69,7 @@ class SessionManagement implements SessionManagementInterface
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param \Dintero\Checkout\Helper\Config $configHelper
-     * @param
+     * @param Validator $agreementsValidator
      */
     public function __construct(
         ClientFactory                                      $clientFactory,
@@ -73,7 +79,8 @@ class SessionManagement implements SessionManagementInterface
         \Dintero\Checkout\Helper\Config                    $configHelper,
         \Dintero\Checkout\Model\Session\Validator          $sessionValidator,
         \Dintero\Checkout\Model\AddressMapperFactory       $addressMapperFactory,
-        LoggerInterface                                    $logger
+        LoggerInterface                                    $logger,
+        Validator                                          $agreementsValidator
     ) {
         $this->client = $clientFactory->create()->setType($configHelper->getEmbedType());
         $this->sessionFactory = $sessionFactory;
@@ -83,6 +90,7 @@ class SessionManagement implements SessionManagementInterface
         $this->sessionValidator = $sessionValidator;
         $this->addressMapperFactory = $addressMapperFactory;
         $this->logger = $logger;
+        $this->agreementsValidator = $agreementsValidator;
     }
 
     /**
@@ -207,6 +215,11 @@ class SessionManagement implements SessionManagementInterface
     {
         $quote = $this->checkoutSession->getQuote();
         $sessionInfo = $this->client->getSessionInfo($sessionId);
+
+        if ($sessionInfo && empty($sessionInfo['express']) && !$this->agreementsValidator->validate($quote->getPayment())) {
+            return false;
+        }
+
         $sessionInfoObj = $this->objectFactory->create()->setData($sessionInfo);
         return $this->sessionValidator->validate($sessionInfoObj, $quote);
     }

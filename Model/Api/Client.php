@@ -285,7 +285,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.3',
+            'Dintero-System-Plugin-Version' => '1.8.4',
         ];
 
         if ($token && $token instanceof Token) {
@@ -569,20 +569,17 @@ class Client
                 $orderData['configuration']['allow_different_billing_shipping_address'] = $allowDiffShipCustomerTypes;
             }
 
-            /*$orderData['express']['discount_codes'] = [
-                'max_count' => 1,
-                'callback_url' => $this->configHelper->getShippingCallbackUrl(
-                    $salesObject->getStore()->getCode()
-                )
-            ];
-            $orderData['configuration']['discounts'] = [
-                'express_discount_codes' => [
-                    'enabled' => true,
-                ],
-                'order' => [
-                    'enabled' => true,
-                ]
-            ];*/
+            if ($agreements = $this->getAgreements()) {
+                /** @var \Magento\CheckoutAgreements\Api\Data\AgreementInterface $agreement */
+                foreach ($agreements as $agreement) {
+                    $orderData['checkboxes'][] = [
+                        'id' => $agreement->getAgreementId(),
+                        'label' => $agreement->getCheckboxText(),
+                        'checked' => !$agreement->getMode(),
+                        'required' => true
+                    ];
+                }
+            }
         }
 
         if (!empty($customerEmail)) {
@@ -910,5 +907,15 @@ class Client
     {
         return isset($transaction['status']) &&
             in_array($transaction['status'], [self::STATUS_AUTHORIZED, self::STATUS_PARTIALLY_CAPTURED]);
+    }
+
+    /**
+     * Retrieve agreements
+     *
+     * @return \Magento\CheckoutAgreements\Api\Data\AgreementInterface[]
+     */
+    private function getAgreements()
+    {
+        return $this->objectManager->get(\Magento\CheckoutAgreements\Block\Agreements::class)->getAgreements();
     }
 }

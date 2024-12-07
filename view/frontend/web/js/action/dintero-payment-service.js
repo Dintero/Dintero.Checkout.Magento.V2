@@ -7,9 +7,22 @@ define(
         'Magento_SalesRule/js/action/set-coupon-code',
         'Magento_SalesRule/js/action/cancel-coupon',
         'Magento_Checkout/js/action/get-totals',
-        'Dintero_Checkout/js/action/session-management-service'
+        'Dintero_Checkout/js/action/session-management-service',
+        'Magento_CheckoutAgreements/js/model/agreement-validator',
+        'Dintero_Checkout/js/action/set-payment-method'
     ],
-    function ($, quote, dintero, layout, setCoupon, cancelCoupon, getTotalsAction, sessionManagementService) {
+    function (
+        $,
+        quote,
+        dintero,
+        layout,
+        setCoupon,
+        cancelCoupon,
+        getTotalsAction,
+        sessionManagementService,
+        agreementValidator,
+        setPaymentMethodAction
+    ) {
         'use strict';
 
         const sessionManager = new sessionManagementService();
@@ -17,6 +30,9 @@ define(
         var checkoutInstance;
         var processingUpdateFlag = false;
 
+        /**
+         * Refresh payment session callback
+         */
         const refreshSession = function() {
             sessionManager.updateSession().done(() => {
                 if (checkoutInstance) {
@@ -25,6 +41,9 @@ define(
             });
         }
 
+        /**
+         * Update session callback
+         */
         const updateSession = function() {
             if (checkoutInstance && !processingUpdateFlag) {
                 checkoutInstance.lockSession().then(() => {
@@ -32,6 +51,18 @@ define(
                     processingUpdateFlag = false;
                 });
             }
+        }
+
+        /** validate session callback */
+        const validateSession = function(checkout, callback) {
+            sessionManager.validateSession(checkout?.session?.id).done((isValid) => {
+                const result = {success: isValid};
+                if (!isValid) {
+                    updateSession();
+                    result.clientValidationError = $.mage.__('The payment was out of date. Refresh the page to try again')
+                }
+                callback(result);
+            });
         }
 
         setCoupon.registerSuccessCallback(refreshSession);
@@ -120,14 +151,22 @@ define(
                                  * @param callback
                                  */
                                 onValidateSession: function(event, checkout, callback) {
-                                    sessionManager.validateSession(checkout?.session?.id).done((isValid) => {
-                                        const result = {success: isValid};
-                                        if (!isValid) {
-                                            updateSession();
-                                            result.clientValidationError = $.mage.__('The payment was out of date. Refresh the page to try again')
-                                        }
-                                        callback(result);
-                                    });
+                                    if (!agreementValidator.validate()) {
+                                        callback({
+                                            success: false,
+                                            clientValidationError: $.mage.__('Please, accept the terms and conditions')
+                                        });
+                                        return;
+                                    }
+
+                                    if (quote.paymentMethod()) {
+                                        setPaymentMethodAction().done(() => {
+                                            validateSession(checkout, callback);
+                                        });
+                                        return;
+                                    }
+
+                                    validateSession(checkout, callback);
                                 }
                             }).then(function(checkout) {
                                 checkoutInstance = checkout;
