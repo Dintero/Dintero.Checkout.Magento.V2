@@ -285,7 +285,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.4',
+            'Dintero-System-Plugin-Version' => '1.8.5',
         ];
 
         if ($token && $token instanceof Token) {
@@ -637,7 +637,7 @@ class Client
             'postal_code' => $address->getPostcode(),
             'postal_place' => $address->getCity(),
             'country' => $address->getCountryId(),
-            'phone_number' => urlencode($this->sanitizePhoneNumber($address->getTelephone())),
+            'phone_number' => urlencode($this->sanitizePhoneNumber($address->getTelephone()) ?? ''),
         ];
 
         if (!empty($address->getCompany()) && !empty($address->getVatId())) {
