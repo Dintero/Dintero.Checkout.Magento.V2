@@ -549,7 +549,10 @@ class Client
             ],
         ];
 
-        if ($salesObject->getBillingAddress()->getPostcode()) {
+        $canAddAddress = !empty($salesObject->getBillingAddress()->getTelephone())
+            && !empty($salesObject->getBillingAddress()->getPostcode());
+
+        if ($canAddAddress) {
             $orderData['customer'] = [
                 'phone_number' => $salesObject->getBillingAddress()->getTelephone()
             ];
@@ -595,7 +598,7 @@ class Client
             );
         }
 
-        if ($shippingAddress && $shippingAddress->getPostcode()) {
+        if ($shippingAddress && $shippingAddress->getPostcode() && $shippingAddress->getTelephone()) {
             $orderData['order']['shipping_address'] = $this->prepareAddress($shippingAddress);
         }
 
@@ -611,7 +614,7 @@ class Client
             $billingCustomerEmail = $customer->getEmail();
         }
 
-        if ($billingAddress && $billingAddress->getPostcode()) {
+        if ($billingAddress && $billingAddress->getPostcode() && $billingAddress->getTelephone()) {
             $orderData['order']['billing_address'] = $this->prepareAddress($billingAddress);
             $orderData['order']['billing_address']['email'] = $billingCustomerEmail ?? '';
         }
@@ -637,7 +640,7 @@ class Client
             'postal_code' => $address->getPostcode(),
             'postal_place' => $address->getCity(),
             'country' => $address->getCountryId(),
-            'phone_number' => urlencode($this->sanitizePhoneNumber($address->getTelephone()) ?? ''),
+            'phone_number' => urlencode($this->sanitizePhoneNumber($address->getTelephone() ?? '')),
         ];
 
         if (!empty($address->getCompany()) && !empty($address->getVatId())) {
