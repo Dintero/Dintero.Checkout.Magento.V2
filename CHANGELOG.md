@@ -1,6 +1,9 @@
 # Changelog
 
 v1.8.4
+- corrected use of urlencode with PHP 8.1
+
+v1.8.4
 - checkout agreements support added.
 
 v1.8.3
