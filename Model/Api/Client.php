@@ -285,7 +285,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.5',
+            'Dintero-System-Plugin-Version' => '1.8.6',
         ];
 
         if ($token && $token instanceof Token) {
@@ -861,7 +861,7 @@ class Client
         $transactionId = $payment->getParentTransactionId() ?: $payment->getLastTransId();
         $this->scope = $payment->getOrder()->getStoreId();
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s/void', $transactionId));
-        $request = $this->initRequest($endpoint, $this->getToken())->setBody(null);
+        $request = $this->initRequest($endpoint, $this->getToken());
         return $this->client->placeRequest($request->build());
     }
 
