@@ -9,6 +9,7 @@ use Dintero\Checkout\Model\Dintero;
 <?php if ($block->getPaymentInfo() && $block->getPaymentInfo()->getMethod() === Dintero::METHOD_CODE): ?>
 <table class="admin__table-secondary order-information-table stripe payment-info">
     <tbody>
+        <?php if ($this->getPaymentInfo()->getLastTransId()): ?>
         <tr>
             <th><?= __('Payment'); //phpcs:ignore ?></th>
             <td class="dintero-link">
@@ -17,6 +18,7 @@ use Dintero\Checkout\Model\Dintero;
                 </a>
             </td>
         </tr>
+        <?php endif; ?>
         <tr>
             <th><?= __('Payment status'); //phpcs:ignore ?></th>
             <td class="dintero-payment-status">
