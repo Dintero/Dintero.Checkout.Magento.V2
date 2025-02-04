@@ -468,7 +468,7 @@ class Dintero extends AbstractMethod
         }
 
         if ($this->getResponse()->getData('status') === Client::STATUS_CAPTURED) {
-            $payment->registerCaptureNotification($this->getResponse()->getData('amount') / 100);
+            $payment->registerCaptureNotification($this->getResponse()->getData('amount') / 100, true);
             $payment->getOrder()->save();
         }
 
