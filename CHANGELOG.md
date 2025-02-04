@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.6
+- Fixed broken admin order view if no transaction linked to order
+
 v1.8.4
 - corrected use of urlencode with PHP 8.1
 

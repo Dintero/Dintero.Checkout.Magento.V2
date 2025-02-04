@@ -88,12 +88,14 @@ class PaymentInfo extends Template
                 return __('Unavailable');
             }
 
-            if (!$authTransactionId = $payment->getAuthorizationTransaction()->getTxnId()) {
+            $authTransaction = $payment->getAuthorizationTransaction();
+
+            if (!$authTransaction || !$authTransaction->getTxnId()) {
                 return __('Unavailable');
             }
 
             $paymentMethod = $payment->getMethodInstance();
-            $response = $paymentMethod->fetchTransactionInfo($payment, $authTransactionId);
+            $response = $paymentMethod->fetchTransactionInfo($payment, $authTransaction->getTxnId());
             return $response['settlement_status'] ?? __('Unavailable');
         } catch (Exception $e) {
             return __('Unavailable');
