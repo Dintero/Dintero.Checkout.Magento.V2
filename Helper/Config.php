@@ -470,11 +470,16 @@ class Config extends AbstractHelper
     /**
      * Retrieving language code
      *
+     * @param int|string|null
      * @return string
      */
-    public function getLanguage()
+    public function getLanguage($scope = null)
     {
-        return str_replace('_', '-', $this->scopeConfig->getValue(self::XPATH_LANGUAGE));
+        return str_replace('_', '-', $this->scopeConfig->getValue(
+            self::XPATH_LANGUAGE,
+            ScopeInterface::SCOPE_STORE,
+            $scope
+        ));
     }
 
     /**
@@ -508,7 +513,7 @@ class Config extends AbstractHelper
      */
     public function isExpress()
     {
-        return $this->scopeConfig->isSetFlag(self::XPATH_IS_EXPRESS);
+        return $this->scopeConfig->isSetFlag(self::XPATH_IS_EXPRESS, ScopeInterface::SCOPE_WEBSITE);
     }
 
     /**

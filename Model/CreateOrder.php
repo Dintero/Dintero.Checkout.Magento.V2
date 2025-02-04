@@ -171,7 +171,7 @@ class CreateOrder
     {
         // register offline capture if transaction is closed already
         if ($transaction->getIsClosed()) {
-            $order->getPayment()->registerCaptureNotification($order->getGrandTotal());
+            $order->getPayment()->registerCaptureNotification($order->getGrandTotal(), true);
             $order->save();
             return;
         }

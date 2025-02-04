@@ -1,6 +1,10 @@
 # Changelog
 
-v1.8.6
+v1.8.8
+- fixed fraud check flag
+- fixed language per store option
+
+v1.8.7
 - Fixed broken admin order view if no transaction linked to order
 
 v1.8.4
