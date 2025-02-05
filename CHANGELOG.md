@@ -1,5 +1,9 @@
 # Changelog
 
+v1.8.9
+- admin order view transaction status logic updated
+- admin order view transaction link fixed
+
 v1.8.8
 - fixed fraud check flag
 - fixed language per store option
