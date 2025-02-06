@@ -6,7 +6,6 @@ use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Dintero\Checkout\Helper\Config;
-use PHPUnit\Exception;
 
 class PaymentInfo extends Template
 {
@@ -43,6 +42,21 @@ class PaymentInfo extends Template
         parent::__construct($context, $data);
         $this->config = $config;
         $this->coreRegistry = $registry;
+    }
+
+    /**
+     * Removing -capture, -refund, -void suffix from transaction id
+     *
+     * @param string $transactionId
+     * @return string
+     */
+    protected function normalizeTransactionId($transactionId)
+    {
+        $endPosition = strpos($transactionId, '-');
+        if ($endPosition === false) {
+            return $transactionId;
+        }
+        return substr($transactionId, 0, $endPosition);
     }
 
     /**
@@ -88,16 +102,16 @@ class PaymentInfo extends Template
                 return __('Unavailable');
             }
 
-            $authTransaction = $payment->getAuthorizationTransaction();
+            $transactionId = $this->normalizeTransactionId($payment->getLastTransId());
 
-            if (!$authTransaction || !$authTransaction->getTxnId()) {
+            if (empty($transactionId)) {
                 return __('Unavailable');
             }
 
             $paymentMethod = $payment->getMethodInstance();
-            $response = $paymentMethod->fetchTransactionInfo($payment, $authTransaction->getTxnId());
-            return $response['settlement_status'] ?? __('Unavailable');
-        } catch (Exception $e) {
+            $response = $paymentMethod->fetchTransactionInfo($payment, $transactionId);
+            return $response['status'] ?? __('Unavailable');
+        } catch (\Throwable $e) {
             return __('Unavailable');
         }
     }
@@ -112,7 +126,7 @@ class PaymentInfo extends Template
         return sprintf(
             'https://backoffice.dintero.com/%s/payments/transactions/%s',
             $this->config->getFullAccountId($this->getOrder()->getStoreId()),
-            $this->getPaymentInfo()->getLastTransId(),
+            $this->normalizeTransactionId($this->getPaymentInfo()->getLastTransId()),
         );
     }
 }
