@@ -7,4 +7,19 @@
     <type name="Magento\Checkout\Api\GuestPaymentInformationManagementInterface">
         <plugin name="dintero_guest_payment_information" type="Dintero\Checkout\Plugin\SetGuestPaymentInformationPlugin" />
     </type>
+    <type name="Magento\Authorization\Model\CompositeUserContext">
+        <arguments>
+            <argument name="userContexts" xsi:type="array">
+                <item name="dinteroContext" xsi:type="array">
+                    <item name="type" xsi:type="object">Dintero\Checkout\Model\Authorization\DinteroContext</item>
+                    <item name="sortOrder" xsi:type="string">90</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Dintero\Checkout\Model\Authorization\DinteroContext">
+        <arguments>
+            <argument name="config" xsi:type="object">Magento\Webapi\Model\ConfigInterface\Proxy</argument>
+        </arguments>
+    </type>
 </config>

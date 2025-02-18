@@ -108,11 +108,12 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
      */
     public function execute()
     {
-        $request = $this->dataObjectFactory->create([
-            'data' => $this->serializer->unserialize($this->request->getContent())
-        ]);
-
         try {
+
+            $request = $this->dataObjectFactory->create([
+                'data' => $this->serializer->unserialize($this->request->getContent())
+            ]);
+
             /** @var \Magento\Sales\Model\Order $order */
             $order = $this->orderFactory->create()->loadByIncrementId($request->getMerchantReference());
             if ($order->getId()) {
