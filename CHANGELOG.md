@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.10
+- fix the 'Invalid state change requested' error.
+
 v1.8.9
 - admin order view transaction status logic updated
 - admin order view transaction link fixed
