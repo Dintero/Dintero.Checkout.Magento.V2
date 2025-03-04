@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.11
+- fixed issue with Dintero session amount when shipping method changed
+
 v1.8.10
 - fix the 'Invalid state change requested' error.
 

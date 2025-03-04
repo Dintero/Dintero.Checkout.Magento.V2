@@ -129,6 +129,7 @@ define(
                                             });
                                         }
                                         getTotalsAction([]);
+                                        updateSession();
                                     });
                                 },
 
