@@ -6,12 +6,11 @@ use Dintero\Checkout\Api\EmbeddedCallbackInterface;
 use Dintero\Checkout\Api\ExpressCallbackInterface;
 use Dintero\Checkout\Api\ShippingCallbackInterface;
 use Magento\Authorization\Model\UserContextInterface;
-use Magento\Framework\ObjectManager\ResetAfterRequestInterface;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Webapi\Model\Config\Converter;
 use Magento\Webapi\Model\ConfigInterface;
 
-class DinteroContext implements UserContextInterface, ResetAfterRequestInterface
+class DinteroContext implements UserContextInterface
 {
     /**
      * @var Request

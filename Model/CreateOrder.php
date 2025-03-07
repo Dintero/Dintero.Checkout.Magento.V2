@@ -178,13 +178,18 @@ class CreateOrder
 
         /** @var Invoice $invoice */
         $invoice = $order->prepareInvoice()
+            ->setOrder($order)
             ->setTransactionId($transaction->getId())
-            ->register()
-            ->save();
+            ->register();
 
         if ($invoice->canCapture() && $this->configHelper->isAutocaptureEnabled() && !$transaction->getIsClosed()) {
             $this->triggerCapture($invoice);
         }
+
+        $this->objectManager->create(Transaction::class)
+            ->addObject($invoice)
+            ->addObject($invoice->getOrder())
+            ->save();
     }
 
     /**
@@ -308,10 +313,6 @@ class CreateOrder
         $this->registry->register('current_invoice', $invoice);
         $this->invoiceManagement->setCapture($invoice->getEntityId());
         $invoice->getOrder()->setIsInProcess(true);
-        $this->objectManager->create(Transaction::class)
-            ->addObject($invoice)
-            ->addObject($invoice->getOrder())
-            ->save();
     }
 
     /**
