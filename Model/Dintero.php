@@ -12,23 +12,24 @@ use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Db\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\AbstractMethod;
+use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Model\Method\Logger;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\OrderFactory;
-use Psr\Log\LoggerInterface;
-use Magento\Payment\Model\Method\Adapter;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\ResourceModel\Order as OrderResource;
-use Magento\Sales\Api\TransactionRepositoryInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Dintero
@@ -191,6 +192,11 @@ class Dintero extends AbstractMethod
     protected $orderResource;
 
     /**
+     * @var TransactionFactory $dbTransactionFactory
+     */
+    protected $dbTransactionFactory;
+
+    /**
      * @var string
      */
     protected $_infoBlockType = \Dintero\Checkout\Block\Info::class;
@@ -232,6 +238,7 @@ class Dintero extends AbstractMethod
      * @param OrderResource $orderResource
      * @param Config $config
      * @param TransactionRepositoryInterface $transactionRepository
+     * @param TransactionFactory $dbTransactionFactory
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -253,6 +260,7 @@ class Dintero extends AbstractMethod
         OrderResource              $orderResource,
         Config                     $config,
         TransactionRepositoryInterface $transactionRepository,
+        TransactionFactory         $dbTransactionFactory,
         AbstractResource           $resource = null,
         AbstractDb                 $resourceCollection = null,
         array                      $data = [],
@@ -281,6 +289,7 @@ class Dintero extends AbstractMethod
         $this->orderResource = $orderResource;
         $this->config = $config;
         $this->transactionRepository = $transactionRepository;
+        $this->dbTransactionFactory = $dbTransactionFactory;
     }
 
     /**
@@ -396,15 +405,19 @@ class Dintero extends AbstractMethod
             $order->setStatus('dintero_pending_approval');
         }
 
-        $this->addStatusComment($payment);
-        $this->orderResource->save($order);
+        $dbTransaction = $this->dbTransactionFactory->create();
 
         if ($this->getResponse()->getStatus() === Client::STATUS_AUTHORIZED && $this->config->canCreateInvoice()) {
-            $order->prepareInvoice()
+            $invoice = $order->prepareInvoice()
+                ->setOrder($order)
                 ->setTransactionId($this->getResponse()->getId())
-                ->register()
-                ->save();
+                ->register();
+            $dbTransaction->addObject($invoice);
         }
+
+        $this->addStatusComment($payment);
+        $dbTransaction->addObject($order);
+        $dbTransaction->save();
 
         $this->sendOrderEmail($order, !$isFailed);
     }
@@ -433,7 +446,6 @@ class Dintero extends AbstractMethod
 
             $transaction->setTxnType(Transaction::TYPE_AUTH);
             $this->transactionRepository->save($transaction);
-
         } catch (\Exception $e) {
             $this->_logger->error($e->getMessage());
         }
@@ -614,11 +626,11 @@ class Dintero extends AbstractMethod
                     . 'Transaction "%2" status is "%3".';
 
             $message = __(
-                    $message,
-                    $payment->getOrder()->getBaseCurrency()->formatTxt($this->getResponse()->getAmount()/100),
-                    $transactionId,
-                    $this->getResponse()->getStatus()
-                );
+                $message,
+                $payment->getOrder()->getBaseCurrency()->formatTxt($this->getResponse()->getAmount()/100),
+                $transactionId,
+                $this->getResponse()->getStatus()
+            );
 
             $payment->getOrder()->addStatusHistoryComment($message);
         }

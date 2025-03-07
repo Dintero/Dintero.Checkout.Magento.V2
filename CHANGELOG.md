@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.12
+- fixed order invoice totals when a pending invoice is created after authorization
+
 v1.8.11
 - fixed issue with Dintero session amount when shipping method changed
 
