@@ -182,6 +182,8 @@ class CreateOrder
             ->setTransactionId($transaction->getId())
             ->register();
 
+        $this->invoiceRepository->save($invoice);
+
         if ($invoice->canCapture() && $this->configHelper->isAutocaptureEnabled() && !$transaction->getIsClosed()) {
             $this->triggerCapture($invoice);
         }
