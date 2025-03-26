@@ -690,7 +690,6 @@ class Client
             ]);
         }
 
-        // adding shipping as a separate item
         if ($invoice->getBaseShippingAmount() > 0) {
             array_push($items, [
                 'id' => $invoice->getOrder()->getShippingMethod(),
