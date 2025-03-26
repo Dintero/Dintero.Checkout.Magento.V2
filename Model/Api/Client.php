@@ -690,6 +690,7 @@ class Client
             ]);
         }
 
+        // adding shipping as a separate item
         if ($invoice->getBaseShippingAmount() > 0) {
             array_push($items, [
                 'id' => $invoice->getOrder()->getShippingMethod(),
@@ -835,7 +836,6 @@ class Client
         $requestData = [
             'id' => $transactionId,
             'amount' => $amount * 100,
-            // @todo fix incorrect items amount
             'items' => $this->prepareSalesItems($payment->getSalesDocument())
         ];
 
