@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.13
+- added logic to send items data during refund call
+
 v1.8.12
 - fixed order invoice totals when a pending invoice is created after authorization
 

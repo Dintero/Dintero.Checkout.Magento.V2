@@ -285,7 +285,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.12',
+            'Dintero-System-Plugin-Version' => '1.8.13',
         ];
 
         if ($token && $token instanceof Token) {
@@ -836,8 +836,7 @@ class Client
         $requestData = [
             'id' => $transactionId,
             'amount' => $amount * 100,
-            // @todo fix incorrect items amount
-            // 'items' => $this->prepareSalesItems($payment->getSalesDocument())
+            'items' => $this->prepareSalesItems($payment->getSalesDocument())
         ];
 
         $endpoint = $this->getCheckoutApiUri(sprintf('transactions/%s/refund', $transactionId));
