@@ -129,7 +129,11 @@ define(
                                             });
                                         }
                                         getTotalsAction([]);
-                                        updateSession();
+
+                                        // no need to update session for express
+                                        if (checkout?.session?.express === undefined) {
+                                            updateSession();
+                                        }
                                     });
                                 },
 
