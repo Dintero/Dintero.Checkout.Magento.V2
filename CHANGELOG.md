@@ -1,5 +1,9 @@
 # Changelog
 
+v1.8.14
+- fix shipping options auto-refresh for embedded express checkout
+- fixed namespace for \Magento\Framework\DB\TransactionFactory on \Dintero\Checkout\Model\Dintero class
+
 v1.8.13
 - added logic to send items data during refund call
 
