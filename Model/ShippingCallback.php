@@ -218,7 +218,10 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             throw new \Exception(__('Quote is not valid'));
         }
 
-        $quote->setCouponCode(current($request->getDiscountCodes()) ?? null);
+        if ($request->getDiscountCodes()) {
+            $quote->setCouponCode(current($request->getDiscountCodes()) ?? null);
+        }
+
         $quote->getShippingAddress()
             ->setPostcode($request->getShippingAddress()->getPostalCode())
             ->setStreetFull($request->getShippingAddress()->getAddressLine())

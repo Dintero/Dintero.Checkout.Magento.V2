@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.15
+- fixed issue with clearing coupon code from quote on embedded express checkout
+
 v1.8.14
 - fix shipping options auto-refresh for embedded express checkout
 - fixed namespace for \Magento\Framework\DB\TransactionFactory on \Dintero\Checkout\Model\Dintero class
