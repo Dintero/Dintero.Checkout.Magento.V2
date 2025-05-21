@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.16
+- added customer types option for express checkout in admin config
+
 v1.8.15
 - fixed issue with clearing coupon code from quote on embedded express checkout
 

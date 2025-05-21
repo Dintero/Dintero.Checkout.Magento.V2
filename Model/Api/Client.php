@@ -285,7 +285,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.15',
+            'Dintero-System-Plugin-Version' => '1.8.16',
         ];
 
         if ($token && $token instanceof Token) {
@@ -560,7 +560,9 @@ class Client
         }
 
         if ($this->isExpress()) {
-            $orderData['express']['customer_types'] = ['b2c', 'b2b'];
+            $orderData['express']['customer_types'] = $this->configHelper->getAllowedCustomerTypes(
+                $salesObject->getStore()->getCode()
+            );
             $orderData['express']['shipping_address_callback_url'] = $this->configHelper->getShippingCallbackUrl(
                 $salesObject->getStore()->getCode()
             );

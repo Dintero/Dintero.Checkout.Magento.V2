@@ -35,6 +35,7 @@
                 <shipping_methods_map>pickup</shipping_methods_map>
                 <id_field>sku</id_field>
                 <allow_different_shipping>b2c,b2b</allow_different_shipping>
+                <allowed_customer_types>b2c,b2b</allowed_customer_types>
             </dintero>
         </payment>
     </default>
