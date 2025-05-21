@@ -67,6 +67,15 @@
                         <field id="is_express">1</field>
                     </depends>
                 </field>
+                <field id="allowed_customer_types" translate="label" type="multiselect" sortOrder="74" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed Customer Types</label>
+                    <source_model>Dintero\Checkout\Model\Source\CustomerType</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="is_express">1</field>
+                    </depends>
+                </field>
                 <field id="allow_different_shipping" translate="label" type="multiselect" sortOrder="74" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allow Ship to Different Address</label>
                     <source_model>Dintero\Checkout\Model\Source\CustomerType</source_model>

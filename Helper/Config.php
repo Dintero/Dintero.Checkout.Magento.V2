@@ -125,6 +125,11 @@ class Config extends AbstractHelper
     const XPATH_ALLOW_DIFF_SHIP_ADDR = 'payment/dintero/allow_different_shipping';
 
     /*
+     * Allowed customer types
+     */
+    const XPATH_ALLOW_CUSTOMER_TYPES = 'payment/dintero/allowed_customer_types';
+
+    /*
      * Default callback delay in seconds
      */
     const DEFAULT_CALLBACK_DELAY = 30;
@@ -721,6 +726,16 @@ class Config extends AbstractHelper
     public function getDifferentShippingAddressCustomerTypes($scopeCode = null)
     {
         $value = $this->scopeConfig->getValue(self::XPATH_ALLOW_DIFF_SHIP_ADDR, ScopeInterface::SCOPE_STORE, $scopeCode);
+        return $value ? explode(',', $value) : [];
+    }
+
+    /**
+     * @param $scopeCode
+     * @return string[]
+     */
+    public function getAllowedCustomerTypes($scopeCode = null)
+    {
+        $value = $this->scopeConfig->getValue(self::XPATH_ALLOW_CUSTOMER_TYPES, ScopeInterface::SCOPE_STORE, $scopeCode);
         return $value ? explode(',', $value) : [];
     }
 }
