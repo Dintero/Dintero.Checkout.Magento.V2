@@ -1,5 +1,8 @@
 # Changelog
 
+v1.8.17
+- stripping tags added for checkout agreement text during Dintero session initialization
+
 v1.8.16
 - added customer types option for express checkout in admin config
 
