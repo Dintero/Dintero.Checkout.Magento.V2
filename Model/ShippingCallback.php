@@ -280,7 +280,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      */
     protected function getCountries($carrierCode)
     {
-        if ($this->carrierHelper->getCarrierConfigValue($carrierCode, 'sallowspecific')) {
+        if ($this->carrierHelper->getCarrierConfigValue($carrierCode, 'allowspecific')) {
             return explode(
                 ',',
                 $this->carrierHelper
