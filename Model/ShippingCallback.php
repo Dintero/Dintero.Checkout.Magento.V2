@@ -321,7 +321,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
                 ->setLineId($this->lineIdGenerator->generate($quoteItem))
                 ->setDescription(sprintf('%s (%s)', $quoteItem->getName(), $quoteItem->getSku()))
                 ->setQuantity($quoteItem->getQty() * 1)
-                ->setVat($quoteItem->getTaxPercent())
+                ->setVat($quoteItem->getTaxPercent() ?? 0)
                 ->setVatAmount($quoteItem->getBaseTaxAmount() * 100);
             array_push($items, $orderItem);
         }
