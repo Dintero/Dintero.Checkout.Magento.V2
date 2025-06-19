@@ -130,6 +130,12 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
             }
 
             $this->createOrder->createFromTransaction($quote, $request->getId());
+        } catch (\Dintero\Checkout\Exception\PaymentException $e) {
+            $this->logger->error(sprintf(
+                'Payment failed for order %s. Error: %s',
+                $request->getMerchantReference(),
+                $e->getMessage()
+            ));
         } catch (\Exception $e) {
             $this->logger->critical($e);
             throw $e;
