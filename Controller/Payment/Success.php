@@ -10,6 +10,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\OrderFactory;
 use Dintero\Checkout\Model\DinteroFactory;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Success
@@ -45,7 +46,15 @@ class Success extends Action
      */
     private $paymentMethodFactory;
 
+    /**
+     * @var Client $client
+     */
     private $client;
+
+    /**
+     * @var LoggerInterface $logger
+     */
+    protected $logger;
 
     /**
      * @param Context $context
@@ -63,7 +72,8 @@ class Success extends Action
         QuoteFactory $quoteFactory,
         CreateOrder $createOrder,
         DinteroFactory $paymentMethodFactory,
-        Client $client
+        Client $client,
+        LoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->orderFactory = $orderFactory;
@@ -72,6 +82,7 @@ class Success extends Action
         $this->createOrder = $createOrder;
         $this->paymentMethodFactory = $paymentMethodFactory;
         $this->client = $client;
+        $this->logger = $logger;
     }
 
     /**
@@ -96,7 +107,26 @@ class Success extends Action
 
         // processing express and embedded checkout
         if ($transactionId && !$order->getId()) {
-            $order = $this->createOrder->createFromTransaction($this->checkoutSession->getQuote(), $transactionId);
+
+            try {
+                $order = $this->createOrder->createFromTransaction($this->checkoutSession->getQuote(), $transactionId);
+            } catch (\Dintero\Checkout\Exception\PaymentException $e) {
+                $this->logger->error(sprintf(
+                    'Could not create order from transaction %s. Error: %s',
+                    $transactionId,
+                    $e->getMessage()
+                ));
+                $this->messageManager->addErrorMessage(__('Payment failed'));
+                return $result->setPath('checkout/cart');
+            } catch (\Exception $e) {
+                $this->logger->critical(sprintf(
+                    'Could not create order from transaction %s. Error: %s',
+                    $transactionId,
+                    $e->getMessage()
+                ));
+                $this->messageManager->addErrorMessage(__('Something went wrong. Could not place order.'));
+                return $result->setPath('checkout/cart');
+            }
         }
 
         if ($order->getId()) {

@@ -133,8 +133,20 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
             }
             $this->createOrder->createFromTransaction($quote, $request->getId());
             return;
+        } catch (\Dintero\Checkout\Exception\PaymentException $e) {
+            $this->logger->error(sprintf(
+                'Payment failed. Order id: %s. Error: %s. Request Body: %s',
+                $request->getMerchantReference(),
+                $e->getMessage(),
+                $this->request->getContent()
+            ));
         } catch (\Exception $e) {
-            $this->logger->info($this->request->getContent());
+            $this->logger->critical(sprintf(
+                'Could not create order on callback. Order id: %s. Error: %s. Request Body: %s',
+                $request->getMerchantReference(),
+                $e->getMessage(),
+                $this->request->getContent()
+            ));
             throw $e;
         }
     }
