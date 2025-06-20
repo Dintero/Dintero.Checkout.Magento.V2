@@ -32,6 +32,7 @@ class AddressMapper
         'address_line'   => 'street',
         'postal_code'   => 'postcode',
         'phone_number'   => 'telephone',
+        'business_name' => 'company',
     ];
 
     /**

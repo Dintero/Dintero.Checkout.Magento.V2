@@ -285,7 +285,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.16',
+            'Dintero-System-Plugin-Version' => '1.8.17',
         ];
 
         if ($token && $token instanceof Token) {
@@ -579,7 +579,7 @@ class Client
                 foreach ($agreements as $agreement) {
                     $orderData['checkboxes'][] = [
                         'id' => $agreement->getAgreementId(),
-                        'label' => $agreement->getCheckboxText(),
+                        'label' => strip_tags($agreement->getCheckboxText()),
                         'checked' => !$agreement->getMode(),
                         'required' => true
                     ];

@@ -223,7 +223,7 @@ class CreateOrder
         $dinteroTransaction = $this->dinteroTransactionFactory->create()->setData($transactionData);
 
         if ($dinteroTransaction->isFailed()) {
-            throw new \Exception(__(
+            throw new \Dintero\Checkout\Exception\PaymentException(__(
                 'Cannot create order from transactions %1. Transaction status: %2',
                 $dinteroTransaction->getId(),
                 $dinteroTransaction->getStatus()

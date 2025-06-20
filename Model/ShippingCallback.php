@@ -280,7 +280,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      */
     protected function getCountries($carrierCode)
     {
-        if ($this->carrierHelper->getCarrierConfigValue($carrierCode, 'sallowspecific')) {
+        if ($this->carrierHelper->getCarrierConfigValue($carrierCode, 'allowspecific')) {
             return explode(
                 ',',
                 $this->carrierHelper
@@ -321,7 +321,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
                 ->setLineId($this->lineIdGenerator->generate($quoteItem))
                 ->setDescription(sprintf('%s (%s)', $quoteItem->getName(), $quoteItem->getSku()))
                 ->setQuantity($quoteItem->getQty() * 1)
-                ->setVat($quoteItem->getTaxPercent())
+                ->setVat($quoteItem->getTaxPercent() ?? 0)
                 ->setVatAmount($quoteItem->getBaseTaxAmount() * 100);
             array_push($items, $orderItem);
         }

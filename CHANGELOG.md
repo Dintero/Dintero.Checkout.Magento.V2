@@ -1,5 +1,11 @@
 # Changelog
 
+v1.8.17
+- improved failed payment handler logic 
+- fixed tax percent on shipping callback
+- added company name to address mapping
+- stripping tags added for checkout agreement text during Dintero session initialization
+
 v1.8.16
 - added customer types option for express checkout in admin config
 
