@@ -114,6 +114,10 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
                 'data' => $this->serializer->unserialize($this->request->getContent())
             ]);
 
+            if (!$request->getMerchantReference()) {
+                $request->setMerchantReference($this->request->getParam('merchant_reference'));
+            }
+
             /** @var \Magento\Sales\Model\Order $order */
             $order = $this->orderFactory->create()->loadByIncrementId($request->getMerchantReference());
             if ($order->getId()) {
@@ -130,6 +134,15 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
             }
 
             $this->createOrder->createFromTransaction($quote, $request->getId());
+        } catch (\Dintero\Checkout\Exception\PaymentCancelException $e) {
+            $this->logger->error(sprintf(
+                'Payment failed for order %s. Cancellation error: %s',
+                $request->getMerchantReference(),
+                $e->getMessage()
+            ));
+            // clear session as after canceled payment session has to be re-initialized
+            $quote->getPayment()->unsAdditionalInformation('id');
+            $this->quoteResource->save($quote);
         } catch (\Dintero\Checkout\Exception\PaymentException $e) {
             $this->logger->error(sprintf(
                 'Payment failed for order %s. Error: %s',
