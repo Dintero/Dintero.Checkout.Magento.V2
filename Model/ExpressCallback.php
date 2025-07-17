@@ -116,7 +116,13 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
         $request = $this->dataObjectFactory->create([
             'data' => $this->serializer->unserialize($this->request->getContent())
         ]);
+
         try {
+
+            if (!$request->getMerchantReference()) {
+                $request->setMerchantReference($this->request->getParam('merchant_reference'));
+            }
+
             /** @var \Magento\Sales\Model\Order $order */
             $order = $this->orderFactory->create()->loadByIncrementId($request->getMerchantReference());
             if ($order->getId()) {
@@ -133,6 +139,18 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
             }
             $this->createOrder->createFromTransaction($quote, $request->getId());
             return;
+        } catch (\Dintero\Checkout\Exception\PaymentCancelException $e) {
+
+            $this->logger->error(sprintf(
+                'Payment failed for order %s. Cancellation error: %s',
+                $request->getMerchantReference(),
+                $e->getMessage()
+            ));
+
+            // clear session id as after canceled payment session has to be re-initialized
+            $quote->getPayment()->unsAdditionalInformation('id');
+            $this->quoteResource->save($quote);
+
         } catch (\Dintero\Checkout\Exception\PaymentException $e) {
             $this->logger->error(sprintf(
                 'Payment failed. Order id: %s. Error: %s. Request Body: %s',

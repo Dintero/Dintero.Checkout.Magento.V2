@@ -26,4 +26,14 @@ class Transaction extends \Magento\Framework\DataObject
     {
         return in_array($this->getData('status'), $this->failedStatuses);
     }
+
+    /**
+     * check if transaction is cancelled
+     *
+     * @return bool
+     */
+    public function isCancelled()
+    {
+        return $this->getData('status') === Client::STATUS_CANCELLED;
+    }
 }

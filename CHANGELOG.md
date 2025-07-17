@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.18
+- improved handling of cancelled transactions
+
 v1.8.17
 - improved failed payment handler logic 
 - fixed tax percent on shipping callback

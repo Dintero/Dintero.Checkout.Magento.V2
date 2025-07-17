@@ -222,6 +222,14 @@ class CreateOrder
         /** @var \Dintero\Checkout\Model\Transaction $dinteroTransaction */
         $dinteroTransaction = $this->dinteroTransactionFactory->create()->setData($transactionData);
 
+        if ($dinteroTransaction->isCancelled()) {
+            throw new \Dintero\Checkout\Exception\PaymentCancelException(__(
+                'Cannot create order from transactions %1. Transaction status: %2',
+                $dinteroTransaction->getId(),
+                $dinteroTransaction->getStatus()
+            ));
+        }
+
         if ($dinteroTransaction->isFailed()) {
             throw new \Dintero\Checkout\Exception\PaymentException(__(
                 'Cannot create order from transactions %1. Transaction status: %2',
