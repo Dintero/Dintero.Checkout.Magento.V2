@@ -40,7 +40,7 @@ class ExpressButton implements ObserverInterface
 
         /** @var \Magento\Catalog\Block\ShortcutButtons $container */
         $container = $observer->getContainer();
-        $expressButton = $container->getLayout()->createBlock(Express::class, 'dintero.express');
+        $expressButton = $container->getLayout()->createBlock(Express::class, 'dintero.express.'.uniqid());
         $container->addShortcut(
             $expressButton->setTemplate('Dintero_Checkout::checkout/express-button.phtml')
         );
