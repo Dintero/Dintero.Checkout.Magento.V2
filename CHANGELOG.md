@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.19
+- fixed bundle product totals calculation and capture;
+
 1.8.18
 - improved handling of cancelled transactions
 

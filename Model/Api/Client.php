@@ -7,6 +7,9 @@ use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
+use Magento\Bundle\Model\Product\Price;
+use Magento\Catalog\MOdel\Product\Type;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
@@ -285,7 +288,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.18',
+            'Dintero-System-Plugin-Version' => '1.8.19',
         ];
 
         if ($token && $token instanceof Token) {
@@ -677,19 +680,31 @@ class Client
         $items = [];
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
-            if ($item->isDeleted() || $item->getOrderItem()->getParentItemId()) {
+
+            $orderItem = $item->getOrderItem();
+            if ($item->isDeleted() || $orderItem->isDummy()) {
                 continue;
             }
 
-            $lineId = $this->lineIdGenerator->generate(
-                $quote->getItemById($item->getOrderItem()->getQuoteItemId())
-            );
+            $parentOrderItem = $item->getOrderItem()->getParentItem();
+            $itemId = $parentOrderItem ? $item->getParentId() : $item->getId();
 
-            array_push($items, [
-                'id' => $item->getSku(),
-                'line_id' => $lineId,
-                'amount' => ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100,
-            ]);
+            if (!isset($items[$itemId])) {
+                $quoteItemId = $parentOrderItem ? $parentOrderItem->getQuoteItemId() : $orderItem->getQuoteItemId();
+                $lineId = $this->lineIdGenerator->generate(
+                    $quote->getItemById($quoteItemId)
+                );
+
+                $sku = $parentOrderItem ? $parentOrderItem->getSku() : $orderItem->getSku();
+
+                $items[$itemId] = [
+                    'id' => $sku,
+                    'line_id' => $lineId,
+                    'amount' => 0,
+                ];
+            }
+
+            $items[$itemId]['amount'] += ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100;
         }
 
         // adding shipping as a separate item
@@ -703,7 +718,7 @@ class Client
             ]);
         }
 
-        return $items;
+        return array_values($items);
     }
 
     /**
