@@ -190,7 +190,7 @@ class Client
         LoggerInterface                             $logger,
         Json                                        $converter,
         \Magento\Quote\Model\ResourceModel\Quote    $quoteResource,
-        CartRepositoryInterface  $quoteRepository,
+        CartRepositoryInterface                     $quoteRepository,
         ObjectManagerInterface                      $objectManager,
         LineIdGenerator                             $lineIdGenerator
     ) {

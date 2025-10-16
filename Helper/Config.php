@@ -201,7 +201,7 @@ class Config extends AbstractHelper
      * @param $store Store|null
      * @return bool
      */
-    public function isActive(Store $store = null)
+    public function isActive(?Store $store = null)
     {
         $store = $store ?? $this->storeManager->getStore();
         return $this->scopeConfig->isSetFlag(self::XPATH_IS_ACTIVE, $store->getScopeType());

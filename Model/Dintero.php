@@ -261,10 +261,10 @@ class Dintero extends AbstractMethod
         Config                     $config,
         TransactionRepositoryInterface $transactionRepository,
         TransactionFactory         $dbTransactionFactory,
-        AbstractResource           $resource = null,
-        AbstractDb                 $resourceCollection = null,
-        array                      $data = [],
-        DirectoryHelper            $directory = null
+        ?AbstractResource          $resource = null,
+        ?AbstractDb                $resourceCollection = null,
+        ?array                     $data = [],
+        ?DirectoryHelper           $directory = null
     ) {
         parent::__construct(
             $context,
