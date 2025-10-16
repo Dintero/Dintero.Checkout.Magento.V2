@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.20
+- Added PHP8.4 compatibilitys
+
 1.8.19
 - fixed bundle product totals calculation and capture;
 
