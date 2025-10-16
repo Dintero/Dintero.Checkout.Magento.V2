@@ -16,6 +16,9 @@ class SubmitAllAfter implements ObserverInterface
      */
     private $emailHelper;
 
+    /**
+     * @var Config $config
+     */
     private $config;
 
     /**

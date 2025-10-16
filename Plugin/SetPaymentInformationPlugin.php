@@ -38,7 +38,6 @@ class SetPaymentInformationPlugin
         $this->onepageCheckout = $onepageCheckout;
         $this->extensionAttributesFactory = $paymentExtensionInterfaceFactory;
         $this->httpRequest = $httpRequest;
-
     }
 
     /**
@@ -55,7 +54,7 @@ class SetPaymentInformationPlugin
         PaymentInformationManagementInterface $subject,
         $cartId,
         \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        ?\Magento\Quote\Api\Data\AddressInterface $billingAddress = null
     ) {
         $agreementIds = $paymentMethod->getExtensionAttributes() !== null
             ? $paymentMethod->getExtensionAttributes()->getAgreementIds() : [];

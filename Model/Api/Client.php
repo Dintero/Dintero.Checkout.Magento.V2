@@ -190,7 +190,7 @@ class Client
         LoggerInterface                             $logger,
         Json                                        $converter,
         \Magento\Quote\Model\ResourceModel\Quote    $quoteResource,
-        CartRepositoryInterface  $quoteRepository,
+        CartRepositoryInterface                     $quoteRepository,
         ObjectManagerInterface                      $objectManager,
         LineIdGenerator                             $lineIdGenerator
     ) {
@@ -288,7 +288,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.19',
+            'Dintero-System-Plugin-Version' => '1.8.20',
         ];
 
         if ($token && $token instanceof Token) {
