@@ -7,7 +7,7 @@
            class="dintero-addToCart"
            id="dintero-addToCart-<?= /* @noEscape */ $block->getJsId() ?>"
            data-mage-init='{"dinteroProductAdd": {"checkoutUrl": "<?= $block->escapeUrl($block->getExpressCheckoutUrl()); ?>"}}'>
-            <img src="<?= $block->getButtonImageUrl(); ?>" />
+            <img src="<?= $escaper->escapeUrl($block->getButtonImageUrl()); ?>" />
         </a>
     </div>
 </div>

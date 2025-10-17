@@ -1,6 +1,11 @@
 <?php
-/** @var $block \Dintero\Checkout\Block\Express */
+/**
+ * @var \Dintero\Checkout\Block\Express $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
 ?>
 <div class="dintero-express-checkout-button-wrapper">
-    <a href="<?= $block->getExpressCheckoutUrl(); ?>"><img src="<?= $block->getButtonImageUrl(); ?>" /></a>
+    <a href="<?= $escaper->escapeUrl($block->getExpressCheckoutUrl()); ?>">
+        <img src="<?= $escaper->escapeUrl($block->getButtonImageUrl()); ?>" />
+    </a>
 </div>
