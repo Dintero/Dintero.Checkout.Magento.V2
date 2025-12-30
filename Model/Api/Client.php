@@ -536,7 +536,7 @@ class Client
         }
 
         $orderData = [
-            'profile_id' => $this->configHelper->getProfileId(),
+            'profile_id' => $this->configHelper->getProfileId($this->scope),
             'expires_at' => date(
                 'Y-m-d\TH:i:s.z\Z',
                 $salesObject->getSessionExpiresAt() ?: strtotime('+4hour')
@@ -572,7 +572,9 @@ class Client
             );
             $orderData['express']['shipping_options'] = [];
 
-            $allowDiffShipCustomerTypes = $this->configHelper->getDifferentShippingAddressCustomerTypes();
+            $allowDiffShipCustomerTypes = $this->configHelper->getDifferentShippingAddressCustomerTypes(
+                $salesObject->getStore()->getCode()
+            );
 
             if (!empty($allowDiffShipCustomerTypes)) {
                 $orderData['configuration']['allow_different_billing_shipping_address'] = $allowDiffShipCustomerTypes;
