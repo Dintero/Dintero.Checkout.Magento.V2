@@ -6,6 +6,9 @@ var config = {
             },
             'Magento_SalesRule/js/view/payment/discount': {
                 'Dintero_Checkout/js/view/payment/discount-mixin': true
+            },
+            'Magento_Checkout/js/action/set-billing-address': {
+                'Dintero_Checkout/js/action/set-billing-address-mixin': true
             }
         }
     },

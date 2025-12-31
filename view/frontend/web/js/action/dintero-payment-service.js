@@ -70,7 +70,8 @@ define(
         setCoupon.registerDataModifier(updateSession);
 
         cancelCoupon.registerSuccessCallback(refreshSession);
-        $(document).on('coupon_cancel_before', updateSession)
+        $(document).on('coupon_cancel_before', updateSession);
+        $(document).on('dintero_billing_address_update_complete', updateSession);
 
         return {
             currentRequest: false,
@@ -172,6 +173,14 @@ define(
                                     }
 
                                     validateSession(checkout, callback);
+                                },
+                                onPayment: function(event, checkout) {
+                                    $(_this).trigger(
+                                        'dintero.payment.done',
+                                        $.mage.__('The payment was out of date. Refresh the page to try again')
+                                    );
+                                    checkout.destroy();
+                                    document.location = event.href;
                                 }
                             }).then(function(checkout) {
                                 checkoutInstance = checkout;
