@@ -393,6 +393,10 @@ class Client
             ]
         ];
 
+        if (!$this->isExpress() && $quote->getBillingAddress()) {
+            $requestData['order']['billing_address'] = $this->prepareAddress($quote->getBillingAddress());
+        }
+
         $request = $this->initRequest(
             $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId)),
             $this->getToken()
