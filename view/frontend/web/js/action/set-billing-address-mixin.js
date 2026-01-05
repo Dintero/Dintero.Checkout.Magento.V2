@@ -7,11 +7,10 @@ define([
 
     return function (setBillingAddressAction) {
         return wrapper.wrap(setBillingAddressAction, function (originalAction, messageContainer) {
-            originalAction(messageContainer)
+            return originalAction(messageContainer)
                 .done(function () {
                     $(document).trigger('dintero_billing_address_update_complete');
                 });
-            return deferred;
         });
     };
 });

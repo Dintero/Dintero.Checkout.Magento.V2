@@ -31,7 +31,7 @@ define(
                     _this.errorHandler(event, message)
                 });
                 $(paymentService).on('dintero.payment.done', function(event, message) {
-                    _this.isBillingAddressVisible(false)
+                    _this.isBillingAddressVisible(false);
                 });
             },
             errorHandler: function(event, errorMessage) {

@@ -175,10 +175,7 @@ define(
                                     validateSession(checkout, callback);
                                 },
                                 onPayment: function(event, checkout) {
-                                    $(_this).trigger(
-                                        'dintero.payment.done',
-                                        $.mage.__('The payment was out of date. Refresh the page to try again')
-                                    );
+                                    $(_this).trigger('dintero.payment.done');
                                     checkout.destroy();
                                     document.location = event.href;
                                 }
