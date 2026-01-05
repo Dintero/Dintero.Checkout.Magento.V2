@@ -1,5 +1,10 @@
 # Changelog
 
+1.8.21
+- added billing address fields to embedded checkout;
+- fixed payment link issue per-store;
+- fixed issue with incorrect shipping method on express checkout;
+
 1.8.20
 - Added PHP8.4 compatibility
 

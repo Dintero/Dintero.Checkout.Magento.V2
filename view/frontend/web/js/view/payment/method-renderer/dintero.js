@@ -22,13 +22,17 @@ define(
             redirectAfterPlaceOrder: false,
             isVisible: ko.observable(true),
             showButton: ko.observable(true),
+            isBillingAddressVisible: ko.observable(true),
             initElement: function() {
                 var _this = this;
                 this._super();
                 paymentService.init();
                 $(paymentService).on('dintero.payment.failed', function(event, message) {
                     _this.errorHandler(event, message)
-                })
+                });
+                $(paymentService).on('dintero.payment.done', function(event, message) {
+                    _this.isBillingAddressVisible(false);
+                });
             },
             errorHandler: function(event, errorMessage) {
                 this.messageContainer.addErrorMessage({message: errorMessage});

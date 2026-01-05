@@ -288,7 +288,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.20',
+            'Dintero-System-Plugin-Version' => '1.8.21',
         ];
 
         if ($token && $token instanceof Token) {
@@ -342,6 +342,7 @@ class Client
      */
     public function initCheckout(Order $order)
     {
+        $this->scope = $order->getStoreId();
         $request = $this->initRequest(
             $this->getCheckoutApiUri('sessions-profile'),
             $this->getToken()
@@ -391,6 +392,10 @@ class Client
                 'items' => $this->prepareItems($quote),
             ]
         ];
+
+        if (!$this->isExpress() && $quote->getBillingAddress()) {
+            $requestData['order']['billing_address'] = $this->prepareAddress($quote->getBillingAddress());
+        }
 
         $request = $this->initRequest(
             $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId)),
@@ -535,7 +540,7 @@ class Client
         }
 
         $orderData = [
-            'profile_id' => $this->configHelper->getProfileId(),
+            'profile_id' => $this->configHelper->getProfileId($this->scope),
             'expires_at' => date(
                 'Y-m-d\TH:i:s.z\Z',
                 $salesObject->getSessionExpiresAt() ?: strtotime('+4hour')
@@ -571,7 +576,9 @@ class Client
             );
             $orderData['express']['shipping_options'] = [];
 
-            $allowDiffShipCustomerTypes = $this->configHelper->getDifferentShippingAddressCustomerTypes();
+            $allowDiffShipCustomerTypes = $this->configHelper->getDifferentShippingAddressCustomerTypes(
+                $salesObject->getStore()->getCode()
+            );
 
             if (!empty($allowDiffShipCustomerTypes)) {
                 $orderData['configuration']['allow_different_billing_shipping_address'] = $allowDiffShipCustomerTypes;

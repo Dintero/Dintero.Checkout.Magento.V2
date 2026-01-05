@@ -251,7 +251,7 @@ class CreateOrder
                 ->map();
         }
 
-        if ($quote->getShippingAddress()->getId() && !$quote->getShippingAddress()->getShippingMethod()) {
+        if ($quote->getShippingAddress()->getId() && $dinteroTransaction->getData('shipping_option/id')) {
             $quote->getShippingAddress()->setShippingMethod($dinteroTransaction->getData('shipping_option/id'));
         }
 
