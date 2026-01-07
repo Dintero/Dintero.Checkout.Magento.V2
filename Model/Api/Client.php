@@ -393,6 +393,16 @@ class Client
             ]
         ];
 
+        $customerEmail = $quote->getCustomerEmail() ? $quote->getCustomerEmail() : $quote->getBillingAddress()->getEmail();
+
+        if ($quote->getCustomer()) {
+            $customerEmail = $quote->getCustomer()->getEmail();
+        }
+
+        if (!empty($customerEmail)) {
+            $requestData['customer']['email'] = $customerEmail;
+        }
+
         if (!$this->isExpress() && $quote->getBillingAddress()) {
             $requestData['order']['billing_address'] = $this->prepareAddress($quote->getBillingAddress());
         }
