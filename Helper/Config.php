@@ -288,6 +288,7 @@ class Config extends AbstractHelper
                 'method' => 'POST',
                 'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
                 'report_error' => 'true',
+                'includes' => 'session',
             ]
         ]);
     }
@@ -348,6 +349,7 @@ class Config extends AbstractHelper
                     'method' => 'POST',
                     'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
                     'report_error' => 'true',
+                    'includes' => 'session',
                 ]
             ]
         );
@@ -366,6 +368,7 @@ class Config extends AbstractHelper
                     'method' => 'POST',
                     'delay_callback' => self::DEFAULT_CALLBACK_DELAY,
                     'report_error' => 'true',
+                    'includes' => 'session',
                 ]
             ]
         );
