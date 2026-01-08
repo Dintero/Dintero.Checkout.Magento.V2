@@ -140,9 +140,8 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
             $this->createOrder->createFromTransaction($quote, $request->getId());
             return;
         } catch (\Dintero\Checkout\Exception\PaymentCancelException $e) {
-
-            $this->logger->error(sprintf(
-                'Payment failed for order %s. Cancellation error: %s',
+            $this->logger->info(sprintf(
+                'Payment failed for order %s. Reason: %s',
                 $request->getMerchantReference(),
                 $e->getMessage()
             ));
@@ -152,8 +151,8 @@ class ExpressCallback implements \Dintero\Checkout\Api\ExpressCallbackInterface
             $this->quoteResource->save($quote);
 
         } catch (\Dintero\Checkout\Exception\PaymentException $e) {
-            $this->logger->error(sprintf(
-                'Payment failed. Order id: %s. Error: %s. Request Body: %s',
+            $this->logger->info(sprintf(
+                'Payment failed. Order id: %s. Reason: %s. Request Body: %s',
                 $request->getMerchantReference(),
                 $e->getMessage(),
                 $this->request->getContent()
