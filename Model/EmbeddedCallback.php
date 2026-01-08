@@ -135,8 +135,8 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
 
             $this->createOrder->createFromTransaction($quote, $request->getId());
         } catch (\Dintero\Checkout\Exception\PaymentCancelException $e) {
-            $this->logger->error(sprintf(
-                'Payment failed for order %s. Cancellation error: %s',
+            $this->logger->info(sprintf(
+                'Payment cancelled for order %s. Reason: %s',
                 $request->getMerchantReference(),
                 $e->getMessage()
             ));
@@ -144,8 +144,8 @@ class EmbeddedCallback implements \Dintero\Checkout\Api\EmbeddedCallbackInterfac
             $quote->getPayment()->unsAdditionalInformation('id');
             $this->quoteResource->save($quote);
         } catch (\Dintero\Checkout\Exception\PaymentException $e) {
-            $this->logger->error(sprintf(
-                'Payment failed for order %s. Error: %s',
+            $this->logger->info(sprintf(
+                'Payment declined for order %s. Reason: %s',
                 $request->getMerchantReference(),
                 $e->getMessage()
             ));

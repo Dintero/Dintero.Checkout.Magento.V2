@@ -40,6 +40,32 @@ class Validator
     }
 
     /**
+     * Validate session status
+     *
+     * @param array $events
+     * @return bool
+     */
+    private function validateStatus(array $events)
+    {
+        $statusList = [
+            Client::STATUS_FAILED,
+            Client::STATUS_DECLINED,
+            Client::STATUS_UNKNOWN,
+            Client::STATUS_CANCELLED
+        ];
+
+        rsort($events);
+
+        foreach ($events as $event) {
+            if (in_array($event['name'], $statusList)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Validate items
      *
      * @param \Magento\Sales\Model\Order|\Magento\Quote\Model\Quote $salesObject
@@ -77,10 +103,7 @@ class Validator
             return false;
         }
 
-        $events = $sessionInfo->getEvents();
-
-        $statusList = [Client::STATUS_FAILED, Client::STATUS_DECLINED, Client::STATUS_UNKNOWN, Client::STATUS_CANCELLED];
-        if (is_array($events) && in_array(end($events)['name'], $statusList)) {
+        if (!$this->validateStatus($sessionInfo->getEvents() ?? [])) {
             return false;
         }
 

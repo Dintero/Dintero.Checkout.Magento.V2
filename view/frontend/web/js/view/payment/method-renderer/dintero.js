@@ -28,7 +28,8 @@ define(
                 this._super();
                 paymentService.init();
                 $(paymentService).on('dintero.payment.failed', function(event, message) {
-                    _this.errorHandler(event, message)
+                    _this.errorHandler(event, message);
+                    setTimeout(() => window.location.reload(), 10000);
                 });
                 $(paymentService).on('dintero.payment.done', function(event, message) {
                     _this.isBillingAddressVisible(false);

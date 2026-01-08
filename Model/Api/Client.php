@@ -288,7 +288,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.21',
+            'Dintero-System-Plugin-Version' => '1.8.22',
         ];
 
         if ($token && $token instanceof Token) {
@@ -392,6 +392,16 @@ class Client
                 'items' => $this->prepareItems($quote),
             ]
         ];
+
+        $customerEmail = $quote->getCustomerEmail() ? $quote->getCustomerEmail() : $quote->getBillingAddress()->getEmail();
+
+        if ($quote->getCustomer()) {
+            $customerEmail = $quote->getCustomer()->getEmail();
+        }
+
+        if (!empty($customerEmail)) {
+            $requestData['customer']['email'] = $customerEmail;
+        }
 
         if (!$this->isExpress() && $quote->getBillingAddress()) {
             $requestData['order']['billing_address'] = $this->prepareAddress($quote->getBillingAddress());
