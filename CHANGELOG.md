@@ -1,4 +1,8 @@
 # Changelog
+1.8.22
+- fixed missing customer email in Dintero backoffice;
+- improved Dintero session validation;
+- Changed log level for cancelled and declined transactions and sessions;
 
 1.8.21
 - added billing address fields to embedded checkout;
