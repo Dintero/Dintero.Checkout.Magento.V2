@@ -288,7 +288,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.22',
+            'Dintero-System-Plugin-Version' => '1.8.23',
         ];
 
         if ($token && $token instanceof Token) {
@@ -713,11 +713,13 @@ class Client
                 );
 
                 $sku = $parentOrderItem ? $parentOrderItem->getSku() : $orderItem->getSku();
+                $name = $parentOrderItem ? $parentOrderItem->getName() : $orderItem->getName();
 
                 $items[$itemId] = [
                     'id' => $sku,
                     'line_id' => $lineId,
                     'amount' => 0,
+                    'description' => sprintf('%s (%s)', $name, $sku),
                 ];
             }
 

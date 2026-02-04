@@ -1,4 +1,8 @@
 # Changelog
+
+1.8.23
+- added item description for invoice capture;
+
 1.8.22
 - fixed missing customer email in Dintero backoffice;
 - improved Dintero session validation;
