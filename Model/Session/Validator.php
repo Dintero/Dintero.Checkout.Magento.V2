@@ -51,7 +51,8 @@ class Validator
             Client::STATUS_FAILED,
             Client::STATUS_DECLINED,
             Client::STATUS_UNKNOWN,
-            Client::STATUS_CANCELLED
+            Client::STATUS_CANCELLED,
+            Client::STATUS_COMPLETED,
         ];
 
         rsort($events);

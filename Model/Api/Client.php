@@ -82,6 +82,11 @@ class Client
     const STATUS_CANCELLED = 'CANCELLED';
 
     /*
+     * Status completed
+     */
+    const STATUS_COMPLETED = 'COMPLETED';
+
+    /*
      * Standard
      */
     const TYPE_STANDARD = 'standard';
@@ -288,7 +293,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.23',
+            'Dintero-System-Plugin-Version' => '1.8.24',
         ];
 
         if ($token && $token instanceof Token) {
@@ -404,7 +409,7 @@ class Client
         }
 
         if (!$this->isExpress() && $quote->getBillingAddress()) {
-            $requestData['order']['billing_address'] = $this->prepareAddress($quote->getBillingAddress());
+            $requestData['order']['billing_address'] = array_filter($this->prepareAddress($quote->getBillingAddress()));
         }
 
         $request = $this->initRequest(
