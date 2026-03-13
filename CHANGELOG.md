@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.24
+- adjusted logic to properly handle completed session during init;
+
 1.8.23
 - added item description for invoice capture;
 
