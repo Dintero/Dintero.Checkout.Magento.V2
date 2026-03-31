@@ -2,13 +2,13 @@
 
 namespace Dintero\Checkout\Model;
 
-use Dintero\Checkout\Model\Api\Request\Builder\OrderItemBuilder;
 use Dintero\Checkout\Api\Data\OrderInterfaceFactory;
-use Dintero\Checkout\Api\Data\Shipping\RequestInterface;
 use Dintero\Checkout\Api\Data\Shipping\RequestInterfaceFactory;
 use Dintero\Checkout\Api\Data\Shipping\ResponseInterfaceFactory;
 use Dintero\Checkout\Api\Discount\RuleManagementInterface;
+use Dintero\Checkout\Api\ShippingManagementInterface;
 use Dintero\Checkout\Model\Api\Request\Builder\DiscountLineBuilder;
+use Dintero\Checkout\Model\Api\Request\Builder\OrderItemBuilder;
 use Dintero\Checkout\Model\Api\Request\Builder\ShippingOptionBuilder;
 use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Magento\Framework\Api\DataObjectHelper;
@@ -16,94 +16,18 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Api\ShippingMethodManagementInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
-use Magento\Quote\Model\ResourceModel\Quote;
 use Psr\Log\LoggerInterface;
 
-class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterface
+class CouponCallback extends ShippingCallback implements \Dintero\Checkout\Api\CouponCallbackInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+
+    /** @var ShippingManagementInterface $shippingOptionManagement */
+    protected $shippingOptionManagement;
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
-     */
-    protected $request;
-
-    /**
-     * @var SerializerInterface
-     */
-    protected $serializer;
-
-    /**
-     * @var ResponseInterfaceFactory
-     */
-    protected $responseFactory;
-
-    /**
-     * @var DataObjectHelper
-     */
-    protected $objectHelper;
-
-    /**
-     * @var RequestInterfaceFactory
-     */
-    protected $requestFactory;
-
-    /**
-     * @var DataObjectFactory
-     */
-    protected $dataObjectFactory;
-
-    /**
-     * @var Quote
-     */
-    protected $quoteResource;
-
-    /**
-     * @var QuoteFactory
-     */
-    protected $quoteFactory;
-
-    /**
-     * @var ShippingMethodManagementInterface
-     */
-    protected $shippingMethodManagement;
-
-    /**
-     * @var OrderInterfaceFactory $orderFactory
-     */
-    protected $orderFactory;
-
-    /**
-     * @var LineIdGenerator $lineIdGenerator
-     */
-    protected $lineIdGenerator;
-
-    /**
-     * @var RuleManagementInterface $ruleManagement
-     */
-    protected $ruleManagement;
-
-    /**
-     * @var DiscountLineBuilder $discountLineBuilder
-     */
-    protected $discountLineBuilder;
-
-    /**
-     * @var ShippingOptionBuilder $shippingOptionBuilder
-     */
-    protected $shippingOptionBuilder;
-
-    /**
-     * @var OrderItemBuilder $orderItemBuilder
-     */
-    protected $orderItemBuilder;
-
-    /**
-     * ShippingCallback constructor.
+     * Define class dependencies
      *
      * @param \Magento\Framework\App\RequestInterface $request
      * @param SerializerInterface $serializer
@@ -112,7 +36,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param DataObjectHelper $dataObjectHelper
      * @param DataObjectFactory $dataObjectFactory
      * @param RequestInterfaceFactory $requestFactory
-     * @param Quote $quoteResource
+     * @param \Magento\Quote\Model\ResourceModel\Quote $quoteResource
      * @param QuoteFactory $quoteFactory
      * @param ShippingMethodManagementInterface $shippingMethodManagement
      * @param ShippingOptionBuilder $shippingOptionBuilder
@@ -121,6 +45,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param LineIdGenerator $lineIdGenerator
      * @param RuleManagementInterface $ruleManagement
      * @param DiscountLineBuilder $discountLineBuilder
+     * @param ShippingManagementInterface $shippingOptionManagement
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -130,7 +55,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         DataObjectHelper $dataObjectHelper,
         DataObjectFactory $dataObjectFactory,
         RequestInterfaceFactory $requestFactory,
-        Quote $quoteResource,
+        \Magento\Quote\Model\ResourceModel\Quote $quoteResource,
         QuoteFactory $quoteFactory,
         ShippingMethodManagementInterface $shippingMethodManagement,
         ShippingOptionBuilder $shippingOptionBuilder,
@@ -138,28 +63,43 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         OrderItemBuilder $orderItemBuilder,
         LineIdGenerator $lineIdGenerator,
         RuleManagementInterface $ruleManagement,
-        DiscountLineBuilder $discountLineBuilder
+        DiscountLineBuilder $discountLineBuilder,
+        ShippingManagementInterface $shippingOptionManagement
     ) {
-        $this->request = $request;
-        $this->logger = $logger;
-        $this->serializer = $serializer;
-        $this->responseFactory = $responseFactory;
-        $this->objectHelper = $dataObjectHelper;
-        $this->requestFactory = $requestFactory;
-        $this->dataObjectFactory = $dataObjectFactory;
-        $this->quoteResource = $quoteResource;
-        $this->quoteFactory = $quoteFactory;
-        $this->shippingMethodManagement = $shippingMethodManagement;
-        $this->shippingOptionBuilder = $shippingOptionBuilder;
-        $this->orderFactory = $orderFactory;
-        $this->orderItemBuilder = $orderItemBuilder;
-        $this->lineIdGenerator = $lineIdGenerator;
-        $this->ruleManagement = $ruleManagement;
-        $this->discountLineBuilder = $discountLineBuilder;
+        parent::__construct(
+            $request,
+            $serializer,
+            $responseFactory,
+            $logger,
+            $dataObjectHelper,
+            $dataObjectFactory,
+            $requestFactory,
+            $quoteResource,
+            $quoteFactory,
+            $shippingMethodManagement,
+            $shippingOptionBuilder,
+            $orderFactory,
+            $orderItemBuilder,
+            $lineIdGenerator,
+            $ruleManagement,
+            $discountLineBuilder
+        );
+        $this->shippingOptionManagement = $shippingOptionManagement;
     }
 
     /**
-     * Retrieve shipping options
+     * Calculate order total
+     *
+     * @param Quote $quote
+     * @return float|int
+     */
+    protected function calculateOrderTotal(Quote $quote)
+    {
+        return $quote->getBaseGrandTotal() * 100;
+    }
+
+    /**
+     * Retrieve coupon options
      *
      * @return \Dintero\Checkout\Api\Data\Shipping\ResponseInterface
      * @throws \Magento\Framework\Exception\AlreadyExistsException
@@ -175,7 +115,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $this->objectHelper->populateWithArray(
             $request,
             array_merge($requestBody->getData(), $requestBody->getData('order')),
-            RequestInterface::class
+            \Dintero\Checkout\Api\Data\Shipping\RequestInterface::class
         );
 
         /** @var \Magento\Quote\Model\Quote $quote */
@@ -186,7 +126,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             throw new LocalizedException(__('Quote is not valid'));
         }
 
-        $couponCode = current($request->getDiscountCodes() ?? []) ?? null;
+        $couponCode = current($request->getDiscountCodes() ?? []) ?: '';
         $quote->setCouponCode($couponCode);
 
         $quote->getShippingAddress()
@@ -214,61 +154,15 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         }
 
         $order = $this->prepareOrder($quote);
-        if ($shippingOptionAmount = $requestBody->getData('order/shipping_option/amount')) {
-            $order->setAmount($order->getAmount() + $shippingOptionAmount);
+
+        if ($selectedShippingOption = $this->shippingOptionManagement->getSelectedShippingOptionByQuote($quote)) {
+            $order->setAmount($order->getAmount() - $selectedShippingOption->getAmount());
+            $selectedShippingOption->setAmount($quote->getShippingAddress()->getBaseShippingAmount() * 100);
+            $order->setShippingOption($selectedShippingOption);
         }
 
         return $this->responseFactory->create()
             ->setShippingOptions($shippingOptions)
             ->setOrder($order);
-    }
-
-    /**
-     * Calculate order total amoun
-     *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @return float|int
-     */
-    protected function calculateOrderTotal(\Magento\Quote\Model\Quote $quote)
-    {
-        $baseShippingAmount = $quote->getShippingAddress()->getBaseShippingAmount() * 100;
-        $baseShippingTaxAmount = $quote->getShippingAddress()->getBaseShippingTaxAmount() * 100;
-        $baseShippingTotalAmount = $baseShippingAmount + $baseShippingTaxAmount;
-        $orderTotal = $quote->getBaseGrandTotal() * 100;
-        $orderTotal -= $baseShippingTotalAmount;
-        return $orderTotal;
-    }
-
-    /**
-     * Prepare order object
-     *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @return \Dintero\Checkout\Api\Data\OrderInterface
-     */
-    protected function prepareOrder(\Magento\Quote\Model\Quote $quote)
-    {
-        /** @var \Dintero\Checkout\Api\Data\OrderInterface $order */
-        $order = $this->orderFactory->create();
-
-        $order->setAmount($this->calculateOrderTotal($quote))
-            ->setCurrency($quote->getBaseCurrencyCode());
-        $order->setDiscountCodes($quote->getCouponCode() ? [$quote->getCouponCode()] : []);
-        $discountRule = $this->ruleManagement->createFromQuote($quote);
-        if ($discountLine = $this->discountLineBuilder->build($discountRule)) {
-            $order->setDiscountLines([$discountLine]);
-        }
-
-        $items = [];
-
-        foreach ($quote->getAllVisibleItems() as $quoteItem) {
-            $items[] = $this->orderItemBuilder->build([
-                'item' => $quoteItem,
-                'line_id' => $this->lineIdGenerator->generate($quoteItem)
-            ]);
-        }
-
-        $tax = $quote->getShippingAddress()->getBaseTaxAmount() * 100;
-        $order->setVatAmount($tax ?? 0);
-        return $order->setItems($items);
     }
 }

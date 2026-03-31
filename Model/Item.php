@@ -3,12 +3,8 @@
 namespace Dintero\Checkout\Model;
 
 use Dintero\Checkout\Api\Data\ItemInterface;
+use Dintero\Checkout\Api\Data\DiscountInterface;
 
-/**
- * Class Item
- *
- * @package Dintero\Checkout\Model
- */
 class Item implements ItemInterface
 {
 
@@ -18,8 +14,9 @@ class Item implements ItemInterface
     protected $dataObject;
 
     /**
-     * Item constructor.
+     * Define class dependencies
      *
+     * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param array $data
      */
     public function __construct(
@@ -30,8 +27,10 @@ class Item implements ItemInterface
     }
 
     /**
-     * @param $key
-     * @param $value
+     * Define data
+     *
+     * @param string $key
+     * @param mixed $value
      * @return \Magento\Framework\DataObject
      */
     protected function setData($key, $value)
@@ -40,7 +39,9 @@ class Item implements ItemInterface
     }
 
     /**
-     * @param $key
+     * Retrieve data by key
+     *
+     * @param string $key
      * @return array|mixed|null
      */
     protected function getData($key)
@@ -49,6 +50,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define Id
+     *
      * @param string $id
      * @return ItemInterface
      */
@@ -59,6 +62,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define VAT percent
+     *
      * @param float $vat
      * @return ItemInterface
      */
@@ -69,6 +74,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define amount
+     *
      * @param float $amount
      * @return ItemInterface
      */
@@ -79,6 +86,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define line id
+     *
      * @param string $lineId
      * @return ItemInterface
      */
@@ -89,6 +98,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define quantity
+     *
      * @param integer $qty
      * @return ItemInterface
      */
@@ -99,6 +110,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define VAT amount
+     *
      * @param float $amount
      * @return ItemInterface
      */
@@ -109,6 +122,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Define description
+     *
      * @param string $description
      * @return ItemInterface
      */
@@ -119,6 +134,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve Id
+     *
      * @return string
      */
     public function getId()
@@ -127,6 +144,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve VAT percent
+     *
      * @return float
      */
     public function getVat()
@@ -135,6 +154,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve amount
+     *
      * @return float
      */
     public function getAmount()
@@ -143,6 +164,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve line id
+     *
      * @return string
      */
     public function getLineId()
@@ -151,6 +174,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve quantity
+     *
      * @return integer
      */
     public function getQuantity()
@@ -159,6 +184,8 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve VAT amount
+     *
      * @return float
      */
     public function getVatAmount()
@@ -167,10 +194,34 @@ class Item implements ItemInterface
     }
 
     /**
+     * Retrieve description
+     *
      * @return string
      */
     public function getDescription()
     {
         return $this->getData(self::DESCRIPTION);
+    }
+
+    /**
+     * Define discount lines
+     *
+     * @param DiscountInterface[]|array $discountLines
+     * @return ItemInterface
+     */
+    public function setDiscountLines($discountLines)
+    {
+        $this->setData(self::DISCOUNT_LINES, $discountLines);
+        return $this;
+    }
+
+    /**
+     * Retrieve discount lines
+     *
+     * @return array|DiscountInterface[]
+     */
+    public function getDiscountLines()
+    {
+        return $this->getData(self::DISCOUNT_LINES) ?? [];
     }
 }

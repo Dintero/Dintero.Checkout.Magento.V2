@@ -2,11 +2,11 @@
 
 namespace Dintero\Checkout\Model\Order;
 
-class Item
-    extends \Magento\Framework\DataObject
-    implements \Dintero\Checkout\Api\Data\Order\ItemInterface
+class Item extends \Magento\Framework\DataObject implements \Dintero\Checkout\Api\Data\Order\ItemInterface
 {
     /**
+     * Retrieve Id
+     *
      * @return string
      */
     public function getId()
@@ -15,6 +15,8 @@ class Item
     }
 
     /**
+     * Define id
+     *
      * @param string $id
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface|Item
      */
@@ -24,6 +26,8 @@ class Item
     }
 
     /**
+     * Define line id
+     *
      * @param string $lineId
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
@@ -33,6 +37,8 @@ class Item
     }
 
     /**
+     * Retrieve line id param
+     *
      * @return string
      */
     public function getLineId()
@@ -41,6 +47,8 @@ class Item
     }
 
     /**
+     * Dfine quantity
+     *
      * @param float $qty
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface|Item
      */
@@ -50,6 +58,8 @@ class Item
     }
 
     /**
+     * Retrieve quantity value
+     *
      * @return float
      */
     public function getQuantity()
@@ -58,6 +68,8 @@ class Item
     }
 
     /**
+     * Define VAT percent
+     *
      * @param float $vat
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface|Item
      */
@@ -67,6 +79,8 @@ class Item
     }
 
     /**
+     * Retrieve VAT percent
+     *
      * @return float
      */
     public function getVat()
@@ -75,7 +89,9 @@ class Item
     }
 
     /**
-     * @param $amount
+     * Define VAT amount
+     *
+     * @param float $amount
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setVatAmount($amount)
@@ -84,6 +100,8 @@ class Item
     }
 
     /**
+     * Retrieve VAT amount
+     *
      * @return float
      */
     public function getVatAmount()
@@ -92,6 +110,8 @@ class Item
     }
 
     /**
+     * Define amount
+     *
      * @param float $amount
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface|Item
      */
@@ -101,6 +121,8 @@ class Item
     }
 
     /**
+     * Retrieve amount
+     *
      * @return float
      */
     public function getAmount()
@@ -109,6 +131,8 @@ class Item
     }
 
     /**
+     * Define description
+     *
      * @param string $description
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
@@ -118,10 +142,33 @@ class Item
     }
 
     /**
+     * Retrieve description
+     *
      * @return string
      */
     public function getDescription()
     {
         return $this->getData(self::DESCRIPTION);
+    }
+
+    /**
+     * Populate discount lines
+     *
+     * @param \Dintero\Checkout\Api\Data\DiscountInterface[] $discountLines
+     * @return \Dintero\Checkout\Api\Data\ItemInterface|Item
+     */
+    public function setDiscountLines(array $discountLines)
+    {
+        return $this->setData(self::DISCOUNT_LINES, $discountLines);
+    }
+
+    /**
+     * Retrieve discount lines
+     *
+     * @return array|\Dintero\Checkout\Api\Data\DiscountInterface[]
+     */
+    public function getDiscountLines()
+    {
+        return $this->getData(self::DISCOUNT_LINES) ?? [];
     }
 }

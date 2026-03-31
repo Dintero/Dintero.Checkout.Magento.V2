@@ -2,123 +2,167 @@
 
 namespace Dintero\Checkout\Api\Data\Order;
 
-/**
- * Interface ItemInterface
- *
- * @package Dintero\Checkout\Api\Data\Order
- */
+use Dintero\Checkout\Model\Api\Request\OrderItemInterface;
+
 interface ItemInterface
 {
     /*
      * Item ID
      */
-    const ID = 'id';
+    public const ID = 'id';
 
     /*
      * Line Id
      */
-    const LINE_ID = 'line_id';
+    public const LINE_ID = 'line_id';
 
     /*
      * Quantity
      */
-    const QTY = 'quantity';
+    public const QTY = 'quantity';
 
     /*
      * Amount
      */
-    const AMOUNT = 'amount';
+    public const AMOUNT = 'amount';
 
     /*
      * VAT amount
      */
-    const VAT_AMOUNT = 'vat_amount';
+    public const VAT_AMOUNT = 'vat_amount';
 
     /*
      * VAT
      */
-    const VAT = 'vat';
+    public const VAT = 'vat';
 
     /*
      * Description
      */
-    const DESCRIPTION = 'description';
+    public const DESCRIPTION = 'description';
+
+    /*
+     * Discount lines
+     */
+    public const DISCOUNT_LINES = 'discount_lines';
 
     /**
+     * Define Id
+     *
      * @param string $id
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setId($id);
 
     /**
+     * Retrieve Id
+     *
      * @return string
      */
     public function getId();
 
-
     /**
+     * Define line id
+     *
      * @param string $lineId
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setLineId($lineId);
 
     /**
+     * Retrieve line id
+     *
      * @return string
      */
     public function getLineId();
 
     /**
+     * Define quantity
+     *
      * @param float $qty
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setQuantity($qty);
 
     /**
+     * Retrieve quantity
+     *
      * @return float
      */
     public function getQuantity();
 
     /**
+     * Define amount
+     *
      * @param float $amount
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setAmount($amount);
 
     /**
+     * Retrieve amount
+     *
      * @return float
      */
     public function getAmount();
 
     /**
+     * Define VAT percent
+     *
      * @param float $vat
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setVat($vat);
 
     /**
+     * Retrieve VAL percent
+     *
      * @return float
      */
     public function getVat();
 
     /**
+     * Define VAT amount
+     *
      * @param float $amount
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setVatAmount($amount);
 
     /**
+     * Retrieve VAT amount
+     *
      * @return float
      */
     public function getVatAmount();
 
     /**
-     * @param $descritpion
+     * Define description
+     *
+     * @param string $descritpion
      * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setDescription($descritpion);
 
     /**
+     * Retrieve description
+     *
      * @return string
      */
     public function getDescription();
+
+    /**
+     * Define discount line items
+     *
+     * @param array|\Dintero\Checkout\Api\Data\DiscountInterface[] $discountLines
+     * @return OrderItemInterface
+     */
+    public function setDiscountLines(array $discountLines);
+
+    /**
+     * Retrieve discount line items
+     *
+     * @return \Dintero\Checkout\Api\Data\DiscountInterface[]
+     */
+    public function getDiscountLines();
 }

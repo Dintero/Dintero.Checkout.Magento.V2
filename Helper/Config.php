@@ -12,162 +12,157 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Config
- *
- * @package Dintero\Payment\Helper
- */
 class Config extends AbstractHelper
 {
     /*
      * XPATH Check if the payment method is active
      */
-    const XPATH_IS_ACTIVE = 'payment/dintero/active';
+    public const XPATH_IS_ACTIVE = 'payment/dintero/active';
 
     /*
      * XPATH for client id
      */
-    const XPATH_CLIENT_ID = 'payment/dintero/client_id';
+    public const XPATH_CLIENT_ID = 'payment/dintero/client_id';
 
     /*
      * XPATH for client secret
      */
-    const XPATH_CLIENT_SECRET = 'payment/dintero/client_secret';
+    public const XPATH_CLIENT_SECRET = 'payment/dintero/client_secret';
 
     /*
      * On Hold Order Status
      */
-    const XPATH_ON_HOLD_STATUS = 'payment/dintero/order_on_hold_status';
+    public const XPATH_ON_HOLD_STATUS = 'payment/dintero/order_on_hold_status';
 
     /*
      * XPATH for account id
      */
-    const XPATH_ACCOUNT_ID = 'payment/dintero/account_id';
+    public const XPATH_ACCOUNT_ID = 'payment/dintero/account_id';
 
     /*
      * XPATH for environment
      */
-    const XPATH_ENVIRONMENT = 'payment/dintero/environment';
+    public const XPATH_ENVIRONMENT = 'payment/dintero/environment';
 
     /*
      * XPATH for profile id
      */
-    const XPATH_PROFILE_ID = 'payment/dintero/checkout_profile_id';
+    public const XPATH_PROFILE_ID = 'payment/dintero/checkout_profile_id';
 
     /*
      * Payment action
      */
-    const XPATH_PAYMENT_ACTION = 'payment/dintero/payment_action';
+    public const XPATH_PAYMENT_ACTION = 'payment/dintero/payment_action';
 
     /*
      * Logo Type
      */
-    const XPATH_LOGO_TYPE = 'payment/dintero/logo_type';
+    public const XPATH_LOGO_TYPE = 'payment/dintero/logo_type';
 
     /*
      * Logo Color
      */
-    const XPATH_LOGO_COLOR = 'payment/dintero/logo_color';
+    public const XPATH_LOGO_COLOR = 'payment/dintero/logo_color';
 
     /*
      * Logo width in pixels
      */
-    const XPATH_LOGO_WIDTH = 'payment/dintero/logo_width';
+    public const XPATH_LOGO_WIDTH = 'payment/dintero/logo_width';
 
     /*
      * Checkout Language
      */
-    const XPATH_LANGUAGE = 'payment/dintero/language';
+    public const XPATH_LANGUAGE = 'payment/dintero/language';
 
     /*
      * XPATH Embedded checkout enabled
      */
-    const XPATH_IS_EMBEDDED = 'payment/dintero/is_embedded';
+    public const XPATH_IS_EMBEDDED = 'payment/dintero/is_embedded';
 
     /*
      * Embed Type
      */
-    const XPATH_EMBED_TYPE = 'payment/dintero/embed_type';
+    public const XPATH_EMBED_TYPE = 'payment/dintero/embed_type';
 
     /*
      * Embed Type
      */
-    const XPATH_IS_POPOUT = 'payment/dintero/is_popout';
+    public const XPATH_IS_POPOUT = 'payment/dintero/is_popout';
 
     /*
      * XPATH Express checkout enabled
      */
-    const XPATH_IS_EXPRESS = 'payment/dintero/is_express';
+    public const XPATH_IS_EXPRESS = 'payment/dintero/is_express';
 
     /*
      * XPATH Express button image
      */
-    const XPATH_EXPRESS_BUTTON_IMAGE = 'payment/dintero/express_button_type';
+    public const XPATH_EXPRESS_BUTTON_IMAGE = 'payment/dintero/express_button_type';
 
     /*
      * Create Invoice
      */
-    const XPATH_CREATE_INVOICE = 'payment/dintero/create_invoice';
+    public const XPATH_CREATE_INVOICE = 'payment/dintero/create_invoice';
 
     /*
      * Shipping methods map
      */
-    const XPATH_PICKUP_METHODS = 'payment/dintero/shipping_methods_map';
+    public const XPATH_PICKUP_METHODS = 'payment/dintero/shipping_methods_map';
 
     /*
      * Shipping methods map
      */
-    const XPATH_UNSPECIFIED_METHODS = 'payment/dintero/unspecified_methods_map';
+    public const XPATH_UNSPECIFIED_METHODS = 'payment/dintero/unspecified_methods_map';
 
     /*
      * Allow ship-to-different address
      */
-    const XPATH_ALLOW_DIFF_SHIP_ADDR = 'payment/dintero/allow_different_shipping';
+    public const XPATH_ALLOW_DIFF_SHIP_ADDR = 'payment/dintero/allow_different_shipping';
 
     /*
      * Allowed customer types
      */
-    const XPATH_ALLOW_CUSTOMER_TYPES = 'payment/dintero/allowed_customer_types';
+    public const XPATH_ALLOW_CUSTOMER_TYPES = 'payment/dintero/allowed_customer_types';
 
     /*
      * Default callback delay in seconds
      */
-    const DEFAULT_CALLBACK_DELAY = 30;
+    public const DEFAULT_CALLBACK_DELAY = 30;
 
     /*
      * Default logo width
      */
-    const DEFAULT_LOGO_WIDTH = 500;
+    public const DEFAULT_LOGO_WIDTH = 500;
 
     /*
      * Default logo color
      */
-    const DEFAULT_LOGO_COLOR = '#c4c4c4';
+    public const DEFAULT_LOGO_COLOR = '#c4c4c4';
 
     /*
      * Enable pay button on product page
      */
-    const XPATH_PRODUCT_PAGE_BUTTON_ENABLED = 'payment/dintero/product_page_button_enabled';
+    public const XPATH_PRODUCT_PAGE_BUTTON_ENABLED = 'payment/dintero/product_page_button_enabled';
 
     /*
      * Enable pay button on minicart and cart
      */
-    const XPATH_CART_BUTTON_ENABLED = 'payment/dintero/cart_button_enabled';
+    public const XPATH_CART_BUTTON_ENABLED = 'payment/dintero/cart_button_enabled';
 
     /*
      * Number of days for session expiration
      */
-    const XPATH_SESSION_EXP_DAY = 'payment/dintero/expiration_days';
+    public const XPATH_SESSION_EXP_DAY = 'payment/dintero/expiration_days';
 
     /*
      * Payment Email Template
      */
-    const XPATH_PAYMENT_EMAIL_TPL = 'payment/dintero/payment_email';
+    public const XPATH_PAYMENT_EMAIL_TPL = 'payment/dintero/payment_email';
 
     /*
      * Line Id Field
      */
-    const XPATH_ID_FIELD = 'payment/dintero/id_field';
+    public const XPATH_ID_FIELD = 'payment/dintero/id_field';
 
     /**
      * Encryptor object used to encrypt/decrypt sensitive data
@@ -180,10 +175,11 @@ class Config extends AbstractHelper
     private $storeManager;
 
     /**
-     * Config constructor.
+     * Define class dependencies
      *
      * @param Context $context
      * @param EncryptorInterface $encryptor
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context               $context,
@@ -198,7 +194,7 @@ class Config extends AbstractHelper
     /**
      * Checking whether the payment method is active or not
      *
-     * @param $store Store|null
+     * @param Store|null $store
      * @return bool
      */
     public function isActive(?Store $store = null)
@@ -233,7 +229,7 @@ class Config extends AbstractHelper
     /**
      * Retrieving client secret from configuration
      *
-     * @param int|string
+     * @param int|string|null $scopeCode
      * @return string
      */
     public function getClientSecret($scopeCode = null)
@@ -262,7 +258,11 @@ class Config extends AbstractHelper
      */
     public function getEnvironment($scopeCode = null)
     {
-        return $this->scopeConfig->isSetFlag(self::XPATH_ENVIRONMENT, ScopeInterface::SCOPE_STORE, $scopeCode) ? 'T' : 'P';
+        return $this->scopeConfig->isSetFlag(
+            self::XPATH_ENVIRONMENT,
+            ScopeInterface::SCOPE_STORE,
+            $scopeCode
+        ) ? 'T' : 'P';
     }
 
     /**
@@ -329,6 +329,7 @@ class Config extends AbstractHelper
     /**
      * Retrieving Shipping url callback
      *
+     * @param string $storeCode
      * @return string
      */
     public function getShippingCallbackUrl($storeCode)
@@ -337,6 +338,20 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Retrieve coupon callback URL
+     *
+     * @param string|int $storeCode
+     * @return string
+     */
+    public function getCouponCallbackUrl($storeCode)
+    {
+        return $this->_getUrl(sprintf('rest/%s/V1', $storeCode), ['dintero' => 'coupon']);
+    }
+
+    /**
+     * Retrieve express checkout callback
+     *
+     * @param string|int $storeCode
      * @return string
      */
     public function getExpressCheckoutCallback($storeCode)
@@ -356,6 +371,9 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Retrieve embedded checkout callback url
+     *
+     * @param string|int $storeCode
      * @return string
      */
     public function getEmbeddedCheckoutCallback($storeCode)
@@ -455,7 +473,7 @@ class Config extends AbstractHelper
     /**
      * Retrieving checkout logo url
      *
-     * @param int|string
+     * @param int|string|null $scopeCode
      * @return string
      */
     public function getCheckoutLogoUrl($scopeCode = null)
@@ -478,7 +496,7 @@ class Config extends AbstractHelper
     /**
      * Retrieving language code
      *
-     * @param int|string|null
+     * @param int|string|null $scope
      * @return string
      */
     public function getLanguage($scope = null)
@@ -491,14 +509,16 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Resolving checkout url
+     * Resolving checkout URL
      *
-     * @param array $queryParams
+     * @param string $url
      * @return string
      */
     public function resolveCheckoutUrl($url)
     {
+        // phpcs:disable
         $queryParams = parse_url($url, PHP_URL_QUERY);
+        // phpcs:enable
         $queryParams['language'] = $this->getLanguage();
         list($baseUrl) = explode('?', $url);
         return implode('?', [$baseUrl, http_build_query($queryParams)]);
@@ -560,6 +580,8 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Check if auto-capture is enabled
+     *
      * @param int|string $scopeCode
      * @return bool
      */
@@ -569,7 +591,9 @@ class Config extends AbstractHelper
     }
 
     /**
-     * @param int|string $scopeCode
+     * Retrieve express button image
+     *
+     * @param int|string|null $scopeCode
      * @return string
      */
     public function getExpressButtonImage($scopeCode = null)
@@ -578,7 +602,9 @@ class Config extends AbstractHelper
     }
 
     /**
-     * @param string $scopeCode
+     * Retrieve on-hold status
+     *
+     * @param string|null $scopeCode
      * @return mixed
      */
     public function getOnHoldOrderStatus($scopeCode = null)
@@ -640,6 +666,8 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Check if invoice has to be created for authorize_only action mode
+     *
      * @param string|null $scopeCode
      * @return bool
      */
@@ -712,7 +740,7 @@ class Config extends AbstractHelper
     /**
      * Check if embedded checkout popout mode is enabled
      *
-     * @param $scopeCode
+     * @param string|int $scopeCode
      * @return bool
      */
     public function isPopOut($scopeCode = null)
@@ -723,22 +751,32 @@ class Config extends AbstractHelper
     /**
      * Allow ship-to-different address
      *
-     * @param string $scopeCode
+     * @param string|null $scopeCode
      * @return string[]
      */
     public function getDifferentShippingAddressCustomerTypes($scopeCode = null)
     {
-        $value = $this->scopeConfig->getValue(self::XPATH_ALLOW_DIFF_SHIP_ADDR, ScopeInterface::SCOPE_STORE, $scopeCode);
+        $value = $this->scopeConfig->getValue(
+            self::XPATH_ALLOW_DIFF_SHIP_ADDR,
+            ScopeInterface::SCOPE_STORE,
+            $scopeCode
+        );
         return $value ? explode(',', $value) : [];
     }
 
     /**
-     * @param $scopeCode
+     * Retrieve allowed customer types
+     *
+     * @param string|int $scopeCode
      * @return string[]
      */
     public function getAllowedCustomerTypes($scopeCode = null)
     {
-        $value = $this->scopeConfig->getValue(self::XPATH_ALLOW_CUSTOMER_TYPES, ScopeInterface::SCOPE_STORE, $scopeCode);
+        $value = $this->scopeConfig->getValue(
+            self::XPATH_ALLOW_CUSTOMER_TYPES,
+            ScopeInterface::SCOPE_STORE,
+            $scopeCode
+        );
         return $value ? explode(',', $value) : [];
     }
 }

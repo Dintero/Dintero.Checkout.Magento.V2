@@ -2,14 +2,18 @@
 
 namespace Dintero\Checkout\Model\Api;
 
+use Dintero\Checkout\Api\Data\DiscountInterface;
+use Dintero\Checkout\Api\Data\ShippingMethodInterface;
 use Dintero\Checkout\Helper\Config as ConfigHelper;
+use Dintero\Checkout\Api\ShippingManagementInterface;
 use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
 use Dintero\Checkout\Model\Payment\TokenFactory;
-use Magento\Bundle\Model\Product\Price;
-use Magento\Catalog\MOdel\Product\Type;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Dintero\Checkout\Api\Discount\RuleManagementInterface;
+use Dintero\Checkout\Api\Data\ItemInterface;
+use Dintero\Checkout\Model\Api\Request\Builder\OrderItemBuilder;
+use Dintero\Checkout\Model\Api\Request\Builder\DiscountLineBuilder;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
@@ -22,118 +26,94 @@ use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\AbstractModel;
 use Magento\Sales\Model\Order;
+use Magento\Framework\Reflection\DataObjectProcessor as ObjectConverter;
 use Psr\Log\LoggerInterface;
 
-/**
- * API Client for Dintero payment method
- *
- * @package Dintero\Checkout\Model\Gateway\Http
- */
 class Client
 {
     /*
      * Dintero api endpoint
      */
-    const API_BASE_URL = 'https://api.dintero.com/v1';
+    public const API_BASE_URL = 'https://api.dintero.com/v1';
 
     /*
      * Checkout api endpoint
      */
-    const CHECKOUT_API_BASE_URL = 'https://checkout.dintero.com/v1';
+    public const CHECKOUT_API_BASE_URL = 'https://checkout.dintero.com/v1';
 
     /*
      * Status captured
      */
-    const STATUS_CAPTURED = 'CAPTURED';
+    public const STATUS_CAPTURED = 'CAPTURED';
 
     /*
      * Status authorized
      */
-    const STATUS_AUTHORIZED = 'AUTHORIZED';
+    public const STATUS_AUTHORIZED = 'AUTHORIZED';
 
     /*
      * Status on hold
      */
-    const STATUS_ON_HOLD = 'ON_HOLD';
+    public const STATUS_ON_HOLD = 'ON_HOLD';
 
     /*
      * Status failed
      */
-    const STATUS_FAILED = 'FAILED';
+    public const STATUS_FAILED = 'FAILED';
 
     /*
      * Status partially captured
      */
-    const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
+    public const STATUS_PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
 
     /*
      * Status declined
      */
-    const STATUS_DECLINED = 'DECLINED';
+    public const STATUS_DECLINED = 'DECLINED';
 
     /*
      * Status unknown
      */
-    const STATUS_UNKNOWN = 'UNKNOWN';
+    public const STATUS_UNKNOWN = 'UNKNOWN';
 
     /*
      * Status cancelled
      */
-    const STATUS_CANCELLED = 'CANCELLED';
+    public const STATUS_CANCELLED = 'CANCELLED';
 
     /*
      * Status completed
      */
-    const STATUS_COMPLETED = 'COMPLETED';
+    public const STATUS_COMPLETED = 'COMPLETED';
 
     /*
      * Standard
      */
-    const TYPE_STANDARD = 'standard';
+    public const TYPE_STANDARD = 'standard';
 
     /*
      * Express
      */
-    const TYPE_EXPRESS = 'express';
+    public const TYPE_EXPRESS = 'express';
 
     /*
      * Embedded
      */
-    const TYPE_EMBEDDED = 'embedded';
+    public const TYPE_EMBEDDED = 'embedded';
 
-    /**
-     * HTTP Client
-     *
-     * @var DinteroHpClient $client
-     */
+    /** @var DinteroHpClient $client */
     private $client;
 
-    /**
-     * Config helper
-     *
-     * @var ConfigHelper $configHelper
-     */
+    /** @var ConfigHelper $configHelper */
     private $configHelper;
 
-    /**
-     * Transfer builder factory
-     *
-     * @var TransferBuilderFactory $transferBuilderFactory
-     */
+    /** @var TransferBuilderFactory $transferBuilderFactory */
     private $transferBuilderFactory;
 
-    /**
-     * Token factory
-     *
-     * @var TokenFactory $tokenFactory
-     */
+    /** @var TokenFactory $tokenFactory */
     private $tokenFactory;
 
-    /**
-     * Logger
-     *
-     * @var LoggerInterface $logger
-     */
+    /** @var LoggerInterface $logger */
     private $logger;
 
     /**
@@ -174,6 +154,31 @@ class Client
     protected $lineIdGenerator;
 
     /**
+     * @var RuleManagementInterface $discountRuleManagement
+     */
+    protected $discountRuleManagement;
+
+    /**
+     * @var OrderItemBuilder $orderItemBuilder
+     */
+    protected $orderItemBuilder;
+
+    /**
+     * @var DiscountLineBuilder $discountLineBuilder
+     */
+    protected $discountLineBuilder;
+
+    /**
+     * @var ObjectConverter $objectConverter
+     */
+    protected $objectConverter;
+
+    /**
+     * @var ShippingManagementInterface $shippingOptionManagement
+     */
+    protected $shippingOptionManagement;
+
+    /**
      * Client constructor.
      *
      * @param DinteroHpClient $client
@@ -181,11 +186,15 @@ class Client
      * @param TransferBuilderFactory $transferBuilderFactory
      * @param TokenFactory $tokenFactory
      * @param LoggerInterface $logger
-     * @param Json $converter
      * @param \Magento\Quote\Model\ResourceModel\Quote $quoteResource
      * @param CartRepositoryInterface $quoteRepository
      * @param ObjectManagerInterface $objectManager
      * @param LineIdGenerator $lineIdGenerator
+     * @param RuleManagementInterface $ruleManagement
+     * @param OrderItemBuilder $orderItemBuilder
+     * @param DiscountLineBuilder $discountLineBuilder
+     * @param ObjectConverter $objectConverter
+     * @param ShippingManagementInterface $shippingOptionManagement
      */
     public function __construct(
         DinteroHpClient                             $client,
@@ -193,26 +202,36 @@ class Client
         TransferBuilderFactory                      $transferBuilderFactory,
         TokenFactory                                $tokenFactory,
         LoggerInterface                             $logger,
-        Json                                        $converter,
         \Magento\Quote\Model\ResourceModel\Quote    $quoteResource,
         CartRepositoryInterface                     $quoteRepository,
         ObjectManagerInterface                      $objectManager,
-        LineIdGenerator                             $lineIdGenerator
+        LineIdGenerator                             $lineIdGenerator,
+        RuleManagementInterface                     $ruleManagement,
+        OrderItemBuilder                            $orderItemBuilder,
+        DiscountLineBuilder                         $discountLineBuilder,
+        ObjectConverter                             $objectConverter,
+        ShippingManagementInterface                 $shippingOptionManagement
     ) {
         $this->client = $client;
         $this->configHelper = $configHelper;
         $this->transferBuilderFactory = $transferBuilderFactory;
         $this->tokenFactory = $tokenFactory;
         $this->logger = $logger;
-        $this->converter = $converter;
         $this->quoteResource = $quoteResource;
         $this->quoteRepository = $quoteRepository;
         $this->type = self::TYPE_STANDARD;
         $this->objectManager = $objectManager;
         $this->lineIdGenerator = $lineIdGenerator;
+        $this->discountRuleManagement = $ruleManagement;
+        $this->orderItemBuilder = $orderItemBuilder;
+        $this->discountLineBuilder = $discountLineBuilder;
+        $this->objectConverter = $objectConverter;
+        $this->shippingOptionManagement = $shippingOptionManagement;
     }
 
     /**
+     * Define checkout type
+     *
      * @param string $type
      * @return $this
      */
@@ -223,6 +242,8 @@ class Client
     }
 
     /**
+     * Retrieve checkout type
+     *
      * @return string
      */
     public function getType()
@@ -231,6 +252,9 @@ class Client
     }
 
     /**
+     * Retrieve callback URI
+     *
+     * @param string|null $storeCode
      * @return string
      */
     protected function getCallbackUrl($storeCode = null)
@@ -293,7 +317,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.24',
+            'Dintero-System-Plugin-Version' => '1.8.25',
         ];
 
         if ($token && $token instanceof Token) {
@@ -322,6 +346,8 @@ class Client
     }
 
     /**
+     * Check if current checout type is express
+     *
      * @return bool
      */
     private function isExpress()
@@ -330,6 +356,8 @@ class Client
     }
 
     /**
+     * Check if embedded checkout is being used
+     *
      * @return bool
      */
     private function isEmbedded()
@@ -357,6 +385,8 @@ class Client
     }
 
     /**
+     * Initialize dintero session from a sales object
+     *
      * @param \Magento\Sales\Model\Order|\Magento\Quote\Model\Quote $salesObject
      * @return array|bool|float|int|mixed|string|null
      * @throws ClientException
@@ -398,7 +428,8 @@ class Client
             ]
         ];
 
-        $customerEmail = $quote->getCustomerEmail() ? $quote->getCustomerEmail() : $quote->getBillingAddress()->getEmail();
+        $customerEmail = $quote->getCustomerEmail()
+            ? $quote->getCustomerEmail() : $quote->getBillingAddress()->getEmail();
 
         if ($quote->getCustomer()) {
             $customerEmail = $quote->getCustomer()->getEmail();
@@ -412,6 +443,13 @@ class Client
             $requestData['order']['billing_address'] = array_filter($this->prepareAddress($quote->getBillingAddress()));
         }
 
+        if ($this->isExpress() && $quote->getShippingAddress()->getShippingMethod()) {
+            $requestData['order']['shipping_option'] = $this->objectConverter->buildOutputDataArray(
+                $this->shippingOptionManagement->getSelectedShippingOptionByQuote($quote),
+                ShippingMethodInterface::class
+            );
+        }
+
         $request = $this->initRequest(
             $this->getCheckoutApiUri(sprintf('sessions/%s', $sessionId)),
             $this->getToken()
@@ -422,6 +460,8 @@ class Client
     }
 
     /**
+     * Initialize Dintero session from quote
+     *
      * @param Quote $quote
      * @return array|bool|float|int|mixed|string|null
      * @throws ClientException
@@ -494,6 +534,8 @@ class Client
     }
 
     /**
+     * Sanitizing phone number
+     *
      * @param string $phoneNumber
      * @return string
      */
@@ -527,6 +569,25 @@ class Client
             ) {
                 return $address;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve discount holder model
+     *
+     * @param Quote|Order $salesObject
+     * @return Quote\Address|mixed
+     */
+    protected function createDiscountRule($salesObject)
+    {
+
+        if ($salesObject instanceof Quote) {
+            return $this->discountRuleManagement->createFromQuote($salesObject);
+        }
+
+        if ($salesObject instanceof Order) {
+            return $this->discountRuleManagement->createFromOrder($salesObject);
         }
         return null;
     }
@@ -610,13 +671,37 @@ class Client
                     ];
                 }
             }
+
+            $orderData['configuration']['discounts']['express_discount_codes']['enabled'] = true;
+            if ($salesObject->getCouponCode()) {
+                $orderData['discount_codes'] = [$salesObject->getCouponCode()];
+            }
+
+            $orderData['express']['discount_codes'] = [
+                'max_count' => 1,
+                'callback_url' => $this->configHelper->getCouponCallbackUrl(
+                    $salesObject->getStore()->getCode()
+                )
+            ];
+
+            $appliedRuleIds = array_filter(explode(',', $salesObject->getAppliedRuleIds() ?? ''));
+            if (!empty($appliedRuleIds)) {
+                $rule = $this->createDiscountRule($salesObject);
+                if ($discountLine = $this->discountLineBuilder->build($rule)) {
+                    $orderData['order']['discount_lines'][] = $this->objectConverter->buildOutputDataArray(
+                        $discountLine,
+                        DiscountInterface::class
+                    );
+                }
+            }
         }
 
         if (!empty($customerEmail)) {
             $orderData['customer']['email'] = $customerEmail;
         }
 
-        $shippingAddress = $salesObject->getShippingAddress()->getPostcode() ? $salesObject->getShippingAddress() : null;
+        $shippingAddress = $salesObject->getShippingAddress()->getPostcode()
+            ? $salesObject->getShippingAddress() : null;
         if (!$shippingAddress && $customer) {
             /** @var \Magento\Customer\Model\Data\Customer $customer */
             $shippingAddress = $this->_extractDefaultAddress(
@@ -655,6 +740,8 @@ class Client
     }
 
     /**
+     * Preparing address
+     *
      * @param \Magento\Sales\Api\Data\OrderAddressInterface|\Magento\Quote\Api\Data\AddressInterface $address
      * @return array
      */
@@ -746,10 +833,11 @@ class Client
     }
 
     /**
-     * Preparing order items for sending
+     * Preparing sales object items for sending
      *
-     * @param Order|\Magento\Quote\Model\Quote $order
+     * @param object $salesObject
      * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function prepareItems($salesObject)
     {
@@ -764,21 +852,16 @@ class Client
         }
 
         foreach ($salesObject->getAllVisibleItems() as $item) {
-            $itemAmount = $item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount();
 
             $lineId = $this->lineIdGenerator->generate(
                 $isQuote ? $item : $quote->getItemById($item->getQuoteItemId())
             );
 
-            array_push($items, [
-                'id' => $item->getSku(),
-                'description' => sprintf('%s (%s)', $item->getName(), $item->getSku()),
-                'quantity' => ($isQuote ? $item->getQty() : $item->getQtyOrdered()) * 1,
-                'amount' =>  $this->filterAmount($itemAmount) * 100,
+            $orderItem = $this->orderItemBuilder->build([
+                'item' => $item,
                 'line_id' => $lineId,
-                'vat_amount' => $item->getBaseTaxAmount() * 100, // NOK cannot be floating
-                'vat' => $item->getTaxPercent() * 1,
             ]);
+            array_push($items, $this->objectConverter->buildOutputDataArray($orderItem, ItemInterface::class));
         }
 
         $shippingTotalsObject = $isQuote ? $salesObject->getShippingAddress() : $salesObject;
@@ -827,7 +910,7 @@ class Client
      *
      * @param string $transactionId
      * @param Order\Payment $payment
-     * @param $amount
+     * @param float $amount
      * @return bool
      * @throws ClientException
      * @throws ConverterException
@@ -858,11 +941,9 @@ class Client
     /**
      * Refunding
      *
-     * @param string $transactionId
      * @param Order\Payment $payment
-     * @param $amount
+     * @param float $amount
      * @return array|bool|float|int|mixed|string|null
-     * @throws ClientException
      * @throws ConverterException
      */
     public function refund(\Magento\Sales\Model\Order\Payment $payment, $amount)
@@ -924,8 +1005,10 @@ class Client
     }
 
     /**
-     * @param $sessionId
-     * @param null $scopeCode
+     * Cancel Dintero session
+     *
+     * @param string $sessionId
+     * @param int|null $scopeCode
      * @return array|bool|float|int|mixed|string|null
      * @throws ClientException
      * @throws ConverterException

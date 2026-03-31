@@ -130,10 +130,9 @@ define(
                                             });
                                         }
                                         getTotalsAction([]);
-
-                                        // no need to update session for express
-                                        if (checkout?.session?.express === undefined) {
+                                        if (processingUpdateFlag === false) {
                                             updateSession();
+                                            processingUpdateFlag = true;
                                         }
                                     });
                                 },

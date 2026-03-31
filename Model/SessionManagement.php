@@ -7,13 +7,9 @@ use Dintero\Checkout\Model\Agreements\Validator;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Api\ClientFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class Session
- *
- * @package Dintero\Checkout\Model
- */
 class SessionManagement implements SessionManagementInterface
 {
     /**
@@ -26,9 +22,7 @@ class SessionManagement implements SessionManagementInterface
      */
     protected $checkoutSession;
 
-    /**
-     * @var
-     */
+    /** @var \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory */
     protected $sessionFactory;
 
     /**
@@ -69,18 +63,21 @@ class SessionManagement implements SessionManagementInterface
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param \Dintero\Checkout\Helper\Config $configHelper
+     * @param Session\Validator $sessionValidator
+     * @param AddressMapperFactory $addressMapperFactory
+     * @param LoggerInterface $logger
      * @param Validator $agreementsValidator
      */
     public function __construct(
-        ClientFactory                                      $clientFactory,
-        \Dintero\Checkout\Api\Data\SessionInterfaceFactory $sessionFactory,
-        \Magento\Checkout\Model\Session                    $checkoutSession,
-        \Magento\Framework\DataObjectFactory               $dataObjectFactory,
-        \Dintero\Checkout\Helper\Config                    $configHelper,
-        \Dintero\Checkout\Model\Session\Validator          $sessionValidator,
-        \Dintero\Checkout\Model\AddressMapperFactory       $addressMapperFactory,
-        LoggerInterface                                    $logger,
-        Validator                                          $agreementsValidator
+        ClientFactory                                       $clientFactory,
+        \Dintero\Checkout\Api\Data\SessionInterfaceFactory  $sessionFactory,
+        \Magento\Checkout\Model\Session                     $checkoutSession,
+        \Magento\Framework\DataObjectFactory                $dataObjectFactory,
+        \Dintero\Checkout\Helper\Config                     $configHelper,
+        \Dintero\Checkout\Model\Session\Validator           $sessionValidator,
+        \Dintero\Checkout\Model\AddressMapperFactory        $addressMapperFactory,
+        LoggerInterface                                     $logger,
+        Validator                                           $agreementsValidator
     ) {
         $this->client = $clientFactory->create()->setType($configHelper->getEmbedType());
         $this->sessionFactory = $sessionFactory;
@@ -144,6 +141,8 @@ class SessionManagement implements SessionManagementInterface
     }
 
     /**
+     * Retrieve session
+     *
      * @return mixed
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -216,7 +215,10 @@ class SessionManagement implements SessionManagementInterface
         $quote = $this->checkoutSession->getQuote();
         $sessionInfo = $this->client->getSessionInfo($sessionId);
 
-        if ($sessionInfo && empty($sessionInfo['express']) && !$this->agreementsValidator->validate($quote->getPayment())) {
+        if ($sessionInfo
+            && empty($sessionInfo['express'])
+            && !$this->agreementsValidator->validate($quote->getPayment())
+        ) {
             return false;
         }
 

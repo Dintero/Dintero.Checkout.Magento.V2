@@ -16,53 +16,24 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class SessionController
- *
- * @package Dintero\Checkout\Controller
- */
 class Place extends Action
 {
-    /**
-     * Client
-     *
-     * @var Client $client
-     */
+    /** @var Client $client */
     protected $client;
 
-    /**
-     * Onepage checkout
-     *
-     * @var Onepage $onepageCheckout
-     */
+    /** @var Onepage $onepageCheckout */
     protected $onepageCheckout;
 
-    /**
-     * Cart management
-     *
-     * @var CartManagementInterface $cartManagement
-     */
+    /** @var CartManagementInterface $cartManagement */
     protected $cartManagement;
 
-    /**
-     * Order repository
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
+    /** @var OrderRepositoryInterface $orderRepository */
     protected $orderRepository;
 
-    /**
-     * Result builder
-     *
-     * @var JsonFactory $resultJsonFactory
-     */
+    /** @var JsonFactory $resultJsonFactory */
     protected $resultJsonFactory;
 
-    /**
-     * Logger
-     *
-     * @var LoggerInterface $logger
-     */
+    /** @var LoggerInterface $logger */
     protected $logger;
 
     /**
@@ -86,6 +57,7 @@ class Place extends Action
      * @param JsonFactory $resultJsonFactory
      * @param LoggerInterface $logger
      * @param Config $configHelper
+     * @param Validator $agreementsValidator
      */
     public function __construct(
         Context $context,
@@ -120,7 +92,7 @@ class Place extends Action
         try {
             $this->onepageCheckout->getCheckoutMethod();
             if (!$this->agreementsValidator->validate($this->_getCheckout()->getQuote()->getPayment())) {
-                throw new LocalizedException( __(
+                throw new LocalizedException(__(
                     "The order wasn't placed. "
                     . "First, agree to the terms and conditions, then try placing your order again."
                 ));
@@ -142,12 +114,14 @@ class Place extends Action
             $order = $this->orderRepository->get($orderId);
             $data = $this->client->initCheckout($order);
 
-            if (!empty($data['error']) && $data['error']['code'] == 'INVALID_REQUEST_PARAMETER' ) {
+            if (!empty($data['error']) && $data['error']['code'] == 'INVALID_REQUEST_PARAMETER') {
                 throw new LocalizedException(__($this->_processErrors($data['error']['errors'])));
             }
 
             if (!isset($data['url'])) {
+                // phpcs:disable
                 throw new \Exception('Something went wrong');
+                // phpcs:enable
             }
 
             $order->getPayment()->setAdditionalInformation('session_id', $data['id'] ?? null);
@@ -156,7 +130,9 @@ class Place extends Action
             $data = array_merge(['success' => true], $data);
         } catch (LocalizedException $e) {
             $data = ['success' => false, 'error' => $e->getMessage()];
+            // phpcs:disable
         } catch (\Exception $e) {
+            // phpcs:enable
             $this->logger->critical($e->getMessage());
             $data = ['success' => false, 'error' => __('Something went wrong')];
         }
@@ -175,12 +151,14 @@ class Place extends Action
     }
 
     /**
+     * Processing errors
+     *
      * @param array $errors
      * @return string
      */
     private function _processErrors($errors)
     {
-        $errors = array_map(function($error) {
+        $errors = array_map(function ($error) {
             return $error['description'] ?? null;
         }, $errors);
         return implode(PHP_EOL, array_unique($errors));
