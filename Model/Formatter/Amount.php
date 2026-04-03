@@ -12,7 +12,7 @@ class Amount
      */
     public function format($amount)
     {
-        return $amount * 100;
+        return (int) round($amount * 100);
     }
 
     /**

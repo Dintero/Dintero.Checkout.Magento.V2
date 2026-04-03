@@ -2,8 +2,6 @@
 
 namespace Dintero\Checkout\Api\Data\Order;
 
-use Dintero\Checkout\Model\Api\Request\OrderItemInterface;
-
 interface ItemInterface
 {
     /*
@@ -155,7 +153,7 @@ interface ItemInterface
      * Define discount line items
      *
      * @param array|\Dintero\Checkout\Api\Data\DiscountInterface[] $discountLines
-     * @return OrderItemInterface
+     * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setDiscountLines(array $discountLines);
 

@@ -155,7 +155,7 @@ class Item extends \Magento\Framework\DataObject implements \Dintero\Checkout\Ap
      * Populate discount lines
      *
      * @param \Dintero\Checkout\Api\Data\DiscountInterface[] $discountLines
-     * @return \Dintero\Checkout\Api\Data\ItemInterface|Item
+     * @return \Dintero\Checkout\Api\Data\Order\ItemInterface
      */
     public function setDiscountLines(array $discountLines)
     {

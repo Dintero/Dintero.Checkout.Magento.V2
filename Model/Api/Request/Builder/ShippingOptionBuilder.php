@@ -5,7 +5,6 @@ namespace Dintero\Checkout\Model\Api\Request\Builder;
 use Dintero\Checkout\Api\Data\ShippingMethodInterfaceFactory;
 use Dintero\Checkout\Model\Shipping\DeliveryTypeResolver;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
-use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Cart\ShippingMethod;
 use Magento\Shipping\Helper\Carrier;
 
@@ -15,11 +14,6 @@ class ShippingOptionBuilder
      * @var ShippingMethodInterfaceFactory $shippingMethodFactory
      */
     private $shippingMethodFactory;
-
-    /**
-     * @var ShippingMethodManagementInterface $shippingMethodManagement
-     */
-    private $shippingMethodManagement;
 
     /**
      * @var DeliveryTypeResolver $deliveryTypeResolver
@@ -40,19 +34,16 @@ class ShippingOptionBuilder
      * Define class dependencies
      *
      * @param ShippingMethodInterfaceFactory $shippingMethodFactory
-     * @param ShippingMethodManagementInterface $shippingMethodManagement
      * @param DeliveryTypeResolver $deliveryTypeResolver
      * @param Carrier $carrierHelper
      * @param CollectionFactory $collectionFactory
      */
     public function __construct(
         ShippingMethodInterfaceFactory $shippingMethodFactory,
-        ShippingMethodManagementInterface $shippingMethodManagement,
         DeliveryTypeResolver $deliveryTypeResolver,
         Carrier $carrierHelper,
         CollectionFactory $collectionFactory
     ) {
-        $this->shippingMethodManagement = $shippingMethodManagement;
         $this->shippingMethodFactory = $shippingMethodFactory;
         $this->deliveryTypeResolver = $deliveryTypeResolver;
         $this->carrierHelper = $carrierHelper;

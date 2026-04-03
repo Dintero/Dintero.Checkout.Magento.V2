@@ -2,7 +2,6 @@
 
 namespace Dintero\Checkout\Model\Api\Request\Builder;
 
-use Dintero\Checkout\Api\Data\Discount\RuleInterface;
 use Dintero\Checkout\Api\Data\ItemInterfaceFactory as OrderItemInterfaceFactory;
 use Dintero\Checkout\Api\Data\ItemInterface as OrderItemInterface;
 use Dintero\Checkout\Api\Discount\RuleManagementInterface;

@@ -38,9 +38,11 @@ class DiscountLineBuilder
      */
     public function build(RuleInterface $rule)
     {
-        if ($rule->getAmount() < 0.01) {
+        // phpcs:disable
+        if (abs($rule->getAmount()) < 0.01) {
             return null;
         }
+        // phpcs:enable
 
         /** @var \Dintero\Checkout\Api\Data\DiscountInterface $discount */
         $discount = $this->discountFactory->create();

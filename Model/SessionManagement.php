@@ -7,7 +7,6 @@ use Dintero\Checkout\Model\Agreements\Validator;
 use Dintero\Checkout\Model\Api\Client;
 use Dintero\Checkout\Model\Api\ClientFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Psr\Log\LoggerInterface;
 
 class SessionManagement implements SessionManagementInterface

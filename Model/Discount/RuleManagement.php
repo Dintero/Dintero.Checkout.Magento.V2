@@ -54,7 +54,7 @@ class RuleManagement implements RuleManagementInterface
             return RuleInterface::TYPE_TOTAL;
         }
 
-        if (count($rule->getActions()->getConditions()->getConditions() > 0)) {
+        if (count($rule->getActions()->getConditions()->getConditions()) > 0) {
             return RuleInterface::TYPE_ITEM;
         }
 
@@ -128,10 +128,12 @@ class RuleManagement implements RuleManagementInterface
      */
     public function createFromOrder(Order $order)
     {
+        $name = $order->getDiscountDescription() ?: __('Discount');
         return $this->discountRuleFactory->create()
             ->setRuleType(RuleInterface::TYPE_TOTAL)
-            ->setDescription(__('Discount'))
-            ->setName(__('Discount'))
+            ->setDescription($name)
+            ->setName($name)
+            ->setAmount($order->getDiscountAmount())
             ->setId($order->getQuoteId());
     }
 
