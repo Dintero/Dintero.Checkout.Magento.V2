@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.25
+- implemented support of discounts;
+
 1.8.24
 - adjusted logic to properly handle completed session during init;
 

@@ -56,6 +56,7 @@ define(
                     context: this,
                     dataType: 'json',
                     data: quote.paymentMethod(),
+                    global: false,
                     beforeSend: function () {
                         fullScreenLoader.startLoader();
                     },

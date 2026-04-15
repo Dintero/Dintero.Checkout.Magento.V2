@@ -8,11 +8,6 @@ use Dintero\Checkout\Model\DinteroFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class Response Handler
- *
- * @package Dintero\Checkout\Controller
- */
 class Response extends Action
 {
     /**
@@ -28,9 +23,11 @@ class Response extends Action
     protected $paymentMethodFactory;
 
     /**
-     * Response constructor.
+     * Response constructor
      *
      * @param Context $context
+     * @param DinteroFactory $paymentMethodFactory
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,

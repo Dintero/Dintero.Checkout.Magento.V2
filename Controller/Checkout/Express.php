@@ -11,11 +11,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Model\ResourceModel\Quote;
 
-/**
- * Class Express
- *
- * @package Dintero\Checkout\Controller\Checkout
- */
 class Express extends \Magento\Framework\App\Action\Action
 {
     /**
