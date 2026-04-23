@@ -9,7 +9,8 @@ define(
         'Magento_Checkout/js/action/get-totals',
         'Dintero_Checkout/js/action/session-management-service',
         'Magento_CheckoutAgreements/js/model/agreement-validator',
-        'Dintero_Checkout/js/action/set-payment-method'
+        'Dintero_Checkout/js/action/set-payment-method',
+        'mage/cookies'
     ],
     function (
         $,

@@ -28,9 +28,9 @@ class GiftCardItemBuilder
      * Build gift card item
      *
      * @param array $buildSubject
-     * @return OrderItemInterface
+     * @return OrderItemInterface|null
      */
-    public function build($buildSubject)
+    public function build(array $buildSubject)
     {
         if (empty($buildSubject['sales_object'])) {
             throw new \InvalidArgumentException(__('Sales object is missing from subject.'));
@@ -46,7 +46,7 @@ class GiftCardItemBuilder
             $salesObject->getBaseMageworxGiftcardsAmount()
         );
 
-        if (empty($salesObject->getMageworxGiftcardsDescription())) {
+        if (empty($salesObject->getMageworxGiftcardsDescription()) || $amount < 0.01) {
             return null;
         }
 

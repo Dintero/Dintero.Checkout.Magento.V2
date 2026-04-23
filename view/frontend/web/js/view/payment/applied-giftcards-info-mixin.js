@@ -4,7 +4,7 @@ define(['jquery', 'mage/utils/wrapper'], function($, wrapper) {
     return function(target) {
         target.prototype.removeGiftCard = wrapper.wrap(
             target.prototype.removeGiftCard,
-            function(originalAction) {
+            function(originalAction, giftCardCode, event) {
                 $(document).one('ajaxComplete', function(event, xhr, settings) {
                     if (settings.url.indexOf('giftcards') !== -1) {
                         var response = xhr.responseJSON;
@@ -14,7 +14,7 @@ define(['jquery', 'mage/utils/wrapper'], function($, wrapper) {
                         });
                     }
                 });
-                return originalAction();
+                return originalAction(giftCardCode, event);
             }
         );
         return target;
