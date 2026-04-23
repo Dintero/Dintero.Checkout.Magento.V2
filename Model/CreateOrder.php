@@ -257,7 +257,7 @@ class CreateOrder
 
         if (!$quote->getCustomerEmail()) {
             $quote->setCustomerEmail(
-                !$quote->isVirtual() ? $quote->getBillingAddress()->getEmail() : $quote->getShippingAddress()->getEmail()
+                $quote->isVirtual() ? $quote->getBillingAddress()->getEmail() : $quote->getShippingAddress()->getEmail()
             );
         }
 

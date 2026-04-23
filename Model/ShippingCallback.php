@@ -9,6 +9,7 @@ use Dintero\Checkout\Api\Data\Shipping\RequestInterfaceFactory;
 use Dintero\Checkout\Api\Data\Shipping\ResponseInterfaceFactory;
 use Dintero\Checkout\Api\Discount\RuleManagementInterface;
 use Dintero\Checkout\Model\Api\Request\Builder\DiscountLineBuilder;
+use Dintero\Checkout\Model\Api\Request\Builder\GiftCardItemBuilder;
 use Dintero\Checkout\Model\Api\Request\Builder\ShippingOptionBuilder;
 use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Magento\Framework\Api\DataObjectHelper;
@@ -103,6 +104,11 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
     protected $orderItemBuilder;
 
     /**
+     * @var GiftCardItemBuilder $giftcardItemBuilder
+     */
+    protected $giftCardItemBuilder;
+
+    /**
      * ShippingCallback constructor.
      *
      * @param \Magento\Framework\App\RequestInterface $request
@@ -121,6 +127,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
      * @param LineIdGenerator $lineIdGenerator
      * @param RuleManagementInterface $ruleManagement
      * @param DiscountLineBuilder $discountLineBuilder
+     * @param GiftCardItemBuilder $giftCardItemBuilder
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -138,7 +145,8 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         OrderItemBuilder $orderItemBuilder,
         LineIdGenerator $lineIdGenerator,
         RuleManagementInterface $ruleManagement,
-        DiscountLineBuilder $discountLineBuilder
+        DiscountLineBuilder $discountLineBuilder,
+        GiftCardItemBuilder $giftCardItemBuilder
     ) {
         $this->request = $request;
         $this->logger = $logger;
@@ -156,6 +164,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $this->lineIdGenerator = $lineIdGenerator;
         $this->ruleManagement = $ruleManagement;
         $this->discountLineBuilder = $discountLineBuilder;
+        $this->giftCardItemBuilder = $giftCardItemBuilder;
     }
 
     /**
@@ -265,6 +274,10 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
                 'item' => $quoteItem,
                 'line_id' => $this->lineIdGenerator->generate($quoteItem)
             ]);
+        }
+
+        if ($giftCardItem = $this->giftCardItemBuilder->build(['sales_object' => $quote])) {
+            $items[] = $giftCardItem;
         }
 
         $tax = $quote->getShippingAddress()->getBaseTaxAmount() * 100;

@@ -317,7 +317,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.25',
+            'Dintero-System-Plugin-Version' => '1.8.26',
         ];
 
         if ($token && $token instanceof Token) {
@@ -647,6 +647,11 @@ class Client
             $orderData['express']['customer_types'] = $this->configHelper->getAllowedCustomerTypes(
                 $salesObject->getStore()->getCode()
             );
+
+            if ($salesObject->getIsVirtual()) {
+                $orderData['express']['shipping_mode'] = 'shipping_not_required';
+            }
+
             $orderData['express']['shipping_address_callback_url'] = $this->configHelper->getShippingCallbackUrl(
                 $salesObject->getStore()->getCode()
             );
@@ -862,6 +867,16 @@ class Client
                 'line_id' => $lineId,
             ]);
             array_push($items, $this->objectConverter->buildOutputDataArray($orderItem, ItemInterface::class));
+        }
+
+        if ($salesObject->getMageworxGiftcardsDescription()) {
+            $items[] = [
+                'id' => 'gift-card',
+                'line_id' => 'gift-card',
+                'description' => $salesObject->getMageworxGiftcardsDescription(),
+                'quantity' => 1,
+                'amount' => $salesObject->getBaseMageworxGiftcardsAmount() * 100
+            ];
         }
 
         $shippingTotalsObject = $isQuote ? $salesObject->getShippingAddress() : $salesObject;

@@ -9,6 +9,12 @@ var config = {
             },
             'Magento_Checkout/js/action/set-billing-address': {
                 'Dintero_Checkout/js/action/set-billing-address-mixin': true
+            },
+            'MageWorx_GiftCards/js/view/payment/mageworx-giftcards': {
+                'Dintero_Checkout/js/view/payment/mageworx-giftcards-mixin': true
+            },
+            'MageWorx_GiftCards/js/view/payment/applied-gift-cards-info': {
+                'Dintero_Checkout/js/view/payment/applied-giftcards-info-mixin': true
             }
         }
     },

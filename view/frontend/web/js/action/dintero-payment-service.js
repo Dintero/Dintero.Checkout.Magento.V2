@@ -71,6 +71,8 @@ define(
 
         cancelCoupon.registerSuccessCallback(refreshSession);
         $(document).on('coupon_cancel_before', updateSession);
+        $(document).on('mageworx_giftcard_activated_after_async', updateSession);
+        $(document).on('mageworx_giftcard_removed_after_async', updateSession);
         $(document).on('dintero_billing_address_update_complete', updateSession);
 
         return {
@@ -176,7 +178,16 @@ define(
                                 onPayment: function(event, checkout) {
                                     $(_this).trigger('dintero.payment.done');
                                     checkout.destroy();
-                                    document.location = event.href;
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = event.href;
+                                    const hiddenField = document.createElement('input');
+                                    hiddenField.type = 'hidden';
+                                    hiddenField.name = 'form_key';
+                                    hiddenField.value = $.mage.cookies.get('form_key');
+                                    form.appendChild(hiddenField);
+                                    document.body.appendChild(form);
+                                    form.submit();
                                 }
                             }).then(function(checkout) {
                                 checkoutInstance = checkout;
