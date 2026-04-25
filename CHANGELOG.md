@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.26
+- added support for MageWorx_GiftCards;
+
 1.8.25
 - implemented support of discounts;
 

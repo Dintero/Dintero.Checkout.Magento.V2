@@ -14,6 +14,11 @@ class Sku implements GeneratorInterface
      */
     public function execute($item): string
     {
-        return $item->getSku();
+        $lineId = $item->getSku();
+        if ($item->getProductType() === 'mageworx_giftcards') {
+            $lineId .= $item->getItemId();
+        }
+
+        return $lineId;
     }
 }

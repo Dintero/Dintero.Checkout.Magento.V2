@@ -6,6 +6,7 @@ use Dintero\Checkout\Api\Data\DiscountInterface;
 use Dintero\Checkout\Api\Data\ShippingMethodInterface;
 use Dintero\Checkout\Helper\Config as ConfigHelper;
 use Dintero\Checkout\Api\ShippingManagementInterface;
+use Dintero\Checkout\Model\Api\Request\Builder\GiftCardItemBuilder;
 use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Dintero\Checkout\Model\Gateway\Http\Client as DinteroHpClient;
 use Dintero\Checkout\Model\Payment\Token;
@@ -179,6 +180,11 @@ class Client
     protected $shippingOptionManagement;
 
     /**
+     * @var GiftCardItemBuilder $giftCardItemBuilder
+     */
+    protected $giftCardItemBuilder;
+
+    /**
      * Client constructor.
      *
      * @param DinteroHpClient $client
@@ -195,6 +201,7 @@ class Client
      * @param DiscountLineBuilder $discountLineBuilder
      * @param ObjectConverter $objectConverter
      * @param ShippingManagementInterface $shippingOptionManagement
+     * @param GiftCardItemBuilder $giftCardItemBuilder
      */
     public function __construct(
         DinteroHpClient                             $client,
@@ -210,7 +217,8 @@ class Client
         OrderItemBuilder                            $orderItemBuilder,
         DiscountLineBuilder                         $discountLineBuilder,
         ObjectConverter                             $objectConverter,
-        ShippingManagementInterface                 $shippingOptionManagement
+        ShippingManagementInterface                 $shippingOptionManagement,
+        GiftCardItemBuilder                         $giftCardItemBuilder
     ) {
         $this->client = $client;
         $this->configHelper = $configHelper;
@@ -227,6 +235,7 @@ class Client
         $this->discountLineBuilder = $discountLineBuilder;
         $this->objectConverter = $objectConverter;
         $this->shippingOptionManagement = $shippingOptionManagement;
+        $this->giftCardItemBuilder = $giftCardItemBuilder;
     }
 
     /**
@@ -317,7 +326,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.25',
+            'Dintero-System-Plugin-Version' => '1.8.26',
         ];
 
         if ($token && $token instanceof Token) {
@@ -647,6 +656,11 @@ class Client
             $orderData['express']['customer_types'] = $this->configHelper->getAllowedCustomerTypes(
                 $salesObject->getStore()->getCode()
             );
+
+            if ($salesObject->getIsVirtual()) {
+                $orderData['express']['shipping_mode'] = 'shipping_not_required';
+            }
+
             $orderData['express']['shipping_address_callback_url'] = $this->configHelper->getShippingCallbackUrl(
                 $salesObject->getStore()->getCode()
             );
@@ -862,6 +876,13 @@ class Client
                 'line_id' => $lineId,
             ]);
             array_push($items, $this->objectConverter->buildOutputDataArray($orderItem, ItemInterface::class));
+        }
+
+        if ($giftCardItem = $this->giftCardItemBuilder->build(['sales_object' => $salesObject])) {
+            $items[] = $this->objectConverter->buildOutputDataArray(
+                $giftCardItem,
+                ItemInterface::class
+            );
         }
 
         $shippingTotalsObject = $isQuote ? $salesObject->getShippingAddress() : $salesObject;

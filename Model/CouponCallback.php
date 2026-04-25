@@ -10,6 +10,7 @@ use Dintero\Checkout\Api\ShippingManagementInterface;
 use Dintero\Checkout\Model\Api\Request\Builder\DiscountLineBuilder;
 use Dintero\Checkout\Model\Api\Request\Builder\OrderItemBuilder;
 use Dintero\Checkout\Model\Api\Request\Builder\ShippingOptionBuilder;
+use Dintero\Checkout\Model\Api\Request\Builder\GiftCardItemBuilder;
 use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
@@ -64,7 +65,8 @@ class CouponCallback extends ShippingCallback implements \Dintero\Checkout\Api\C
         LineIdGenerator $lineIdGenerator,
         RuleManagementInterface $ruleManagement,
         DiscountLineBuilder $discountLineBuilder,
-        ShippingManagementInterface $shippingOptionManagement
+        ShippingManagementInterface $shippingOptionManagement,
+        GiftCardItemBuilder $giftCardItemBuilder
     ) {
         parent::__construct(
             $request,
@@ -82,7 +84,8 @@ class CouponCallback extends ShippingCallback implements \Dintero\Checkout\Api\C
             $orderItemBuilder,
             $lineIdGenerator,
             $ruleManagement,
-            $discountLineBuilder
+            $discountLineBuilder,
+            $giftCardItemBuilder
         );
         $this->shippingOptionManagement = $shippingOptionManagement;
     }
