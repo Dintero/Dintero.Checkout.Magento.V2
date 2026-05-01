@@ -75,7 +75,10 @@ class OrderItemBuilder
         }
 
         $itemAmount = $this->amountFormatter->filter(
-            $salesItem->getBaseRowTotalInclTax() - $salesItem->getBaseDiscountAmount()
+            (float)$salesItem->getBaseRowTotal()
+            + (float)$salesItem->getBaseTaxAmount()
+            + (float)$salesItem->getBaseDiscountTaxCompensationAmount()
+            - (float)$salesItem->getBaseDiscountAmount()
         );
 
         /** @var OrderItemInterface $lineItem */

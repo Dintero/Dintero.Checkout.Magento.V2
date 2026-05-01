@@ -1,5 +1,9 @@
 # Changelog
 
+1.8.27
+- added vat_amount to authorization capture flow;
+- adjusted order item amount logic calculation;
+
 1.8.26
 - added support for MageWorx_GiftCards;
 

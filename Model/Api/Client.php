@@ -326,7 +326,7 @@ class Client
             'Dintero-System-Name' => __('Magento'),
             'Dintero-System-Version' => $this->getSystemMeta()->getVersion(),
             'Dintero-System-Plugin-Name' => 'Dintero.Checkout.Magento.V2',
-            'Dintero-System-Plugin-Version' => '1.8.26',
+            'Dintero-System-Plugin-Version' => '1.8.27',
         ];
 
         if ($token && $token instanceof Token) {
@@ -826,10 +826,17 @@ class Client
                     'line_id' => $lineId,
                     'amount' => 0,
                     'description' => sprintf('%s (%s)', $name, $sku),
+                    'vat_amount' => 0,
                 ];
             }
-
-            $items[$itemId]['amount'] += ($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) * 100;
+            $taxAmount = (float)$item->getBaseTaxAmount();
+            $discountTaxCompensation = (float)$item->getBaseDiscountTaxCompensationAmount();
+            $paidInclTax = (float)$item->getBaseRowTotal()
+                + $taxAmount
+                + $discountTaxCompensation
+                - (float)$item->getBaseDiscountAmount();
+            $items[$itemId]['amount'] += $paidInclTax * 100;
+            $items[$itemId]['vat_amount'] += $taxAmount * 100;
         }
 
         // adding shipping as a separate item
@@ -837,8 +844,13 @@ class Client
             array_push($items, [
                 'id' => $invoice->getOrder()->getShippingMethod(),
                 'description' => str_replace(' - ', ', ', $invoice->getOrder()->getShippingDescription()),
-                'vat_amount' => $invoice->getBaseShippingTaxAmount() * 100,
-                'amount' => $invoice->getBaseShippingInclTax() * 100,
+                'vat_amount' => (float)$invoice->getBaseShippingTaxAmount() * 100,
+                'amount' => (
+                    (float)$invoice->getBaseShippingAmount()
+                    + (float)$invoice->getBaseShippingTaxAmount()
+                    + (float)$invoice->getBaseShippingDiscountTaxCompensationAmount()
+                    - (float)$invoice->getBaseShippingDiscountAmount()
+                ) * 100,
                 'line_id' => $invoice->getOrder()->getShippingMethod(),
             ]);
         }
