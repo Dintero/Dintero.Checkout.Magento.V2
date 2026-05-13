@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.28
+- updated CSP rules;
+
 1.8.27
 - added vat_amount to authorization capture flow;
 - adjusted order item amount logic calculation;

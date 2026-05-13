@@ -4,9 +4,11 @@
         <policy id="script-src">
             <values>
                 <value id="dintero-logo" type="host">https://checkout.dintero.com</value>
-                <value id="dintero-sdk" type="host">https://unpkg.com</value>
-                <value id="vipps" type="host">https://api.vipps.no</value>
-                <value id="vipps-test" type="host">https://apitest.vipps.no</value>
+                <value id="dintero-sdk" type="host">https://unpkg.com/@dintero/</value>
+                <value id="vipps" type="host">*.vipps.no</value>
+                <value id="bambora" type="host">*.bambora.com</value>
+                <value id="bambora-checkout" type="host">*.checkout.bambora.com</value>
+                <value id="bambora-api-e" type="host">*.api-e.checkout.bambora.com</value>
             </values>
         </policy>
         <policy id="img-src">
@@ -17,15 +19,20 @@
         <policy id="connect-src">
             <values>
                 <value id="dintero-logo" type="host">https://checkout.dintero.com</value>
-                <value id="vipps" type="host">https://api.vipps.no</value>
-                <value id="vipps-test" type="host">https://apitest.vipps.no</value>
+                <value id="dintero-sdk" type="host">https://unpkg.com/@dintero/</value>
+                <value id="vipps" type="host">*.vipps.no</value>
+                <value id="bambora" type="host">*.bambora.com</value>
+                <value id="bambora-checkout" type="host">*.checkout.bambora.com</value>
+                <value id="bambora-api-e" type="host">*.api-e.checkout.bambora.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="dintero-logo" type="host">https://checkout.dintero.com</value>
-                <value id="vipps" type="host">https://api.vipps.no</value>
-                <value id="vipps-test" type="host">https://apitest.vipps.no</value>
+                <value id="vipps" type="host">*.vipps.no</value>
+                <value id="bambora" type="host">*.bambora.com</value>
+                <value id="bambora-checkout" type="host">*.checkout.bambora.com</value>
+                <value id="bambora-api-e" type="host">*.api-e.checkout.bambora.com</value>
             </values>
         </policy>
     </policies>
