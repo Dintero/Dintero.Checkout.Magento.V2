@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.29
+- Magento 2.4.1 and PHP7.4 backward compatibility fixed;
+
 1.8.28
 - updated CSP rules;
 

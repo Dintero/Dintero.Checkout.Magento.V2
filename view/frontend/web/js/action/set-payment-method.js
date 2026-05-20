@@ -5,6 +5,11 @@ define([
     'use strict';
 
     return function (messageContainer) {
-        return setPaymentInformation(messageContainer, quote.paymentMethod());
+        var pm = quote.paymentMethod() || {};
+        return setPaymentInformation(messageContainer, {
+            method: pm.method,
+            po_number: pm.po_number || null,
+            additional_data: pm.additional_data || null
+        });
     };
 });
