@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.30
+- fixed missing customer first/last name when creating an order from a transaction;
+
 1.8.29
 - Magento 2.4.1 and PHP7.4 backward compatibility fixed;
 

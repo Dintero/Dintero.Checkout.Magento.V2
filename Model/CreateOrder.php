@@ -304,6 +304,23 @@ class CreateOrder
      */
     protected function updateCustomerInfo(\Magento\Quote\Model\Quote $quote)
     {
+        $billingAddress = $quote->getBillingAddress();
+        $shippingAddress = $quote->getShippingAddress();
+        if ($billingAddress && $shippingAddress) {
+            if (!$billingAddress->getFirstname() && $shippingAddress->getFirstname()) {
+                $billingAddress->setFirstname($shippingAddress->getFirstname());
+            }
+
+            if (!$billingAddress->getLastname() && $shippingAddress->getLastname()) {
+                $billingAddress->setLastname($shippingAddress->getLastname());
+            }
+        }
+
+        if ($billingAddress) {
+            $quote->setCustomerFirstname($billingAddress->getFirstname());
+            $quote->setCustomerLastname($billingAddress->getLastname());
+        }
+
         try {
             $customer = $this->customerRepository->get($quote->getCustomerEmail());
             $quote->updateCustomerData($customer);
