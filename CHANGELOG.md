@@ -1,5 +1,9 @@
 # Changelog
 
+1.8.31
+- added transaction amount and currency validation before an order is invoiced;
+- fixed error when preparing session data for a sales object without shipping or billing address;
+
 1.8.30
 - fixed missing customer first/last name when creating an order from a transaction;
 

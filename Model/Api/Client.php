@@ -714,8 +714,13 @@ class Client
             $orderData['customer']['email'] = $customerEmail;
         }
 
-        $shippingAddress = $salesObject->getShippingAddress()->getPostcode()
-            ? $salesObject->getShippingAddress() : null;
+        /*
+         * A quote always hands out a shipping address, an order returns null for a virtual one,
+         * so the address cannot be dereferenced before it is known to exist.
+         */
+        $salesObjectShippingAddress = $salesObject->getShippingAddress() ?: null;
+        $shippingAddress = $salesObjectShippingAddress && $salesObjectShippingAddress->getPostcode()
+            ? $salesObjectShippingAddress : null;
         if (!$shippingAddress && $customer) {
             /** @var \Magento\Customer\Model\Data\Customer $customer */
             $shippingAddress = $this->_extractDefaultAddress(
@@ -728,7 +733,9 @@ class Client
             $orderData['order']['shipping_address'] = $this->prepareAddress($shippingAddress);
         }
 
-        $billingAddress = $salesObject->getBillingAddress()->getPostcode() ? $salesObject->getBillingAddress() : null;
+        $salesObjectBillingAddress = $salesObject->getBillingAddress() ?: null;
+        $billingAddress = $salesObjectBillingAddress && $salesObjectBillingAddress->getPostcode()
+            ? $salesObjectBillingAddress : null;
         $billingCustomerEmail = $billingAddress && $billingAddress->getEmail()
             ? $billingAddress->getEmail() : $salesObject->getCustomerEmail();
 
