@@ -564,8 +564,16 @@ class Dintero extends AbstractMethod
      */
     protected function checkTransactionAmount($order)
     {
+        $rawAmount = $this->getResponse()->getAmount();
+        if (!is_numeric($rawAmount)) {
+            throw new \Exception(__(
+                'Transaction %1 amount is missing or non-numeric',
+                $this->getResponse()->getId()
+            ));
+        }
+
         $expectedAmount = (int) round((float) $order->getBaseGrandTotal() * 100);
-        $actualAmount = (int) round((float) $this->getResponse()->getAmount());
+        $actualAmount = (int) round((float) $rawAmount);
         $responseCurrency = (string) $this->getResponse()->getCurrency();
 
         if (abs($expectedAmount - $actualAmount) > self::AMOUNT_TOLERANCE) {
@@ -578,8 +586,8 @@ class Dintero extends AbstractMethod
             ));
         }
 
-        if ($responseCurrency !== ''
-            && strcasecmp($responseCurrency, (string) $order->getBaseCurrencyCode()) !== 0
+        if ($responseCurrency === ''
+            || strcasecmp($responseCurrency, (string) $order->getBaseCurrencyCode()) !== 0
         ) {
             throw new \Exception(__(
                 'Transaction %1 currency mismatch: expected %2, got %3',
