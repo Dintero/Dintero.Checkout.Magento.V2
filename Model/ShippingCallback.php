@@ -195,6 +195,11 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
             throw new LocalizedException(__('Quote is not valid'));
         }
 
+        $sessionId = $quote->getPayment()->getAdditionalInformation('id');
+        if (!$sessionId || $sessionId != $request->getId()) {
+            throw new LocalizedException(__('Quote is not valid'));
+        }
+
         $couponCode = current($request->getDiscountCodes() ?? []) ?? null;
         $quote->setCouponCode($couponCode);
 
