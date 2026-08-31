@@ -80,12 +80,18 @@ class Express extends \Magento\Framework\App\Action\Action
             return $this->resultRedirectFactory->create()->setPath('/');
         }
 
+        $quote = $this->checkoutSession->getQuote();
         $this->client->setType(\Dintero\Checkout\Model\Api\Client::TYPE_EXPRESS);
-        $response = $this->client->initSessionFromQuote($this->checkoutSession->getQuote());
+        $response = $this->client->initSessionFromQuote($quote);
 
         if (empty($response['url'])) {
             $this->messageManager->addErrorMessage(__('Something went wrong'));
             return $this->resultRedirectFactory->create()->setPath('/');
+        }
+
+        if (!empty($response['id'])) {
+            $quote->getPayment()->setAdditionalInformation('id', $response['id']);
+            $quote->getPayment()->save();
         }
 
         return $this->resultRedirectFactory->create()->setUrl($response['url']);
