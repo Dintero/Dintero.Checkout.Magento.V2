@@ -1,6 +1,8 @@
 # Changelog
 
 1.8.31
+- added transaction amount and currency validation before an order is invoiced;
+- fixed error when preparing session data for a sales object without shipping or billing address;
 - express checkout: persist the Dintero session id on the quote payment when initiating the session;
 - shipping and discount-code callbacks now verify the request against the quote's stored Dintero session id;
 - added logging when a shipping/discount-code callback is rejected;

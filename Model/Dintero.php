@@ -44,6 +44,14 @@ class Dintero extends AbstractMethod
     const METHOD_CODE = 'dintero';
 
     /**
+     * Allowed difference, in minor units, between the order total and the authorized amount.
+     *
+     * Absorbs rounding drift between the way the order total and the individual item lines
+     * are converted to minor units when the session is created.
+     */
+    public const AMOUNT_TOLERANCE = 1;
+
+    /**
      * Payment Method feature
      *
      * @var bool
@@ -538,6 +546,54 @@ class Dintero extends AbstractMethod
                 'Transaction %1 failed with status %2 ',
                 $this->getResponse()->getId(),
                 $this->getResponse()->getStatus()
+            ));
+        }
+
+        $this->checkTransactionAmount($order);
+    }
+
+    /**
+     * Validating that the gateway authorized the amount the order is about to be invoiced for.
+     *
+     * Amounts are always exchanged with Dintero in base currency minor units. The transaction
+     * "amount" is the authorized total and stays constant across partial captures (those are
+     * reflected in "captured_amount"), so it is safe to compare here.
+     *
+     * @param Order $order
+     * @throws \Exception
+     */
+    protected function checkTransactionAmount($order)
+    {
+        $rawAmount = $this->getResponse()->getAmount();
+        if (!is_numeric($rawAmount)) {
+            throw new \Exception(__(
+                'Transaction %1 amount is missing or non-numeric',
+                $this->getResponse()->getId()
+            ));
+        }
+
+        $expectedAmount = (int) round((float) $order->getBaseGrandTotal() * 100);
+        $actualAmount = (int) round((float) $rawAmount);
+        $responseCurrency = (string) $this->getResponse()->getCurrency();
+
+        if (abs($expectedAmount - $actualAmount) > self::AMOUNT_TOLERANCE) {
+            throw new \Exception(__(
+                'Transaction %1 amount mismatch: expected %2, got %3 (%4)',
+                $this->getResponse()->getId(),
+                $expectedAmount,
+                $actualAmount,
+                $order->getBaseCurrencyCode()
+            ));
+        }
+
+        if ($responseCurrency === ''
+            || strcasecmp($responseCurrency, (string) $order->getBaseCurrencyCode()) !== 0
+        ) {
+            throw new \Exception(__(
+                'Transaction %1 currency mismatch: expected %2, got %3',
+                $this->getResponse()->getId(),
+                $order->getBaseCurrencyCode(),
+                $responseCurrency
             ));
         }
     }

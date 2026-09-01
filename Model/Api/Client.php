@@ -614,13 +614,21 @@ class Client
         $customer = !$salesObject->getCustomerIsGuest() && $salesObject->getCustomerId()
             ? $salesObject->getCustomer() : null;
 
+        /*
+         * A quote always hands out billing/shipping addresses, an order returns null for a
+         * virtual one (and can lack one even otherwise), so neither can be dereferenced
+         * before it is known to exist.
+         */
+        $salesObjectBillingAddress = $salesObject->getBillingAddress() ?: null;
+        $salesObjectShippingAddress = $salesObject->getShippingAddress() ?: null;
+
         $customerEmail = $salesObject->getCustomerIsGuest() ?
-            $salesObject->getBillingAddress()->getEmail() :
+            ($salesObjectBillingAddress ? $salesObjectBillingAddress->getEmail() : null) :
             $salesObject->getCustomerEmail();
         $baseOrderTotal = $salesDocument ? $salesDocument->getBaseGrandTotal() : $salesObject->getBaseGrandTotal();
 
-        if ($this->isExpress() && !$salesObject->getIsVirtual()) {
-            $baseShippingAmount = $salesObject->getShippingAddress()->getBaseShippingAmount();
+        if ($this->isExpress() && !$salesObject->getIsVirtual() && $salesObjectShippingAddress) {
+            $baseShippingAmount = $salesObjectShippingAddress->getBaseShippingAmount();
             $baseOrderTotal -= $baseShippingAmount;
         }
 
@@ -642,14 +650,15 @@ class Client
             ],
         ];
 
-        $canAddAddress = !empty($salesObject->getBillingAddress()->getTelephone())
-            && !empty($salesObject->getBillingAddress()->getPostcode());
+        $canAddAddress = $salesObjectBillingAddress
+            && !empty($salesObjectBillingAddress->getTelephone())
+            && !empty($salesObjectBillingAddress->getPostcode());
 
         if ($canAddAddress) {
             $orderData['customer'] = [
-                'phone_number' => $salesObject->getBillingAddress()->getTelephone()
+                'phone_number' => $salesObjectBillingAddress->getTelephone()
             ];
-            $orderData['order']['billing_address'] = $this->prepareAddress($salesObject->getBillingAddress());
+            $orderData['order']['billing_address'] = $this->prepareAddress($salesObjectBillingAddress);
         }
 
         if ($this->isExpress()) {
@@ -714,8 +723,8 @@ class Client
             $orderData['customer']['email'] = $customerEmail;
         }
 
-        $shippingAddress = $salesObject->getShippingAddress()->getPostcode()
-            ? $salesObject->getShippingAddress() : null;
+        $shippingAddress = $salesObjectShippingAddress && $salesObjectShippingAddress->getPostcode()
+            ? $salesObjectShippingAddress : null;
         if (!$shippingAddress && $customer) {
             /** @var \Magento\Customer\Model\Data\Customer $customer */
             $shippingAddress = $this->_extractDefaultAddress(
@@ -728,7 +737,8 @@ class Client
             $orderData['order']['shipping_address'] = $this->prepareAddress($shippingAddress);
         }
 
-        $billingAddress = $salesObject->getBillingAddress()->getPostcode() ? $salesObject->getBillingAddress() : null;
+        $billingAddress = $salesObjectBillingAddress && $salesObjectBillingAddress->getPostcode()
+            ? $salesObjectBillingAddress : null;
         $billingCustomerEmail = $billingAddress && $billingAddress->getEmail()
             ? $billingAddress->getEmail() : $salesObject->getCustomerEmail();
 

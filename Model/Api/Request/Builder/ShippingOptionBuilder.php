@@ -3,6 +3,7 @@
 namespace Dintero\Checkout\Model\Api\Request\Builder;
 
 use Dintero\Checkout\Api\Data\ShippingMethodInterfaceFactory;
+use Dintero\Checkout\Model\Formatter\Amount as AmountFormatter;
 use Dintero\Checkout\Model\Shipping\DeliveryTypeResolver;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Quote\Model\Cart\ShippingMethod;
@@ -31,23 +32,31 @@ class ShippingOptionBuilder
     private $countryCollectionFactory;
 
     /**
+     * @var AmountFormatter $amountFormatter
+     */
+    private $amountFormatter;
+
+    /**
      * Define class dependencies
      *
      * @param ShippingMethodInterfaceFactory $shippingMethodFactory
      * @param DeliveryTypeResolver $deliveryTypeResolver
      * @param Carrier $carrierHelper
      * @param CollectionFactory $collectionFactory
+     * @param AmountFormatter $amountFormatter
      */
     public function __construct(
         ShippingMethodInterfaceFactory $shippingMethodFactory,
         DeliveryTypeResolver $deliveryTypeResolver,
         Carrier $carrierHelper,
-        CollectionFactory $collectionFactory
+        CollectionFactory $collectionFactory,
+        AmountFormatter $amountFormatter
     ) {
         $this->shippingMethodFactory = $shippingMethodFactory;
         $this->deliveryTypeResolver = $deliveryTypeResolver;
         $this->carrierHelper = $carrierHelper;
         $this->countryCollectionFactory = $collectionFactory;
+        $this->amountFormatter = $amountFormatter;
     }
 
     /**
@@ -78,9 +87,11 @@ class ShippingOptionBuilder
     public function build(ShippingMethod $shippingMethod, $scope = null)
     {
         $shippingOption = $this->shippingMethodFactory->create();
-        $shippingOption->setAmount($shippingMethod->getPriceInclTax() * 100)
+        $shippingOption->setAmount($this->amountFormatter->format($shippingMethod->getPriceInclTax()))
             ->setVat(0)
-            ->setVatAmount(($shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()) * 100)
+            ->setVatAmount($this->amountFormatter->format(
+                $shippingMethod->getPriceInclTax() - $shippingMethod->getPriceExclTax()
+            ))
             ->setOperator($shippingMethod->getCarrierTitle())
             ->setOperatorProductId($shippingMethod->getMethodCode())
             ->setDeliveryMethod($this->deliveryTypeResolver->resolve($shippingMethod->getMethodCode(), $scope))
