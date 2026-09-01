@@ -1,5 +1,10 @@
 # Changelog
 
+1.8.31
+- express checkout: persist the Dintero session id on the quote payment when initiating the session;
+- shipping and discount-code callbacks now verify the request against the quote's stored Dintero session id;
+- added logging when a shipping/discount-code callback is rejected;
+
 1.8.30
 - fixed missing customer first/last name when creating an order from a transaction;
 

@@ -191,9 +191,7 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         $quote = $this->quoteFactory->create();
         $this->quoteResource->load($quote, $request->getMerchantReference(), 'reserved_order_id');
 
-        if (!$quote->getIsActive()) {
-            throw new LocalizedException(__('Quote is not valid'));
-        }
+        $this->assertValidSession($quote, $request);
 
         $couponCode = current($request->getDiscountCodes() ?? []) ?? null;
         $quote->setCouponCode($couponCode);
@@ -230,6 +228,41 @@ class ShippingCallback implements \Dintero\Checkout\Api\ShippingCallbackInterfac
         return $this->responseFactory->create()
             ->setShippingOptions($shippingOptions)
             ->setOrder($order);
+    }
+
+    /**
+     * Ensure the callback belongs to the Dintero session currently bound to the quote
+     *
+     * The shipping and discount-code callbacks are anonymous webapi endpoints keyed only by
+     * the (sequential) reserved_order_id, so we additionally require the caller to know the
+     * random Dintero session id stored on the quote payment.
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param RequestInterface $request
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function assertValidSession(\Magento\Quote\Model\Quote $quote, RequestInterface $request)
+    {
+        if (!$quote->getIsActive()) {
+            $this->logger->warning(sprintf(
+                'Dintero callback rejected: quote for merchant_reference "%s" is not active',
+                (string) $request->getMerchantReference()
+            ));
+            throw new LocalizedException(__('Quote is not valid'));
+        }
+
+        $sessionId = $quote->getPayment()->getAdditionalInformation('id');
+        if (!$sessionId || (string) $sessionId !== (string) $request->getId()) {
+            $this->logger->warning(sprintf(
+                'Dintero callback rejected: session id mismatch for merchant_reference "%s" '
+                . '(quote payment id: "%s", request id: "%s")',
+                (string) $request->getMerchantReference(),
+                (string) $sessionId,
+                (string) $request->getId()
+            ));
+            throw new LocalizedException(__('Quote is not valid'));
+        }
     }
 
     /**

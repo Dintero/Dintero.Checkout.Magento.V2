@@ -14,7 +14,6 @@ use Dintero\Checkout\Model\Api\Request\Builder\GiftCardItemBuilder;
 use Dintero\Checkout\Model\Api\Request\LineIdGenerator;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Quote;
@@ -47,6 +46,7 @@ class CouponCallback extends ShippingCallback implements \Dintero\Checkout\Api\C
      * @param RuleManagementInterface $ruleManagement
      * @param DiscountLineBuilder $discountLineBuilder
      * @param ShippingManagementInterface $shippingOptionManagement
+     * @param GiftCardItemBuilder $giftCardItemBuilder
      */
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -125,9 +125,7 @@ class CouponCallback extends ShippingCallback implements \Dintero\Checkout\Api\C
         $quote = $this->quoteFactory->create();
         $this->quoteResource->load($quote, $request->getMerchantReference(), 'reserved_order_id');
 
-        if (!$quote->getIsActive()) {
-            throw new LocalizedException(__('Quote is not valid'));
-        }
+        $this->assertValidSession($quote, $request);
 
         $couponCode = current($request->getDiscountCodes() ?? []) ?: '';
         $quote->setCouponCode($couponCode);
