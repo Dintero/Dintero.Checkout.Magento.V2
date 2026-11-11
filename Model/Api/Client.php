@@ -820,7 +820,7 @@ class Client
             }
 
             $parentOrderItem = $item->getOrderItem()->getParentItem();
-            $itemId = $parentOrderItem ? $item->getParentId() : $item->getId();
+            $itemId = $parentOrderItem ? $parentOrderItem->getId() : $orderItem->getId();
 
             if (!isset($items[$itemId])) {
                 $quoteItemId = $parentOrderItem ? $parentOrderItem->getQuoteItemId() : $orderItem->getQuoteItemId();
