@@ -1,5 +1,8 @@
 # Changelog
 
+1.8.32
+- fixed online capture/refund item grouping: items are now keyed by order item id; previously unsaved invoice items (null id) collapsed all products into a single line and caused a "null as array offset" error on PHP 8.5, and bundle children were grouped by the invoice/creditmemo id;
+
 1.8.31
 - added transaction amount and currency validation before an order is invoiced;
 - fixed error when preparing session data for a sales object without shipping or billing address;
